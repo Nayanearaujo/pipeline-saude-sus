@@ -28,7 +28,10 @@ pythonpath = ["."]
 
 [tool.coverage.run]
 source = ["."]
-omit = ["test/*", "app.py", ".venv/*"]
+# Fora da medicao: a tela (app.py, conferida no navegador) e os scripts de I/O
+# externo (baixam da internet, nao se testa com dado inventado). A cobertura
+# mede a logica do pipeline: ingestao, transformacao, marts e painel.
+omit = ["test/*", "app.py", "baixar_dados.py", "gerar_dicionarios.py", ".venv/*"]
 
 [tool.coverage.report]
 fail_under = 70

@@ -66,3 +66,33 @@ def test_rosca_regiao_uma_fatia_por_regiao():
     assert len(fig.data[0].labels) == 3
     # e um donut (tem buraco no meio)
     assert fig.data[0].hole > 0
+
+
+def test_custo_medio_uf_ordena_do_maior():
+    df = pd.DataFrame({
+        "uf": ["RJ", "SP", "MG"],
+        "custo_medio": [1000.0, 2000.0, 1500.0],
+    })
+    fig = painel.fig_custo_medio_uf(df)
+    assert list(fig.data[0].x) == [2000.0, 1500.0, 1000.0]
+
+
+def test_mapa_usa_a_coluna_da_metrica():
+    df = pd.DataFrame({
+        "uf": ["RJ", "SP"], "regiao": ["Sudeste", "Sudeste"],
+        "internacoes": [10, 20],
+    })
+    fig = painel.fig_mapa(df, "internacoes")
+    # o choropleth recebeu as 2 UFs
+    assert len(fig.data[0].locations) == 2
+
+
+def test_perfil_tem_duas_series_de_sexo():
+    df = pd.DataFrame({
+        "faixa_etaria": ["30-49", "30-49"],
+        "sexo": ["Feminino", "Masculino"],
+        "internacoes": [100, 80],
+    })
+    fig = painel.fig_perfil(df, "Brasil")
+    # barras agrupadas: uma trace por sexo
+    assert len(fig.data) == 2
