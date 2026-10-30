@@ -4,9 +4,53 @@ Testes unitarios das funcoes puras de formato e dos graficos de painel.py.
 Dado inventado, sem banco. O valor esperado sai da conta sobre a entrada, nunca
 de um numero real do SIH.
 """
+import duckdb
 import pandas as pd
+import pytest
 
 import painel
+
+
+# --- ler(): as duas fontes (duckdb local e CSV no deploy) ------------------
+def test_ler_do_duckdb_quando_ha_banco(tmp_path):
+    """Havendo sih.duckdb, ler() busca no schema ouro."""
+    banco = tmp_path / "sih.duckdb"
+    con = duckdb.connect(str(banco))
+    con.execute("CREATE SCHEMA ouro")
+    con.execute("CREATE TABLE ouro.kpis_gerais AS SELECT 7 AS internacoes")
+    con.close()
+    dados = painel.ler(marts=["kpis_gerais"], banco=str(banco))
+    assert int(dados["kpis_gerais"].iloc[0]["internacoes"]) == 7
+
+
+def test_ler_do_csv_quando_nao_ha_banco(tmp_path, monkeypatch):
+    """Sem banco, ler() cai no fallback: dados_painel/<mart>.csv (caso do deploy)."""
+    pasta = tmp_path / "dados_painel"
+    pasta.mkdir()
+    (pasta / "kpis_gerais.csv").write_text("internacoes\n9\n", encoding="utf-8")
+    # painel.ler() monta o caminho a partir da pasta do proprio modulo
+    monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
+    dados = painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
+    assert int(dados["kpis_gerais"].iloc[0]["internacoes"]) == 9
+
+
+def test_ler_sem_banco_nem_csv_erro(tmp_path, monkeypatch):
+    """Sem banco e sem CSV, ler() explica com FileNotFoundError."""
+    monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
+    with pytest.raises(FileNotFoundError):
+        painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
+
+
+def test_lidera_descreve_o_maior_e_a_participacao():
+    """lidera() aponta a maior linha e sua % do total, em padrao BR."""
+    df = pd.DataFrame({"uf": ["SP", "MG", "RJ"], "internacoes": [50, 30, 20]})
+    frase = painel.lidera(df, "uf", "internacoes")
+    assert frase == "SP lidera: 50 (50,0% do total)"
+
+
+def test_lidera_df_vazio_volta_string_vazia():
+    df = pd.DataFrame({"uf": [], "internacoes": []})
+    assert painel.lidera(df, "uf", "internacoes") == ""
 
 
 def test_reais_milhar_e_centavos():
@@ -56,11 +100,27 @@ def test_ranking_estados_ordena_do_maior():
 
 def test_top_diagnosticos_corta_em_dez():
     df = pd.DataFrame({
+        "cid": [f"C{i:03d}" for i in range(15)],
         "doenca": [f"d{i}" for i in range(15)],
         "internacoes": list(range(15, 0, -1)),
+        "valor_total": [i * 100.0 for i in range(15)],
     })
     fig = painel.fig_top_diagnosticos(df, "Brasil")
     assert len(fig.data[0].y) == 10
+
+
+def test_top_diagnosticos_nome_longo_cortado_no_eixo():
+    """Nome longo e truncado no eixo (com reticencias), mas inteiro no hover."""
+    nome_longo = "Doença com nome realmente muito comprido para o eixo caber"
+    df = pd.DataFrame({
+        "cid": ["X999"],
+        "doenca": [nome_longo],
+        "internacoes": [10],
+        "valor_total": [1234.56],
+    })
+    fig = painel.fig_top_diagnosticos(df, "Brasil")
+    assert fig.data[0].y[0].endswith("…")                  # eixo truncado
+    assert fig.data[0].customdata[0][0] == nome_longo      # hover completo
 
 
 def test_serie_diaria_um_ponto_por_dia():

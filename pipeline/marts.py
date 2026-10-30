@@ -28,6 +28,7 @@ PREFIXO = re.compile(r"^\d+_")
 
 
 def nome_tabela(arquivo: Path) -> str:
+    """Nome da tabela ouro a partir do arquivo: 01_kpis_gerais.sql -> kpis_gerais."""
     base = arquivo.stem
     if not PREFIXO.match(base):
         print(f"ERRO: arquivo sem prefixo NN_: {arquivo.name}")
@@ -36,6 +37,7 @@ def nome_tabela(arquivo: Path) -> str:
 
 
 def main():
+    """Executa cada sql/marts/*.sql como uma tabela na camada ouro, numa transacao."""
     con = conectar()
 
     existentes = {

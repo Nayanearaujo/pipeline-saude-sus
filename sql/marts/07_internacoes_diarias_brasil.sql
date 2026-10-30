@@ -3,8 +3,8 @@
 -- Consolida a serie diaria nacional. Mart separado do 05 (por UF) porque somar
 -- os estados num unico dia e agregacao, trabalho do mart e nao da tela.
 
--- Filtro de competencia abril/2026 (ver nota no mart 05): datas antigas de
--- internacoes longas esticariam o grafico e esconderiam o mes de referencia.
+-- Eixo = data de ENTRADA (ver nota no mart 05). Serie so das entradas de
+-- abril/2026, que NAO soma o total dos KPIs (esse e por competencia).
 SELECT
     data_internacao             AS dia,
     COUNT(*)                    AS internacoes,

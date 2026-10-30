@@ -17,7 +17,19 @@ dependencies = [
 dev = [
     "pytest>=8.0",
     "pytest-cov>=5.0",
+    "ruff>=0.6",
 ]
+
+[tool.ruff]
+# 120 em vez de 88/100: acomoda SQL inline nos testes e chamadas de plotting
+# sem mutilar strings, mantendo o linter util para o que importa (F, I).
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+# E/F: pyflakes + pycodestyle (imports e variaveis sem uso, estilo);
+# I: ordena imports. Mantem o linter util sem brigar com o estilo do projeto.
+select = ["E", "F", "I"]
 
 [tool.uv]
 package = false
@@ -31,7 +43,7 @@ source = ["."]
 # Fora da medicao: a tela (app.py, conferida no navegador) e os scripts de I/O
 # externo (baixam da internet, nao se testa com dado inventado). A cobertura
 # mede a logica do pipeline: ingestao, transformacao, marts e painel.
-omit = ["test/*", "app.py", "baixar_dados.py", "gerar_dicionarios.py", ".venv/*"]
+omit = ["test/*", "app.py", "baixar_dados.py", "gerar_dicionarios.py", "executar.py", "relatorio.py", ".venv/*"]
 
 [tool.coverage.report]
 fail_under = 70

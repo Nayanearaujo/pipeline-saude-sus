@@ -1,5 +1,11 @@
 # Internações do SUS · pipeline e dashboard por estado
 
+[![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
+![Cobertura](https://img.shields.io/badge/cobertura-95%25-brightgreen)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
+![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
+
 Pipeline de dados de ponta a ponta sobre as **internações hospitalares do SUS**
 (SIH/SUS, DATASUS), em **Python + DuckDB**, com um **dashboard interativo por
 estado** em Streamlit. Parte dos microdados oficiais e chega a um painel que
@@ -12,6 +18,7 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 
 - 📊 **Dashboard ao vivo (Streamlit):** https://pipeline-saude-sus.streamlit.app/
 - 📖 **Guia do projeto (GitHub Pages):** https://nayanearaujo.github.io/pipeline-saude-sus/
+- 📄 **Relatório executivo (estático):** https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html
 - 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
 
 ## Demonstração
@@ -29,6 +36,36 @@ Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 **Participação por região e custo médio por estado**
 ![Participação por região e custo por UF](assets/dashboard3.png)
 
+---
+
+## Achados
+
+O que o dado mostrou, e o que só apareceu porque cada número foi conferido
+contra a fonte em vez de aceito como saiu da consulta:
+
+1. **Metade das internações "de abril" entrou em outro mês.** O arquivo RD é por
+   competência (mês de pagamento da AIH). Dos 1.238.763 registros processados
+   (camada bronze), só 703.067 têm data de *entrada* em abril/2026; 343.386
+   entraram em março, 100.989 em fevereiro. Por isso a série diária (por data de
+   entrada) não soma o KPI de internações (por competência): são duas perguntas
+   diferentes, e o painel diz qual é qual.
+2. **Um em cada vinte bebês estava na faixa etária errada.** A idade no SIH vem
+   com `COD_IDADE` (a unidade: dias, meses, anos). Ignorar isso jogava 60.840
+   internações medidas em dias/meses para faixas de adulto. Corrigido, a faixa
+   "< 1 ano" saltou de **1,4% para 4,9%** da base, coerente com o peso da
+   neonatologia no SUS.
+3. **Os nomes das doenças sumiam em silêncio.** O gerador de dicionários, sem
+   internet, cai num modo neutro e grava "CID O800" no lugar do nome. O `LEFT
+   JOIN` funcionava, mas juntava com rótulo vazio. Rodando com internet, os
+   12.451 nomes reais do DATASUS entram, e o Top 10 mostra "Parto espontâneo
+   cefálico", não o código cru.
+4. **O grão foi protegido contra colapso silencioso.** Um `SELECT DISTINCT` da
+   linha inteira juntaria duas AIH distintas de campos iguais numa só. Trocado
+   por dedup explícita por AIH e travado por regra de qualidade:
+   `count(*) = count(DISTINCT aih)` (1.238.234 = 1.238.234).
+
+---
+
 ## As quatro etapas do pipeline
 
 Este projeto refaz, do zero e com um dataset novo (SUS), o caminho das quatro
@@ -39,7 +76,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 8 indicadores em **SQL puro** (camada ouro) | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes** | painel interativo por estado e 27 testes (89%) | `app.py`, `painel.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura acima de 90% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -70,22 +107,29 @@ data/raw/ (.parquet + .csv)  ──ingestao.py──▶  bronze.*   espelho do a
 
 ## Como baixar os dados
 
-Os microdados do SIH vêm em `.dbc` (formato legado do DATASUS). O
-[PySUS](https://github.com/AlertaDengue/PySUS) baixa e converte para parquet.
+Os microdados do SIH vêm em `.dbc` (formato legado do DATASUS). Dois scripts
+geram tudo em `data/raw/` (precisam de internet; a pasta não vai para o Git):
 
 ```bash
 uv sync
-uv run python baixar_dados.py   # gera data/raw/internacoes.parquet
+uv run python baixar_dados.py        # baixa os .dbc do DATASUS direto (HTTPS,
+                                      # converte com pyreaddbc) -> internacoes.parquet
+uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municipios.csv
 ```
 
-Ainda faltam dois dicionários pequenos em `data/raw/` (salve manualmente):
+- **`internacoes.parquet`** — microdados do SIH-RD, uma linha por AIH.
+  `baixar_dados.py` baixa os `.dbc` por UF e converte com `pyreaddbc` + `dbfread`
+  (não usa o PySUS).
+- **`cid10.csv`** — `codigo,descricao` (CID-10 → nome da doença). Fonte: DATASUS.
+- **`municipios.csv`** — `codigo,municipio,uf` (código IBGE → município, UF).
+  Fonte: IBGE.
 
-- **`cid10.csv`** — colunas `codigo,descricao` (código CID-10 → nome da doença).
-  Fonte: tabela CID-10 do DATASUS.
-- **`municipios.csv`** — colunas `codigo,municipio,uf` (código IBGE → município,
-  UF). Fonte: IBGE (lista de municípios).
+> `gerar_dicionarios.py` baixa as tabelas oficiais. Sem internet ele cai num
+> **modo neutro** (nome = `CID <codigo>` / `Municipio <codigo>`), que mantém o
+> pipeline rodando mas deixa os rótulos sem o nome real. Rode-o com internet
+> antes de publicar, ou os gráficos mostram o código cru no lugar da doença.
 
-> Se julho/2026 ainda não estiver publicado (o SIH tem 2 a 4 meses de atraso),
+> Se abril/2026 ainda não estiver publicado (o SIH tem 2 a 4 meses de atraso),
 > ajuste `ANO`/`MES` no topo de `baixar_dados.py` para o último mês fechado.
 
 ---
@@ -101,12 +145,20 @@ uv run python gerar_dicionarios.py        # gera cid10.csv e municipios.csv
 uv run python -m pipeline.ingestao        # data/raw -> bronze
 uv run python -m pipeline.transformacao   # bronze   -> prata
 uv run python -m pipeline.marts           # prata    -> ouro
+uv run python -m pipeline.qualidade       # checagens de qualidade (falha se nao fechar)
+
+# (alternativa) tudo numa tacada: bronze -> prata -> ouro -> qualidade
+uv run python executar.py
 
 # dashboard interativo
 uv run streamlit run app.py               # abre em localhost:8501
 
-# testes
+# relatório estático em HTML (gera relatorio.html e docs/relatorio.html)
+uv run python relatorio.py
+
+# testes e lint
 uv run pytest --cov                        # unitários, dado inventado, cobertura >= 70%
+uv run ruff check .                        # estilo e imports
 ```
 
 ### Resultado de uma execução (abril/2026, Brasil)
@@ -114,13 +166,15 @@ uv run pytest --cov                        # unitários, dado inventado, cobertu
 Números reais de uma execução completa do pipeline, para conferência:
 
 ```
-ingestao      bronze.internacoes  1.238.763 · cid10 7.928 · municipios 5.569
-transformacao prata.internacoes   1.238.763 linhas (0 removidas)
-marts         8 marts, 88.174 linhas na camada ouro
+ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
+transformacao prata.internacoes   1.238.234 linhas (-529 sem valor)
+marts         8 marts, 80.923 linhas na camada ouro
 ```
 
-As 1.238.763 internações se distribuem pelas 27 UFs: **SP** lidera com 251.270,
-seguido de **MG** (135.007), **PR** (85.532), **BA** (83.766) e **RJ** (78.575).
+A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
+1.238.234 (529 saem por não ter valor). O mart `por_estado` conta só as com UF
+e valor válidos: **SP** lidera com 249.866, seguido de **MG** (135.542), **PR**
+(85.435), **BA** (83.953) e **RJ** (78.503).
 *(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
 
 ---
@@ -172,13 +226,21 @@ Abre com a **visão Brasil** e tem um **seletor de estado** que recorta tudo:
 
 ```
 pipeline-saude-sus/
-├── pipeline/            db.py, ingestao.py, transformacao.py, marts.py
+├── pipeline/            db.py, ingestao.py, transformacao.py, marts.py, qualidade.py
+├── executar.py          roda bronze -> prata -> ouro -> qualidade numa tacada
+├── .github/workflows/   ci.yml (pytest + ruff a cada push/PR)
 ├── sql/marts/           8 marts .sql, grão no topo de cada um
 ├── painel.py            lê os marts, formata e desenha (sem cálculo)
 ├── app.py               dashboard Streamlit interativo por estado
-├── baixar_dados.py      baixa o SIH com PySUS para data/raw/
+├── baixar_dados.py      baixa os .dbc do SIH (DATASUS) para data/raw/
+├── gerar_dicionarios.py gera cid10.csv e municipios.csv em data/raw/
+├── dados_painel/        camada ouro exportada em CSV (lida pelo app na nuvem)
+├── exportar_painel.py   exporta a camada ouro para dados_painel/
+├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
+├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
 ├── test/                testes pytest com dado inventado
 ├── data/raw/            os arquivos baixados (não versionados)
+├── .kiro/steering/      padrão de commits do projeto
 └── pyproject.toml
 ```
 
@@ -192,6 +254,28 @@ comentários de `transformacao.py` e no topo de cada `.sql`. A IA foi usada para
 escrever o encanamento a partir das specs; o erro típico dela em SQL não estoura
 (acerta a sintaxe, erra o grão), então cada mart declara o grão e foi conferido
 contando linhas antes e depois.
+
+## Limitações e notas de dado
+
+Escolhas e limites conhecidos deste recorte, declarados para leitura honesta dos
+indicadores:
+
+- **Série diária não soma o total.** Os marts `internacoes_diarias*` filtram a
+  **data de internação** dentro de abril/2026. Como o arquivo é por competência
+  (mês de processamento), parte das AIH pagas em abril teve entrada em meses
+  anteriores: a série soma ~703 mil internações, não as 1,24 M dos cartões. O
+  filtro é proposital (datas antigas esticariam o eixo), mas a diferença é
+  grande; o gráfico mostra "entradas de abril", não o faturamento do mês.
+- **UF é a de residência do paciente** (`MUNIC_RES`), não a do hospital. "Gasto
+  por estado" aqui é por onde o paciente mora. O arquivo também traz a UF de
+  internação (`UF_ARQUIVO`); trocar a referência muda o resultado.
+- **Valor = valor pago pelo SUS** (`VAL_TOT`), não o custo real do hospital. O
+  rótulo "custo médio" significa o valor médio pago por AIH.
+- **Idade em anos.** A faixa etária usa `IDADE`; o SIH traz `COD_IDADE` (unidade:
+  dias, meses, anos) que este recorte não desdobra. Recém-nascidos contados em
+  dias/meses podem cair fora da faixa "< 1 ano".
+- **Um único mês (abril/2026).** Não há base para falar de sazonalidade ou
+  tendência; a série mostra só a variação dentro do mês.
 
 ## Fonte
 

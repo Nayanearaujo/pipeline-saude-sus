@@ -4,9 +4,11 @@
 -- paciente entrou), nao a de saida. Dias sem internacao simplesmente nao
 -- aparecem (o grafico liga os pontos existentes).
 
--- Filtro de competencia: o recorte e abril/2026. O SIH guarda a data de
--- entrada do paciente, e internacoes longas (ou erro de digitacao) trazem datas
--- de anos anteriores, que esticariam o grafico. Mantemos so o mes de referencia.
+-- Eixo = data de ENTRADA do paciente. O arquivo RD e por competencia (mes de
+-- processamento/pagamento da AIH): boa parte das AIH pagas em abril/2026 teve
+-- entrada em meses anteriores. Por isso esta serie (so entradas de abril) NAO
+-- soma o total de internacoes dos KPIs (que e por competencia): a diferenca e
+-- grande e proposital. O filtro recorta abril para o grafico ler o mes atual.
 SELECT
     uf,
     data_internacao                 AS dia,
