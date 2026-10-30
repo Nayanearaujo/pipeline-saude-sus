@@ -85,7 +85,7 @@
       <span class="pill">Streamlit</span>
       <span class="pill">pytest · cobertura &gt; 90%</span>
       <span class="pill">CI (GitHub Actions)</span>
-      <span class="pill">1.238.763 internações</span>
+      <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
     </div>
   </div>
@@ -102,11 +102,12 @@
 
     <div class="fluxo">
       <b>raw (.dbc)</b> → ingestao.py → <b>bronze.*</b> → transformacao.py →
-      <b>prata.*</b> → marts.py + SQL → <b>ouro.*</b> → painel.py → <b>dashboard</b>
+      <b>prata.*</b> → marts.py + SQL → <b>ouro.*</b> → painel.py →
+      <b>dashboard</b> + <b>relatório HTML</b>
     </div>
 
     <div class="kpis">
-      <div class="kpi"><div class="rot">Internações (abril/2026)</div><div class="val">1.238.763</div></div>
+      <div class="kpi"><div class="rot">Internações (abril/2026)</div><div class="val">1.238.234</div></div>
       <div class="kpi"><div class="rot">Gasto total</div><div class="val">R$ 2,26 bi</div></div>
       <div class="kpi"><div class="rot">Custo médio</div><div class="val">R$ 1.824</div></div>
       <div class="kpi"><div class="rot">Permanência média</div><div class="val">4,8 dias</div></div>
@@ -139,8 +140,9 @@
       <p>Baixo os arquivos do DATASUS (27 UFs), converto de <code>.dbc</code> para
       um parquet único e gravo no schema <code>bronze</code> com todas as colunas
       como texto. Regra da camada: nenhuma conversão, nenhuma linha descartada.</p>
-      <p><strong>Conferência:</strong> a ingestão termina em <strong>1.252.260
-      registros</strong> nas três tabelas (1.238.763 internações + CID-10 + municípios).</p>
+      <p><strong>Conferência:</strong> a ingestão termina em <strong>1.256.785
+      registros</strong> nas três tabelas (1.238.763 internações + 12.451 CID-10 +
+      5.571 municípios).</p>
     </div>
   </section>
 
