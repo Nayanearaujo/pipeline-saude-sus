@@ -37,11 +37,20 @@ MARTS = [
     "perfil_demografico_brasil",
 ]
 
-# Paleta: uma cor base (verde saude) e uma escala continua para o mapa.
-COR = "#1a6b52"
-ESCALA = "Greens"
-# Paleta qualitativa para graficos categoricos (rosca, barras por grupo).
-PALETA = ["#1a6b52", "#2e9e74", "#5cc99a", "#a86e05", "#e0a800", "#7d8d88"]
+# Paleta suave: verde-agua claro como cor base, escala continua leve para o
+# mapa (nao cansa a vista). Tons pastel, puxando do verde ao azul.
+COR = "#5bb6a6"           # verde-agua medio, suave
+ESCALA = "Teal"           # escala continua verde->azul suave para o mapa
+# Paleta qualitativa (rosca, varias categorias): tons claros e harmonicos.
+PALETA = ["#7fcbbd", "#9fd6c6", "#5bb6a6", "#cbe8df", "#f0c674", "#b7c4c0"]
+
+# Cor por sexo: feminino em verde-bebe puxando ao azul; masculino em verde
+# claro, menos escuro. Pedido para nao cansar a vista.
+COR_SEXO = {
+    "Feminino": "#8fcfe0",        # verde-agua/azul bebe
+    "Masculino": "#8fd4b8",       # verde claro suave
+    "nao informado": "#c9d3cf",
+}
 
 
 def _layout(fig, titulo: str):
@@ -166,7 +175,7 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
     serie = df.sort_values("dia")
     fig = px.line(serie, x="dia", y="internacoes", markers=True)
     fig.update_traces(line_color=COR, marker_color=COR, line_width=2,
-                      fill="tozeroy", fillcolor="rgba(26,107,82,0.08)")
+                      fill="tozeroy", fillcolor="rgba(91,182,166,0.12)")
     fig.update_layout(xaxis_title="dia", yaxis_title="internações")
     return _layout(fig, f"Internações por dia · {rotulo}")
 
@@ -177,7 +186,7 @@ def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
     fig = px.bar(
         df, x="faixa_etaria", y="internacoes", color="sexo", barmode="group",
         category_orders={"faixa_etaria": ordem},
-        color_discrete_sequence=PALETA,
+        color_discrete_map=COR_SEXO,
     )
     fig.update_layout(xaxis_title="faixa etária", yaxis_title="internações")
     return _layout(fig, f"Perfil por faixa etária e sexo · {rotulo}")
