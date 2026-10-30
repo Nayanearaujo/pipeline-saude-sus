@@ -1,6 +1,10 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
+![Cobertura](https://img.shields.io/badge/cobertura-95%25-brightgreen)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
+![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
 
 Pipeline de dados de ponta a ponta sobre as **internações hospitalares do SUS**
 (SIH/SUS, DATASUS), em **Python + DuckDB**, com um **dashboard interativo por
@@ -23,10 +27,11 @@ O que o dado mostrou, e o que só apareceu porque cada número foi conferido
 contra a fonte em vez de aceito como saiu da consulta:
 
 1. **Metade das internações "de abril" entrou em outro mês.** O arquivo RD é por
-   competência (mês de pagamento da AIH). Dos 1.238.763 registros, só 703.067
-   têm data de *entrada* em abril/2026; 343.386 entraram em março, 100.989 em
-   fevereiro. Por isso a série diária (por data de entrada) não soma o KPI (por
-   competência): são duas perguntas diferentes, e o painel diz qual é qual.
+   competência (mês de pagamento da AIH). Dos 1.238.763 registros processados
+   (camada bronze), só 703.067 têm data de *entrada* em abril/2026; 343.386
+   entraram em março, 100.989 em fevereiro. Por isso a série diária (por data de
+   entrada) não soma o KPI de internações (por competência): são duas perguntas
+   diferentes, e o painel diz qual é qual.
 2. **Um em cada vinte bebês estava na faixa etária errada.** A idade no SIH vem
    com `COD_IDADE` (a unidade: dias, meses, anos). Ignorar isso jogava 60.840
    internações medidas em dias/meses para faixas de adulto. Corrigido, a faixa
@@ -214,8 +219,11 @@ pipeline-saude-sus/
 ├── gerar_dicionarios.py gera cid10.csv e municipios.csv em data/raw/
 ├── dados_painel/        camada ouro exportada em CSV (lida pelo app na nuvem)
 ├── exportar_painel.py   exporta a camada ouro para dados_painel/
+├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
+├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
 ├── test/                testes pytest com dado inventado
 ├── data/raw/            os arquivos baixados (não versionados)
+├── .kiro/steering/      padrão de commits do projeto
 └── pyproject.toml
 ```
 
