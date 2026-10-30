@@ -54,25 +54,34 @@ def _baixar_dbc(nome: str) -> bytes | None:
 
 
 def _dbc_para_df(conteudo: bytes, nome: str):
-    """Converte bytes de um .dbc em DataFrame usando pyreaddbc."""
-    import pyreaddbc
+    """Converte bytes de um .dbc em DataFrame.
 
-    tmp = RAW / nome
-    tmp.write_bytes(conteudo)
+    O pyreaddbc converte .dbc -> .dbf (funcao dbc2dbf); o .dbf vira DataFrame
+    com dbfread. Esse e o caminho estavel entre as versoes do pyreaddbc."""
+    import pandas as pd
+    import pyreaddbc
+    from dbfread import DBF
+
+    caminho_dbc = RAW / nome
+    caminho_dbf = RAW / (nome[:-4] + ".dbf")
+    caminho_dbc.write_bytes(conteudo)
     try:
-        # pyreaddbc.read_dbc le direto para DataFrame
-        return pyreaddbc.read_dbc(str(tmp), encoding="latin-1")
+        pyreaddbc.dbc2dbf(str(caminho_dbc), str(caminho_dbf))
+        registros = DBF(str(caminho_dbf), encoding="latin-1", load=True)
+        return pd.DataFrame(iter(registros))
     finally:
-        tmp.unlink(missing_ok=True)
+        caminho_dbc.unlink(missing_ok=True)
+        caminho_dbf.unlink(missing_ok=True)
 
 
 def main():
     try:
-        import pandas as pd
+        import pandas as pd  # noqa: F401
         import pyreaddbc  # noqa: F401
+        from dbfread import DBF  # noqa: F401
     except Exception as e:  # noqa: BLE001
         print(f"ERRO: falta uma biblioteca ({e}).")
-        print("Instale com: uv add pyreaddbc pandas")
+        print("Instale com: uv add pyreaddbc dbfread pandas")
         sys.exit(1)
 
     ufs = UFS if UFS is not None else TODAS_UFS
