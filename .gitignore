@@ -1,0 +1,23 @@
+# dados brutos e banco (nao versionar: sao grandes e reproduziveis)
+data/raw/*.dbc
+data/raw/*.parquet
+data/raw/*.csv
+data/raw/*.csv.gz
+*.duckdb
+*.duckdb.wal
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# dashboard
+relatorio.html
+
+# so/editor
+.DS_Store
+.vscode/

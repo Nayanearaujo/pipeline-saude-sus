@@ -1,0 +1,33 @@
+[project]
+name = "pipeline-saude-sus"
+version = "0.1.0"
+description = "Pipeline das internacoes hospitalares do SUS (SIH): do .dbc ao dashboard por estado."
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.0",
+    "pandas>=2.0",
+    "pysus>=0.15",
+    "streamlit>=1.30",
+    "plotly>=5.18",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["test/*", "app.py", ".venv/*"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
