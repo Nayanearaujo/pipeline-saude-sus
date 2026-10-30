@@ -84,3 +84,15 @@ def test_sexo_feminino_e_sem_obito(tmp_path, monkeypatch):
     con.close()
     assert sexo == "Feminino"   # codigo '3'
     assert morte is False       # codigo '0'
+
+
+def test_grao_uma_linha_por_aih(tmp_path, monkeypatch):
+    """O grao da prata e 1 linha por AIH: count(*) == count(DISTINCT aih)."""
+    banco = _preparar(tmp_path, monkeypatch)
+    transformacao.main()
+    con = duckdb.connect(str(banco))
+    total, distintas = con.execute(
+        "SELECT count(*), count(DISTINCT aih) FROM prata.internacoes"
+    ).fetchone()
+    con.close()
+    assert total == distintas

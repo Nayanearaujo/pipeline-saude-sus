@@ -4,8 +4,8 @@ Etapa 2: transformacao (bronze -> prata).
 Pega a tabela-fato de internacoes (SIH-RD) e os dois dicionarios, da a cada
 coluna o tipo do que ela realmente e, decodifica os codigos cripticos do SIH
 (sexo, UF, morte) e renomeia tudo para portugues legivel. Uma linha = uma
-internacao (AIH). Mantem os dicionarios como tabelas de apoio para o JOIN da
-camada ouro.
+internacao (AIH): a dedup e por aih (QUALIFY), nao DISTINCT da linha inteira.
+Mantem os dicionarios como tabelas de apoio para o JOIN da camada ouro.
 
 Decisoes de dado (resumo; cada uma com o motivo no codigo):
 - Valor (VAL_TOT) vira DECIMAL(12,2): e dinheiro, nunca DOUBLE.
@@ -55,7 +55,10 @@ def _tabela_ufs(con):
 SQL_INTERNACOES = """
 CREATE OR REPLACE TABLE prata.internacoes AS
 WITH base AS (
-    SELECT DISTINCT
+    -- Grao: 1 linha = 1 AIH. Dedup explicita por aih (QUALIFY), nao DISTINCT da
+    -- linha inteira: duas AIH distintas com todos os campos iguais nao podem
+    -- colapsar numa so. Fica a primeira ocorrencia de cada aih.
+    SELECT
         CAST(N_AIH AS VARCHAR)                             AS aih,
         substr(CAST(MUNIC_RES AS VARCHAR), 1, 6)           AS cod_municipio,
         substr(CAST(MUNIC_RES AS VARCHAR), 1, 2)           AS cod_uf,
@@ -72,6 +75,7 @@ WITH base AS (
         TRY_CAST(strptime(CAST(DT_INTER AS VARCHAR), '%Y%m%d') AS DATE) AS data_internacao,
         TRY_CAST(strptime(CAST(DT_SAIDA AS VARCHAR), '%Y%m%d') AS DATE) AS data_saida
     FROM bronze.internacoes
+    QUALIFY row_number() OVER (PARTITION BY CAST(N_AIH AS VARCHAR) ORDER BY 1) = 1
 )
 SELECT
     b.aih,
@@ -112,6 +116,7 @@ FROM bronze.municipios
 
 
 def main():
+    """Transforma a bronze na prata: tipa, decodifica os códigos do SIH e renomeia."""
     con = conectar()
     criar_schema(con, "prata")
 
