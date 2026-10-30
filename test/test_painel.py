@@ -4,9 +4,41 @@ Testes unitarios das funcoes puras de formato e dos graficos de painel.py.
 Dado inventado, sem banco. O valor esperado sai da conta sobre a entrada, nunca
 de um numero real do SIH.
 """
+import duckdb
 import pandas as pd
+import pytest
 
 import painel
+
+
+# --- ler(): as duas fontes (duckdb local e CSV no deploy) ------------------
+def test_ler_do_duckdb_quando_ha_banco(tmp_path):
+    """Havendo sih.duckdb, ler() busca no schema ouro."""
+    banco = tmp_path / "sih.duckdb"
+    con = duckdb.connect(str(banco))
+    con.execute("CREATE SCHEMA ouro")
+    con.execute("CREATE TABLE ouro.kpis_gerais AS SELECT 7 AS internacoes")
+    con.close()
+    dados = painel.ler(marts=["kpis_gerais"], banco=str(banco))
+    assert int(dados["kpis_gerais"].iloc[0]["internacoes"]) == 7
+
+
+def test_ler_do_csv_quando_nao_ha_banco(tmp_path, monkeypatch):
+    """Sem banco, ler() cai no fallback: dados_painel/<mart>.csv (caso do deploy)."""
+    pasta = tmp_path / "dados_painel"
+    pasta.mkdir()
+    (pasta / "kpis_gerais.csv").write_text("internacoes\n9\n", encoding="utf-8")
+    # painel.ler() monta o caminho a partir da pasta do proprio modulo
+    monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
+    dados = painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
+    assert int(dados["kpis_gerais"].iloc[0]["internacoes"]) == 9
+
+
+def test_ler_sem_banco_nem_csv_erro(tmp_path, monkeypatch):
+    """Sem banco e sem CSV, ler() explica com FileNotFoundError."""
+    monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
+    with pytest.raises(FileNotFoundError):
+        painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
 
 
 def test_reais_milhar_e_centavos():
