@@ -58,6 +58,33 @@ def test_mart_vazio_encerra(tmp_path, monkeypatch):
         marts.main()
 
 
+def test_falta_tabela_prata_encerra(tmp_path, monkeypatch):
+    """Se uma tabela esperada da prata nao existir, o executor para antes de rodar."""
+    banco, pasta = _preparar(tmp_path, monkeypatch)
+    con = duckdb.connect(str(banco))
+    con.execute("DROP TABLE prata.cid10")  # derruba uma das 4 exigidas
+    con.close()
+    (pasta / "00_x.sql").write_text("SELECT 1 AS x", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        marts.main()
+
+
+def test_dois_arquivos_mesma_tabela_encerra(tmp_path, monkeypatch):
+    """Dois .sql que geram o mesmo nome de tabela ouro param o executor."""
+    _, pasta = _preparar(tmp_path, monkeypatch)
+    (pasta / "01_kpis.sql").write_text("SELECT 1 AS x", encoding="utf-8")
+    (pasta / "02_kpis.sql").write_text("SELECT 2 AS y", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        marts.main()
+
+
+def test_sem_nenhum_sql_encerra(tmp_path, monkeypatch):
+    """Pasta de marts vazia: nao ha o que executar, encerra."""
+    _preparar(tmp_path, monkeypatch)  # pasta criada, mas sem .sql
+    with pytest.raises(SystemExit):
+        marts.main()
+
+
 def test_arquivo_apagado_faz_mart_sumir(tmp_path, monkeypatch):
     banco, pasta = _preparar(tmp_path, monkeypatch)
     arq = pasta / "00_teste.sql"

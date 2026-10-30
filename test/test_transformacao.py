@@ -11,17 +11,21 @@ from pipeline import db, transformacao
 
 def _bronze_minimo(con):
     con.execute("CREATE SCHEMA bronze")
-    # 3 internacoes:
-    #   a1: RJ (munic 330455), homem, obito, R$ 1.500,50, 5 dias, 40 anos
-    #   a2: SP (munic 355030), mulher, sem obito, R$ 800,00, 2 dias, 30 anos
+    # 5 internacoes (a coluna COD_IDADE e a unidade da idade no SIH):
+    #   a1: RJ, homem, obito, R$ 1.500,50, 5 dias, 40 anos (COD_IDADE 4)
+    #   a2: SP, mulher, sem obito, R$ 800,00, 2 dias, 30 anos (COD_IDADE 4)
     #   a3: valor nulo -> deve ser descartada (WHERE valor_total IS NOT NULL)
+    #   a4: bebe de 5 MESES (IDADE 5, COD_IDADE 3) -> idade em anos tem que ser 0
+    #   a5: centenario (IDADE 2, COD_IDADE 5) -> idade em anos tem que ser 102
     con.execute("""
         CREATE TABLE bronze.internacoes AS SELECT * FROM (VALUES
-            ('a1','330455','A001','0303010011','1500.50','5','40','1','1','20260701','20260706'),
-            ('a2','355030','B002','0303010022', '800.00','2','30','3','0','20260702','20260704'),
-            ('a3','330455','A001','0303010011',     NULL,'1','50','1','0','20260703','20260704')
+            ('a1','330455','A001','0303010011','1500.50','5','40','4','1','1','20260701','20260706'),
+            ('a2','355030','B002','0303010022', '800.00','2','30','4','3','0','20260702','20260704'),
+            ('a3','330455','A001','0303010011',     NULL,'1','50','4','1','0','20260703','20260704'),
+            ('a4','330455','P001','0303010033', '400.00','3', '5','3','1','0','20260704','20260707'),
+            ('a5','355030','I001','0303010044', '900.00','4', '2','5','3','0','20260705','20260709')
         ) AS t(N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, VAL_TOT, DIAS_PERM,
-               IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA)
+               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA)
     """)
     con.execute("""
         CREATE TABLE bronze.cid10 AS SELECT * FROM (VALUES
@@ -50,7 +54,7 @@ def test_valor_nulo_e_descartado(tmp_path, monkeypatch):
     con = duckdb.connect(str(banco))
     n = con.execute("SELECT count(*) FROM prata.internacoes").fetchone()[0]
     con.close()
-    assert n == 2  # entraram 3, a de valor nulo saiu
+    assert n == 4  # entraram 5, so a de valor nulo (a3) saiu
 
 
 def test_decodifica_sexo_uf_morte_e_tipos(tmp_path, monkeypatch):
@@ -96,3 +100,35 @@ def test_grao_uma_linha_por_aih(tmp_path, monkeypatch):
     ).fetchone()
     con.close()
     assert total == distintas
+
+
+def test_idade_em_anos_respeita_cod_idade(tmp_path, monkeypatch):
+    """COD_IDADE e a unidade: bebe em meses vira 0 ano, centenario soma 100.
+
+    a4 = IDADE 5, COD_IDADE 3 (meses) -> 0 anos (menos de 1 ano).
+    a5 = IDADE 2, COD_IDADE 5 (anos 100+) -> 102 anos.
+    a1 = IDADE 40, COD_IDADE 4 (anos) -> 40 anos (caso comum, inalterado)."""
+    banco = _preparar(tmp_path, monkeypatch)
+    transformacao.main()
+    con = duckdb.connect(str(banco))
+    idades = dict(con.execute(
+        "SELECT aih, idade FROM prata.internacoes"
+    ).fetchall())
+    con.close()
+    assert idades["a4"] == 0     # 5 meses -> 0 ano
+    assert idades["a5"] == 102   # 2 + 100 (centenario)
+    assert idades["a1"] == 40    # anos, sem mexer
+
+
+def test_dicionarios_tipados_e_renomeados(tmp_path, monkeypatch):
+    """cid10 e municipios viram tabelas de apoio com as colunas renomeadas."""
+    banco = _preparar(tmp_path, monkeypatch)
+    transformacao.main()
+    con = duckdb.connect(str(banco))
+    cid_cols = [r[0] for r in con.execute("DESCRIBE prata.cid10").fetchall()]
+    mun_cols = [r[0] for r in con.execute("DESCRIBE prata.municipios").fetchall()]
+    n_cid = con.execute("SELECT count(*) FROM prata.cid10").fetchone()[0]
+    con.close()
+    assert cid_cols == ["cid", "doenca"]
+    assert mun_cols == ["cod_municipio", "municipio", "uf"]
+    assert n_cid == 2
