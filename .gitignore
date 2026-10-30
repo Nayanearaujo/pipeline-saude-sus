@@ -22,3 +22,6 @@ htmlcov/
 # so/editor
 .DS_Store
 .vscode/
+
+# ferramentas locais do agente (nao fazem parte do projeto)
+.agents/
