@@ -88,11 +88,27 @@ def test_ranking_estados_ordena_do_maior():
 
 def test_top_diagnosticos_corta_em_dez():
     df = pd.DataFrame({
+        "cid": [f"C{i:03d}" for i in range(15)],
         "doenca": [f"d{i}" for i in range(15)],
         "internacoes": list(range(15, 0, -1)),
+        "valor_total": [i * 100.0 for i in range(15)],
     })
     fig = painel.fig_top_diagnosticos(df, "Brasil")
     assert len(fig.data[0].y) == 10
+
+
+def test_top_diagnosticos_nome_longo_cortado_no_eixo():
+    """Nome longo e truncado no eixo (com reticencias), mas inteiro no hover."""
+    nome_longo = "Doença com nome realmente muito comprido para o eixo caber"
+    df = pd.DataFrame({
+        "cid": ["X999"],
+        "doenca": [nome_longo],
+        "internacoes": [10],
+        "valor_total": [1234.56],
+    })
+    fig = painel.fig_top_diagnosticos(df, "Brasil")
+    assert fig.data[0].y[0].endswith("…")                  # eixo truncado
+    assert fig.data[0].customdata[0][0] == nome_longo      # hover completo
 
 
 def test_serie_diaria_um_ponto_por_dia():

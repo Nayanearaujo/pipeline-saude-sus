@@ -80,7 +80,10 @@ COR_SEXO = {
 
 
 def _layout(fig, titulo: str):
-    """Aplica um visual consistente a qualquer figura: titulo, fonte, margens."""
+    """Aplica um visual consistente a qualquer figura: titulo, fonte, margens.
+
+    separators=',.' deixa todo numero no padrao BR (ponto de milhar, virgula
+    decimal) tanto nos rotulos quanto no hover, sem depender do locale."""
     fig.update_layout(
         title=dict(text=titulo, font=dict(size=16, family="Arial", color="#10171a")),
         font=dict(family="Arial", size=13, color="#39474a"),
@@ -88,6 +91,7 @@ def _layout(fig, titulo: str):
         plot_bgcolor="white",
         margin=dict(l=10, r=10, t=52, b=10),
         title_x=0.02,
+        separators=",.",
     )
     fig.update_xaxes(showgrid=True, gridcolor="#eef1ee", zeroline=False)
     fig.update_yaxes(showgrid=True, gridcolor="#eef1ee", zeroline=False)
@@ -166,8 +170,12 @@ def pct(valor: float, casas: int = 1) -> str:
 # ---------------------------------------------------------------------------
 # Graficos: uma funcao por grafico. Nenhuma agrega; o dado ja vem do mart.
 # ---------------------------------------------------------------------------
-def _barh(df: pd.DataFrame, x: str, y: str, titulo: str) -> go.Figure:
-    """Barras horizontais, maior em cima, com visual consistente."""
+def _barh(df: pd.DataFrame, x: str, y: str, titulo: str,
+          hovertemplate: str | None = None) -> go.Figure:
+    """Barras horizontais, maior em cima, com visual consistente.
+
+    Numeros no padrao BR (ponto de milhar) via separators=',.'; hover opcional
+    para um rotulo mais rico do que o padrao do plotly."""
     fig = px.bar(df, x=x, y=y, orientation="h", text=x)
     fig.update_traces(
         marker_color=COR,
@@ -176,16 +184,26 @@ def _barh(df: pd.DataFrame, x: str, y: str, titulo: str) -> go.Figure:
         textfont=dict(size=11, color="#39474a"),
         cliponaxis=False,
     )
+    if hovertemplate is not None:
+        fig.update_traces(hovertemplate=hovertemplate)
     fig = _layout(fig, titulo)
-    # margem direita extra para o maior rotulo nao cortar; eixo x limpo
-    fig.update_layout(yaxis=dict(autorange="reversed"), margin=dict(l=10, r=60, t=52, b=10))
+    # margem direita extra para o maior rotulo nao cortar; eixo x limpo.
+    # separators=',.' faz o plotly usar '.' para milhar e ',' para decimal (BR).
+    fig.update_layout(
+        yaxis=dict(autorange="reversed"),
+        margin=dict(l=10, r=70, t=52, b=10),
+        separators=",.",
+    )
     fig.update_xaxes(showticklabels=False, showgrid=False, title=None)
     fig.update_yaxes(title=None)
     return fig
 
 
 def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
-    """Mapa coropletico do Brasil por UF. O 'salta aos olhos' do painel."""
+    """Mapa coropletico do Brasil por UF. O 'salta aos olhos' do painel.
+
+    Hover em portugues (UF, regiao e a metrica formatada); a escala de cor e o
+    titulo acompanham a metrica escolhida."""
     fig = px.choropleth(
         por_estado,
         geojson="https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson",
@@ -194,12 +212,25 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
         color=metrica,
         color_continuous_scale=ESCALA,
         scope="south america",
+        custom_data=["uf", "regiao", metrica],
     )
     fig.update_geos(fitbounds="locations", visible=False)
+    # hover: "SP · Sudeste" em negrito, e a metrica formatada em padrao BR
+    fig.update_traces(
+        marker_line_color="white", marker_line_width=0.6,
+        hovertemplate=(
+            "<b>%{customdata[0]}</b> · %{customdata[1]}<br>"
+            f"{rotulo(metrica)}: " + "%{customdata[2]:,.0f}<extra></extra>"
+        ),
+    )
     fig = _layout(fig, f"Mapa · {rotulo(metrica).lower()} por estado")
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
-    fig.update_layout(coloraxis_colorbar_title_text=rotulo(metrica))
+    fig.update_layout(
+        coloraxis_colorbar_title_text=rotulo(metrica),
+        separators=",.",
+        geo=dict(bgcolor="rgba(0,0,0,0)"),
+    )
     return fig
 
 
@@ -234,9 +265,29 @@ def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
 # passa o mart nacional (para "Brasil") ou o mart por UF ja filtrado por linha
 # (para um estado). Assim o painel nunca decide escopo nem agrega.
 def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
-    """Top 10 diagnosticos do escopo recebido, maior em cima."""
-    top = df.sort_values("internacoes", ascending=False).head(10)
-    return _barh(top, x="internacoes", y="doenca", titulo=f"Top 10 diagnósticos · {rotulo}")
+    """Top 10 diagnosticos do escopo recebido, maior em cima.
+
+    Eixo mostra o nome da doenca; o codigo CID e o valor pago vao para o hover,
+    para o rotulo ficar limpo mas a informacao tecnica continuar a um passe de mouse."""
+    top = df.sort_values("internacoes", ascending=False).head(10).copy()
+    # corta nomes muito longos no eixo, sem perder o nome inteiro (fica no hover)
+    top["rotulo"] = top["doenca"].str.slice(0, 32).where(
+        top["doenca"].str.len() <= 32, top["doenca"].str.slice(0, 32) + "…"
+    )
+    fig = _barh(
+        top, x="internacoes", y="rotulo",
+        titulo=f"Top 10 diagnósticos · {rotulo}",
+    )
+    # hover rico: nome completo (codigo CID), internacoes e valor pago.
+    fig.update_traces(
+        customdata=top[["doenca", "cid", "valor_total"]].to_numpy(),
+        hovertemplate=(
+            "<b>%{customdata[0]}</b> (%{customdata[1]})<br>"
+            "%{x:,.0f} internações<br>"
+            "R$ %{customdata[2]:,.2f}<extra></extra>"
+        ),
+    )
+    return fig
 
 
 def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
@@ -246,8 +297,11 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
     competencia (AIH processadas no mes) e a serie e por data de entrada."""
     serie = df.sort_values("dia")
     fig = px.line(serie, x="dia", y="internacoes", markers=True)
-    fig.update_traces(line_color=COR, marker_color=COR, line_width=2,
-                      fill="tozeroy", fillcolor="rgba(91,182,166,0.12)")
+    fig.update_traces(
+        line_color=COR, marker_color=COR, line_width=2,
+        fill="tozeroy", fillcolor="rgba(91,182,166,0.12)",
+        hovertemplate="%{x|%d/%m}<br>%{y:,.0f} internações<extra></extra>",
+    )
     fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações")
     return _layout(fig, f"Internações por dia de entrada · {rotulo}")
 
