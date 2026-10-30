@@ -106,13 +106,15 @@ uv run pytest --cov                        # unitários, dado inventado, cobertu
 Números reais de uma execução completa do pipeline, para conferência:
 
 ```
-ingestao      bronze.internacoes  1.238.763 · cid10 7.928 · municipios 5.569
-transformacao prata.internacoes   1.238.763 linhas (0 removidas)
-marts         8 marts, 88.174 linhas na camada ouro
+ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
+transformacao prata.internacoes   1.238.234 linhas (-529 sem valor)
+marts         8 marts, 80.923 linhas na camada ouro
 ```
 
-As 1.238.763 internações se distribuem pelas 27 UFs: **SP** lidera com 249.901,
-seguido de **MG** (135.571), **PR** (85.452), **BA** (84.016) e **RJ** (78.571).
+A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
+1.238.234 (529 saem por não ter valor). O mart `por_estado` conta só as com UF
+e valor válidos: **SP** lidera com 249.866, seguido de **MG** (135.542), **PR**
+(85.435), **BA** (83.953) e **RJ** (78.503).
 *(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
 
 ---
