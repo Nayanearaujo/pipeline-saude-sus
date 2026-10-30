@@ -5,7 +5,7 @@ Pipeline de dados de ponta a ponta sobre as **internações hospitalares do SUS*
 estado** em Streamlit. Parte dos microdados oficiais e chega a um painel que
 compara os 27 estados em volume, gasto, permanência e mortalidade.
 
-> Recorte: internações de **julho de 2026**, Brasil inteiro, com o **Rio de
+> Recorte: internações de **abril de 2026**, Brasil inteiro, com o **Rio de
 > Janeiro** como foco da análise. Dados públicos do Ministério da Saúde.
 
 ---

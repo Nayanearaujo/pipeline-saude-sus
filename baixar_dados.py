@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ANO = 2026
-MES = 7            # julho
+MES = 4            # abril
 # Para "todos os estados", deixe UFS = None. Para um recorte leve de teste,
 # use por exemplo UFS = ["RJ", "SP", "MG"].
 UFS = None
