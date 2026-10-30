@@ -21,6 +21,23 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 - 📄 **Relatório executivo (estático):** https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html
 - 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
 
+## Demonstração
+
+Painel interativo com seletor de estado, construído com Streamlit e Plotly.
+
+👉 **Acesse o dashboard ao vivo:** https://pipeline-saude-sus.streamlit.app/
+
+**Visão nacional: mapa e ranking de estados**
+![Visão nacional do dashboard](assets/dashboard1.png)
+
+**Detalhe: top 10 diagnósticos e internações por dia**
+![Diagnósticos e série diária](assets/dashboard2.png)
+
+**Participação por região e custo médio por estado**
+![Participação por região e custo por UF](assets/dashboard3.png)
+
+---
+
 ## Achados
 
 O que o dado mostrou, e o que só apareceu porque cada número foi conferido
