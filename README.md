@@ -130,6 +130,9 @@ uv run python executar.py
 # dashboard interativo
 uv run streamlit run app.py               # abre em localhost:8501
 
+# relatório estático em HTML (gera relatorio.html e docs/relatorio.html)
+uv run python relatorio.py
+
 # testes e lint
 uv run pytest --cov                        # unitários, dado inventado, cobertura >= 70%
 uv run ruff check .                        # estilo e imports
