@@ -240,13 +240,16 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
 
 
 def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
-    """Internacoes por dia ao longo do mes, no escopo recebido."""
+    """Internacoes por dia (por data de ENTRADA) ao longo do mes, no escopo recebido.
+
+    O total desta serie nao bate com o KPI de internacoes: o KPI e por
+    competencia (AIH processadas no mes) e a serie e por data de entrada."""
     serie = df.sort_values("dia")
     fig = px.line(serie, x="dia", y="internacoes", markers=True)
     fig.update_traces(line_color=COR, marker_color=COR, line_width=2,
                       fill="tozeroy", fillcolor="rgba(91,182,166,0.12)")
-    fig.update_layout(xaxis_title="dia", yaxis_title="internações")
-    return _layout(fig, f"Internações por dia · {rotulo}")
+    fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações")
+    return _layout(fig, f"Internações por dia de entrada · {rotulo}")
 
 
 def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:

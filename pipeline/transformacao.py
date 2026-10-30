@@ -10,7 +10,11 @@ Mantem os dicionarios como tabelas de apoio para o JOIN da camada ouro.
 Decisoes de dado (resumo; cada uma com o motivo no codigo):
 - Valor (VAL_TOT) vira DECIMAL(12,2): e dinheiro, nunca DOUBLE.
 - Datas (DT_INTER, DT_SAIDA) viram DATE a partir do formato AAAAMMDD do SIH.
-- Dias de permanencia e idade viram INTEGER.
+- Dias de permanencia viram INTEGER.
+- Idade: idade_anos combina IDADE com COD_IDADE (a unidade do SIH). COD_IDADE
+  0/1/2/3 (minutos/horas/dias/meses) -> menos de 1 ano, entra como 0; 4 ->
+  IDADE em anos; 5 -> IDADE + 100 (centenarios). Sem isso, um bebe de 5 meses
+  (IDADE=5, COD_IDADE=3) seria lido como 5 anos.
 - Codigo do municipio e o prefixo de 6 digitos do IBGE; fica VARCHAR (e id).
 - Sexo: '1'->Masculino, '3'->Feminino (codificacao do SIH); outros -> NULL.
 - MORTE: '1' indica obito na internacao; vira BOOLEAN morte.
@@ -66,7 +70,17 @@ WITH base AS (
         CAST(PROC_REA AS VARCHAR)                          AS cod_procedimento,
         TRY_CAST(VAL_TOT AS DECIMAL(12,2))                 AS valor_total,
         TRY_CAST(DIAS_PERM AS INTEGER)                     AS dias_permanencia,
-        TRY_CAST(IDADE AS INTEGER)                         AS idade,
+        -- idade em ANOS, combinando IDADE com COD_IDADE (a unidade no SIH):
+        -- 0/1/2/3 = minutos/horas/dias/meses -> < 1 ano (0); 4 = anos; 5 = 100+.
+        CASE CAST(COD_IDADE AS VARCHAR)
+            WHEN '5' THEN TRY_CAST(IDADE AS INTEGER) + 100
+            WHEN '4' THEN TRY_CAST(IDADE AS INTEGER)
+            WHEN '0' THEN 0
+            WHEN '1' THEN 0
+            WHEN '2' THEN 0
+            WHEN '3' THEN 0
+            ELSE TRY_CAST(IDADE AS INTEGER)
+        END                                                AS idade,
         CASE CAST(SEXO AS VARCHAR)
             WHEN '1' THEN 'Masculino'
             WHEN '3' THEN 'Feminino'
