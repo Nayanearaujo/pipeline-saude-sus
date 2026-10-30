@@ -37,6 +37,20 @@ MARTS = [
     "perfil_demografico_brasil",
 ]
 
+# Nome bonito (com acento) de cada metrica, para a tela e os titulos.
+ROTULO_METRICA = {
+    "internacoes": "Internações",
+    "valor_total": "Gasto total",
+    "custo_medio": "Custo médio",
+    "dias_medio": "Permanência média",
+    "taxa_mortalidade_pct": "Taxa de mortalidade",
+}
+
+
+def rotulo(metrica: str) -> str:
+    """Devolve o nome legivel de uma metrica (ou ela mesma, se nao mapeada)."""
+    return ROTULO_METRICA.get(metrica, metrica)
+
 # Paleta suave: verde-agua claro como cor base, escala continua leve para o
 # mapa (nao cansa a vista). Tons pastel, puxando do verde ao azul.
 COR = "#5bb6a6"           # verde-agua medio, suave
@@ -105,6 +119,18 @@ def reais(valor: float, casas: int = 2) -> str:
     return "R$ " + _br(f"{valor:,.{casas}f}")
 
 
+def reais_curto(valor: float) -> str:
+    """Formato compacto para caber no cartao: 2259000000 -> 'R$ 2,26 bi'."""
+    v = float(valor)
+    if abs(v) >= 1_000_000_000:
+        return "R$ " + _br(f"{v / 1_000_000_000:.2f}") + " bi"
+    if abs(v) >= 1_000_000:
+        return "R$ " + _br(f"{v / 1_000_000:.2f}") + " mi"
+    if abs(v) >= 1_000:
+        return "R$ " + _br(f"{v / 1_000:.1f}") + " mil"
+    return "R$ " + _br(f"{v:.2f}")
+
+
 def numero(valor: float, casas: int = 0) -> str:
     """96470 -> '96.470'"""
     return _br(f"{valor:,.{casas}f}")
@@ -148,9 +174,10 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
         scope="south america",
     )
     fig.update_geos(fitbounds="locations", visible=False)
-    fig = _layout(fig, f"Mapa · {metrica} por estado")
+    fig = _layout(fig, f"Mapa · {rotulo(metrica).lower()} por estado")
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
+    fig.update_layout(coloraxis_colorbar_title_text=rotulo(metrica))
     return fig
 
 
@@ -164,7 +191,7 @@ def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> 
     )
     fig.update_traces(textposition="inside", textinfo="percent+label",
                       marker=dict(line=dict(color="white", width=2)))
-    fig = _layout(fig, f"Participação por região · {metrica}")
+    fig = _layout(fig, f"Participação por região · {rotulo(metrica).lower()}")
     fig.update_layout(showlegend=True)
     return fig
 
@@ -172,7 +199,7 @@ def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> 
 def fig_ranking_estados(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
     """Ranking das UFs pela metrica escolhida, maior em cima."""
     df = por_estado.sort_values(metrica, ascending=False)
-    return _barh(df, x=metrica, y="uf", titulo=f"Ranking de estados · {metrica}")
+    return _barh(df, x=metrica, y="uf", titulo=f"Ranking de estados · {rotulo(metrica).lower()}")
 
 
 def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
