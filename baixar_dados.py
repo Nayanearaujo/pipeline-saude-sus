@@ -1,23 +1,26 @@
 """
 Baixa os dados brutos do SIH/SUS e grava data/raw/internacoes.parquet.
-Roda na SUA maquina (precisa de internet e do PySUS 2.x).
+Roda na SUA maquina (precisa de internet). NAO depende do PySUS.
 
     uv run python baixar_dados.py
 
-API do PySUS 2.x: `from pysus import SIH`, depois get_files(grupo, uf, year,
-month) para listar os arquivos do FTP e download(files) para baixar e converter
-de .dbc para parquet. O grupo 'RD' e a AIH reduzida (uma linha por internacao).
+Como funciona:
+1. Baixa os arquivos .dbc da AIH reduzida (grupo RD) do FTP do DATASUS, um por
+   UF, via HTTPS. Nome do arquivo: RD<UF><AA><MM>.dbc (ex.: RDRJ2604.dbc).
+2. Converte cada .dbc para DataFrame com pyreaddbc (biblioteca pequena e
+   estavel feita so para o formato do DATASUS).
+3. Junta tudo e grava data/raw/internacoes.parquet.
 
-Ajuste ANO, MES e UFS abaixo. Se o mes ainda nao estiver publicado (o SIH tem
-2-4 meses de atraso), o download devolve lista vazia e o script avisa.
+Ajuste ANO, MES e UFS no topo. Se um mes nao existir no FTP, aquela UF e pulada
+com aviso; se nenhuma UF baixar, o script explica e encerra.
 """
 import sys
+from io import BytesIO
 from pathlib import Path
 
 ANO = 2026
 MES = 4            # abril
-# Para "todos os estados", deixe UFS = None. Para um recorte leve de teste,
-# use por exemplo UFS = ["RJ", "SP", "MG"].
+# "todos os estados" = None. Para um teste leve, use por exemplo ["RJ", "SP"].
 UFS = None
 
 RAW = Path(__file__).resolve().parent / "data" / "raw"
@@ -29,58 +32,80 @@ TODAS_UFS = [
     "SP", "SE", "TO",
 ]
 
+# Dois espelhos do mesmo arquivo. O FTP do DATASUS tambem responde por HTTP.
+BASES = [
+    "https://datasus.saude.gov.br/cgi/dnv/SIHSUS/200801_/Dados/{nome}",
+    "ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/{nome}",
+]
 
-def _to_df(baixados):
-    """Converte o retorno do download (ParquetSet ou lista) em um DataFrame."""
-    import pandas as pd
 
-    if baixados is None:
-        return pd.DataFrame()
-    if not isinstance(baixados, list):
-        baixados = [baixados]
-    dfs = []
-    for item in baixados:
-        # ParquetSet tem to_dataframe(); alguns retornos ja sao DataFrame
-        if hasattr(item, "to_dataframe"):
-            dfs.append(item.to_dataframe())
-        elif isinstance(item, pd.DataFrame):
-            dfs.append(item)
-    return pd.concat(dfs, ignore_index=True) if dfs else pd.DataFrame()
+def _baixar_dbc(nome: str) -> bytes | None:
+    """Tenta baixar um .dbc; devolve os bytes ou None se nao achar."""
+    import urllib.request
+
+    for base in BASES:
+        url = base.format(nome=nome)
+        try:
+            with urllib.request.urlopen(url, timeout=60) as r:
+                return r.read()
+        except Exception:  # noqa: BLE001
+            continue
+    return None
+
+
+def _dbc_para_df(conteudo: bytes, nome: str):
+    """Converte bytes de um .dbc em DataFrame usando pyreaddbc."""
+    import pyreaddbc
+
+    tmp = RAW / nome
+    tmp.write_bytes(conteudo)
+    try:
+        # pyreaddbc.read_dbc le direto para DataFrame
+        return pyreaddbc.read_dbc(str(tmp), encoding="latin-1")
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def main():
-    import pandas as pd  # noqa: F401  (garante erro claro se faltar)
-
     try:
-        from pysus import SIH
+        import pandas as pd
+        import pyreaddbc  # noqa: F401
     except Exception as e:  # noqa: BLE001
-        print(f"ERRO ao importar PySUS: {e}")
-        print("Instale/atualize com: uv add pysus")
+        print(f"ERRO: falta uma biblioteca ({e}).")
+        print("Instale com: uv add pyreaddbc pandas")
         sys.exit(1)
 
     ufs = UFS if UFS is not None else TODAS_UFS
-    sih = SIH().load()  # .load() prepara o indice de arquivos do FTP
+    aa = f"{ANO % 100:02d}"
+    mm = f"{MES:02d}"
 
-    print(f"Procurando SIH-RD {MES:02d}/{ANO} para {len(ufs)} UF(s)...")
-    arquivos = sih.get_files("RD", uf=ufs, year=ANO, month=MES)
+    print(f"Baixando SIH-RD {mm}/{ANO} para {len(ufs)} UF(s)...")
+    dfs = []
+    for uf in ufs:
+        nome = f"RD{uf}{aa}{mm}.dbc"
+        conteudo = _baixar_dbc(nome)
+        if conteudo is None:
+            print(f"  - {uf}: nao encontrado (pulado)")
+            continue
+        try:
+            df = _dbc_para_df(conteudo, nome)
+            df["UF_ARQUIVO"] = uf
+            dfs.append(df)
+            print(f"  - {uf}: {len(df):,} linhas".replace(",", "."))
+        except Exception as e:  # noqa: BLE001
+            print(f"  - {uf}: erro ao converter ({e})")
 
-    if not arquivos:
-        print(f"Nenhum arquivo encontrado para {MES:02d}/{ANO}.")
-        print("Provavel que o mes ainda nao foi publicado (SIH atrasa 2-4 meses).")
-        print("Edite ANO/MES no topo deste arquivo para um mes fechado e rode de novo.")
+    if not dfs:
+        print("\nNenhum arquivo baixou. Provavel que o mes ainda nao foi")
+        print("publicado (o SIH atrasa 2-4 meses). Edite ANO/MES no topo e")
+        print("rode de novo com um mes fechado.")
         sys.exit(1)
 
-    print(f"Encontrados {len(arquivos)} arquivo(s). Baixando e convertendo...")
-    baixados = sih.download(arquivos)
-    df = _to_df(baixados)
-
-    if df.empty:
-        print("ERRO: o download nao retornou linhas.")
-        sys.exit(1)
-
+    import pandas as pd
+    todos = pd.concat(dfs, ignore_index=True)
     destino = RAW / "internacoes.parquet"
-    df.to_parquet(destino, index=False)
-    print(f"  ok: {destino} ({len(df):,} linhas)".replace(",", "."))
+    todos.to_parquet(destino, index=False)
+    print(f"\n  ok: {destino} ({len(todos):,} linhas)".replace(",", "."))
     print("\nAgora gere os dicionarios:")
     print("  uv run python gerar_dicionarios.py")
 
