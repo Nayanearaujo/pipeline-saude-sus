@@ -1,0 +1,26 @@
+name: CI · Testes e Qualidade de Código
+
+on:
+  push:
+    branches: ["main", "fix/grao-bronze-e-readme"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sincronizar dependências
+        run: uv sync
+
+      - name: Lint e estilo (Ruff)
+        run: uv run ruff check .
+
+      - name: Testes unitários e cobertura (pytest, mínimo 70%)
+        run: uv run pytest --cov
