@@ -90,12 +90,14 @@ def _layout(fig, titulo: str):
 
     separators=',.' deixa todo numero no padrao BR (ponto de milhar, virgula
     decimal) tanto nos rotulos quanto no hover, sem depender do locale."""
+    # o <sub> do subtitulo-resposta herda a fonte do titulo; css inline no texto
+    # deixa ele menor e mais suave que o titulo principal.
     fig.update_layout(
         title=dict(text=titulo, font=dict(size=16, family="Arial", color="#10171a")),
         font=dict(family="Arial", size=13, color="#39474a"),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        margin=dict(l=10, r=10, t=52, b=10),
+        margin=dict(l=10, r=10, t=64, b=10),
         title_x=0.02,
         separators=",.",
     )
@@ -173,6 +175,20 @@ def pct(valor: float, casas: int = 1) -> str:
     return _br(f"{valor:,.{casas}f}") + "%"
 
 
+def lidera(df: pd.DataFrame, rotulo_col: str, valor_col: str) -> str:
+    """Frase-resposta do tipo 'SP lidera: 249.866 (20,2% do total)'.
+
+    Nao agrega: le a maior linha de um DataFrame que ja veio somado do mart e
+    descreve quem lidera e sua participacao. E apresentacao, nao calculo de
+    negocio (a regra 'o painel nao agrega' continua valendo)."""
+    if df.empty:
+        return ""
+    total = df[valor_col].sum()
+    topo = df.loc[df[valor_col].idxmax()]
+    parte = 100.0 * topo[valor_col] / total if total else 0.0
+    return f"{topo[rotulo_col]} lidera: {numero(topo[valor_col])} ({pct(parte)} do total)"
+
+
 # ---------------------------------------------------------------------------
 # Graficos: uma funcao por grafico. Nenhuma agrega; o dado ja vem do mart.
 # ---------------------------------------------------------------------------
@@ -229,7 +245,10 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
             f"{rotulo(metrica)}: " + "%{customdata[2]:,.0f}<extra></extra>"
         ),
     )
-    fig = _layout(fig, f"Mapa · {rotulo(metrica).lower()} por estado")
+    # titulo que responde: quem lidera na metrica e com que participacao
+    resposta = lidera(por_estado, "uf", metrica)
+    titulo = f"{rotulo(metrica)} por estado<br><sub>{resposta}</sub>"
+    fig = _layout(fig, titulo)
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
     fig.update_layout(
@@ -258,13 +277,23 @@ def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> 
 def fig_ranking_estados(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
     """Ranking das UFs pela metrica escolhida, maior em cima."""
     df = por_estado.sort_values(metrica, ascending=False)
-    return _barh(df, x=metrica, y="uf", titulo=f"Ranking de estados · {rotulo(metrica).lower()}")
+    resposta = lidera(por_estado, "uf", metrica)
+    return _barh(df, x=metrica, y="uf",
+                 titulo=f"Ranking de estados · {rotulo(metrica).lower()}<br><sub>{resposta}</sub>")
 
 
 def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
     """Custo medio por internacao em cada UF: mostra a desigualdade regional."""
     df = por_estado.sort_values("custo_medio", ascending=False)
-    return _barh(df, x="custo_medio", y="uf", titulo="Custo médio por internação · por UF")
+    # resposta: o contraste entre o maior e o menor custo medio (desigualdade)
+    resposta = ""
+    if not df.empty:
+        alto, baixo = df.iloc[0], df.iloc[-1]
+        resposta = (f"{alto['uf']} ({reais(alto['custo_medio'], 0)}) custa "
+                    f"{alto['custo_medio'] / baixo['custo_medio']:.1f}× o de "
+                    f"{baixo['uf']} ({reais(baixo['custo_medio'], 0)})")
+    return _barh(df, x="custo_medio", y="uf",
+                 titulo=f"Custo médio por internação · por UF<br><sub>{resposta}</sub>")
 
 
 # As tres funcoes de detalhe recebem o DataFrame ja no escopo certo: o app
@@ -280,9 +309,11 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
     top["rotulo"] = top["doenca"].str.slice(0, 32).where(
         top["doenca"].str.len() <= 32, top["doenca"].str.slice(0, 32) + "…"
     )
+    # titulo que responde: a doenca que mais interna no escopo e sua participacao
+    resposta = lidera(df, "doenca", "internacoes")
     fig = _barh(
         top, x="internacoes", y="rotulo",
-        titulo=f"Top 10 diagnósticos · {rotulo}",
+        titulo=f"Top 10 diagnósticos · {rotulo}<br><sub>{resposta}</sub>",
     )
     # hover rico: nome completo (codigo CID), internacoes e valor pago.
     fig.update_traces(
@@ -308,8 +339,14 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
         fill="tozeroy", fillcolor="rgba(91,182,166,0.12)",
         hovertemplate="%{x|%d/%m}<br>%{y:,.0f} internações<extra></extra>",
     )
+    # resposta: o dia de pico de entradas no mes
+    resposta = ""
+    if not serie.empty:
+        pico = serie.loc[serie["internacoes"].idxmax()]
+        dia_br = str(pico["dia"])[8:10] + "/" + str(pico["dia"])[5:7]
+        resposta = f"pico em {dia_br}: {numero(pico['internacoes'])} entradas"
     fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações")
-    return _layout(fig, f"Internações por dia de entrada · {rotulo}")
+    return _layout(fig, f"Internações por dia de entrada · {rotulo}<br><sub>{resposta}</sub>")
 
 
 def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:

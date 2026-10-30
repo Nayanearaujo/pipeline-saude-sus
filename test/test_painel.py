@@ -41,6 +41,18 @@ def test_ler_sem_banco_nem_csv_erro(tmp_path, monkeypatch):
         painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
 
 
+def test_lidera_descreve_o_maior_e_a_participacao():
+    """lidera() aponta a maior linha e sua % do total, em padrao BR."""
+    df = pd.DataFrame({"uf": ["SP", "MG", "RJ"], "internacoes": [50, 30, 20]})
+    frase = painel.lidera(df, "uf", "internacoes")
+    assert frase == "SP lidera: 50 (50,0% do total)"
+
+
+def test_lidera_df_vazio_volta_string_vazia():
+    df = pd.DataFrame({"uf": [], "internacoes": []})
+    assert painel.lidera(df, "uf", "internacoes") == ""
+
+
 def test_reais_milhar_e_centavos():
     assert painel.reais(1003862.14) == "R$ 1.003.862,14"
 
