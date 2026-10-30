@@ -21,7 +21,9 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 100
+# 120 em vez de 88/100: acomoda SQL inline nos testes e chamadas de plotting
+# sem mutilar strings, mantendo o linter util para o que importa (F, I).
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]

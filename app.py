@@ -97,11 +97,11 @@ def main():
     if uf is None:
         k = dados["kpis_gerais"].iloc[0]
         internacoes, valor, custo = k["internacoes"], k["valor_total"], k["custo_medio"]
-        dias, mort, n_ufs = k["dias_medio"], k["taxa_mortalidade_pct"], k["ufs"]
+        dias, mort = k["dias_medio"], k["taxa_mortalidade_pct"]
     else:
         linha = por_estado[por_estado["uf"] == uf].iloc[0]
         internacoes, valor, custo = linha["internacoes"], linha["valor_total"], linha["custo_medio"]
-        dias, mort, n_ufs = linha["dias_medio"], linha["taxa_mortalidade_pct"], 1
+        dias, mort = linha["dias_medio"], linha["taxa_mortalidade_pct"]
 
     c = st.columns(5)
     c[0].metric("Internações", painel.numero(internacoes))

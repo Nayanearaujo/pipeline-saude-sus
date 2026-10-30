@@ -18,16 +18,28 @@ def _prata_minima(con):
     # 3 internacoes: 2 no RJ (uma com obito), 1 em SP
     con.execute("""
         CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
-            ('a1','330455','RJ','Sudeste','A001','p1',1000.00, 4, 40,'Masculino',TRUE,  DATE '2026-07-01', DATE '2026-07-05'),
-            ('a2','330455','RJ','Sudeste','A001','p1', 500.00, 2, 20,'Feminino', FALSE, DATE '2026-07-02', DATE '2026-07-04'),
-            ('a3','355030','SP','Sudeste','B002','p2', 300.00, 1, 60,'Masculino',FALSE, DATE '2026-07-03', DATE '2026-07-04')
+            ('a1','330455','RJ','Sudeste','A001','p1',1000.00, 4, 40,'Masculino',
+             TRUE,  DATE '2026-07-01', DATE '2026-07-05'),
+            ('a2','330455','RJ','Sudeste','A001','p1', 500.00, 2, 20,'Feminino',
+             FALSE, DATE '2026-07-02', DATE '2026-07-04'),
+            ('a3','355030','SP','Sudeste','B002','p2', 300.00, 1, 60,'Masculino',
+             FALSE, DATE '2026-07-03', DATE '2026-07-04')
         ) AS t(aih, cod_municipio, uf, regiao, cid_principal, cod_procedimento,
                valor_total, dias_permanencia, idade, sexo, morte,
                data_internacao, data_saida)
     """)
-    con.execute("CREATE TABLE prata.cid10 AS SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)")
-    con.execute("CREATE TABLE prata.municipios AS SELECT * FROM (VALUES ('330455','Rio','RJ')) AS t(cod_municipio, municipio, uf)")
-    con.execute("CREATE TABLE prata.ufs AS SELECT * FROM (VALUES ('33','RJ','Sudeste')) AS t(cod_uf, uf, regiao)")
+    con.execute(
+        "CREATE TABLE prata.cid10 AS "
+        "SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)"
+    )
+    con.execute(
+        "CREATE TABLE prata.municipios AS SELECT * FROM "
+        "(VALUES ('330455','Rio','RJ')) AS t(cod_municipio, municipio, uf)"
+    )
+    con.execute(
+        "CREATE TABLE prata.ufs AS SELECT * FROM "
+        "(VALUES ('33','RJ','Sudeste')) AS t(cod_uf, uf, regiao)"
+    )
 
 
 def _preparar(tmp_path, monkeypatch):
