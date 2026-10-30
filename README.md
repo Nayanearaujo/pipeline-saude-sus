@@ -18,6 +18,8 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 
 Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 
+👉 **Acesse o dashboard ao vivo:** https://pipeline-saude-sus.streamlit.app/
+
 **Visão nacional: mapa e ranking de estados**
 ![Visão nacional do dashboard](assets/dashboard1.png)
 
