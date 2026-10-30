@@ -10,7 +10,7 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 
 ## Links
 
-- 📊 **Dashboard ao vivo (Streamlit):** _substituir pelo link do deploy_
+- 📊 **Dashboard ao vivo (Streamlit):** https://pipeline-saude-sus.streamlit.app/
 - 📖 **Guia do projeto (GitHub Pages):** https://nayanearaujo.github.io/pipeline-saude-sus/
 - 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
 
