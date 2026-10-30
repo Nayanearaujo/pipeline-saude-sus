@@ -15,7 +15,6 @@ Ajuste ANO, MES e UFS no topo. Se um mes nao existir no FTP, aquela UF e pulada
 com aviso; se nenhuma UF baixar, o script explica e encerra.
 """
 import sys
-from io import BytesIO
 from pathlib import Path
 
 ANO = 2026

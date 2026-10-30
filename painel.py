@@ -28,6 +28,12 @@ import plotly.graph_objects as go
 
 BANCO = "sih.duckdb"
 
+# GeoJSON dos estados do Brasil (sigla da UF em properties.sigla), usado no mapa.
+GEOJSON_UF = (
+    "https://raw.githubusercontent.com/codeforgermany/click_that_hood/"
+    "main/public/data/brazil-states.geojson"
+)
+
 MARTS = [
     "kpis_gerais",
     "por_estado",
@@ -206,7 +212,7 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
     titulo acompanham a metrica escolhida."""
     fig = px.choropleth(
         por_estado,
-        geojson="https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson",
+        geojson=GEOJSON_UF,
         locations="uf",
         featureidkey="properties.sigla",
         color=metrica,
