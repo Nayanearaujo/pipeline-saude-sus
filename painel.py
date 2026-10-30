@@ -44,6 +44,16 @@ ESCALA = "Teal"           # escala continua verde->azul suave para o mapa
 # Paleta qualitativa (rosca, varias categorias): tons claros e harmonicos.
 PALETA = ["#7fcbbd", "#9fd6c6", "#5bb6a6", "#cbe8df", "#f0c674", "#b7c4c0"]
 
+# Cor por regiao na rosca: Sudeste no azul-bebe (o tom pedido), as demais em
+# tons suaves que contrastam bem entre si.
+COR_REGIAO = {
+    "Sudeste": "#8fcfe0",         # azul-bebe
+    "Nordeste": "#8fd4b8",        # verde claro
+    "Sul": "#b6e0a8",             # verde-limao suave
+    "Norte": "#f0c674",           # amarelo suave
+    "Centro-Oeste": "#d9a8e0",    # lilas suave
+}
+
 # Cor por sexo: feminino em verde-bebe puxando ao azul; masculino em verde
 # claro, menos escuro. Pedido para nao cansar a vista.
 COR_SEXO = {
@@ -111,10 +121,19 @@ def pct(valor: float, casas: int = 1) -> str:
 def _barh(df: pd.DataFrame, x: str, y: str, titulo: str) -> go.Figure:
     """Barras horizontais, maior em cima, com visual consistente."""
     fig = px.bar(df, x=x, y=y, orientation="h", text=x)
-    fig.update_traces(marker_color=COR, textposition="outside",
-                      texttemplate="%{text:,.0f}", cliponaxis=False)
-    fig.update_layout(yaxis=dict(autorange="reversed"))
-    return _layout(fig, titulo)
+    fig.update_traces(
+        marker_color=COR,
+        textposition="outside",
+        texttemplate="%{text:,.0f}",
+        textfont=dict(size=11, color="#39474a"),
+        cliponaxis=False,
+    )
+    fig = _layout(fig, titulo)
+    # margem direita extra para o maior rotulo nao cortar; eixo x limpo
+    fig.update_layout(yaxis=dict(autorange="reversed"), margin=dict(l=10, r=60, t=52, b=10))
+    fig.update_xaxes(showticklabels=False, showgrid=False, title=None)
+    fig.update_yaxes(title=None)
+    return fig
 
 
 def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
@@ -137,10 +156,11 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
 
 def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
     """Grafico de rosca (donut) com a participacao de cada regiao na metrica.
-    O 'circulo classico': mostra como o total se divide entre as 5 regioes."""
+    O 'circulo classico': mostra como o total se divide entre as 5 regioes.
+    Sudeste no azul-bebe (COR_REGIAO)."""
     fig = px.pie(
         por_estado, names="regiao", values=metrica, hole=0.55,
-        color_discrete_sequence=PALETA,
+        color="regiao", color_discrete_map=COR_REGIAO,
     )
     fig.update_traces(textposition="inside", textinfo="percent+label",
                       marker=dict(line=dict(color="white", width=2)))
