@@ -1,325 +1,325 @@
 uf,faixa_etaria,sexo,internacoes,dias_medio
-AC,15-29,Feminino,1223,2.8
+AC,15-29,Feminino,1221,2.8
 AC,30-49,Feminino,870,3.4
-AC,30-49,Masculino,443,4.9
-AC,1-14,Masculino,374,4.6
+AC,30-49,Masculino,441,4.9
 AC,65+,Masculino,362,8.0
 AC,50-64,Masculino,359,5.9
 AC,50-64,Feminino,299,5.4
-AC,1-14,Feminino,282,5.4
-AC,65+,Feminino,270,7.7
-AC,15-29,Masculino,266,4.7
-AC,< 1 ano,Feminino,33,13.6
-AC,< 1 ano,Masculino,25,16.6
-AL,15-29,Feminino,3126,3.0
-AL,30-49,Feminino,2624,4.5
-AL,65+,Feminino,1577,7.1
-AL,30-49,Masculino,1477,7.8
-AL,65+,Masculino,1456,7.5
-AL,50-64,Masculino,1407,8.0
+AC,65+,Feminino,272,7.7
+AC,15-29,Masculino,261,4.7
+AC,1-14,Masculino,260,3.5
+AC,1-14,Feminino,194,4.1
+AC,< 1 ano,Masculino,146,8.6
+AC,< 1 ano,Feminino,121,9.7
+AL,15-29,Feminino,3117,2.9
+AL,30-49,Feminino,2623,4.5
+AL,65+,Feminino,1585,7.1
+AL,30-49,Masculino,1476,7.8
+AL,65+,Masculino,1460,7.5
+AL,50-64,Masculino,1405,8.0
 AL,50-64,Feminino,1274,6.6
-AL,1-14,Masculino,1045,4.6
-AL,15-29,Masculino,999,6.7
-AL,1-14,Feminino,758,5.4
-AL,< 1 ano,Masculino,141,9.7
-AL,< 1 ano,Feminino,139,11.0
-AM,15-29,Feminino,5617,3.1
-AM,30-49,Feminino,4029,3.4
-AM,1-14,Masculino,2109,4.5
-AM,30-49,Masculino,2058,4.6
-AM,65+,Masculino,1812,5.5
-AM,1-14,Feminino,1747,4.6
+AL,15-29,Masculino,992,6.6
+AL,1-14,Masculino,812,4.0
+AL,1-14,Feminino,549,4.8
+AL,< 1 ano,Masculino,376,7.9
+AL,< 1 ano,Feminino,349,8.2
+AM,15-29,Feminino,5597,3.1
+AM,30-49,Feminino,4028,3.4
+AM,30-49,Masculino,2054,4.6
+AM,65+,Masculino,1818,5.5
+AM,65+,Feminino,1691,5.0
 AM,50-64,Masculino,1689,5.3
-AM,65+,Feminino,1683,5.0
 AM,50-64,Feminino,1453,4.2
-AM,15-29,Masculino,1089,4.3
-AM,< 1 ano,Masculino,207,8.1
-AM,< 1 ano,Feminino,195,8.5
+AM,1-14,Masculino,1389,3.8
+AM,1-14,Feminino,1191,3.5
+AM,15-29,Masculino,1055,4.1
+AM,< 1 ano,Masculino,959,6.5
+AM,< 1 ano,Feminino,764,7.5
 AP,30-49,Feminino,1149,3.3
-AP,15-29,Feminino,1122,3.4
+AP,15-29,Feminino,1115,3.3
 AP,50-64,Feminino,546,2.9
-AP,65+,Masculino,433,6.3
-AP,65+,Feminino,387,5.2
+AP,65+,Masculino,434,6.3
+AP,65+,Feminino,389,5.2
 AP,50-64,Masculino,385,6.4
-AP,1-14,Masculino,382,6.3
 AP,30-49,Masculino,342,4.7
-AP,1-14,Feminino,296,6.2
-AP,15-29,Masculino,167,5.4
-AP,< 1 ano,Masculino,84,9.6
-AP,< 1 ano,Feminino,65,10.2
-BA,30-49,Feminino,14696,3.3
-BA,15-29,Feminino,12866,2.8
-BA,65+,Feminino,8999,6.5
-BA,65+,Masculino,8829,6.3
-BA,30-49,Masculino,7981,5.0
-BA,50-64,Masculino,7375,5.9
-BA,50-64,Feminino,7108,4.8
-BA,1-14,Masculino,6045,3.8
-BA,1-14,Feminino,4675,4.3
-BA,15-29,Masculino,4404,4.1
-BA,< 1 ano,Masculino,528,8.6
-BA,< 1 ano,Feminino,510,8.6
-CE,30-49,Feminino,8012,3.8
-CE,15-29,Feminino,7857,3.3
-CE,65+,Feminino,5777,7.5
-CE,65+,Masculino,5546,7.3
-CE,30-49,Masculino,4333,6.4
+AP,1-14,Masculino,273,6.1
+AP,1-14,Feminino,221,5.5
+AP,< 1 ano,Masculino,199,8.1
+AP,15-29,Masculino,160,5.2
+AP,< 1 ano,Feminino,145,9.0
+BA,30-49,Feminino,14686,3.3
+BA,15-29,Feminino,12786,2.8
+BA,65+,Feminino,9042,6.5
+BA,65+,Masculino,8854,6.3
+BA,30-49,Masculino,7959,4.9
+BA,50-64,Masculino,7369,5.8
+BA,50-64,Feminino,7100,4.8
+BA,1-14,Masculino,4578,3.2
+BA,15-29,Masculino,4299,4.1
+BA,1-14,Feminino,3380,3.7
+BA,< 1 ano,Masculino,2069,6.4
+BA,< 1 ano,Feminino,1831,6.7
+CE,30-49,Feminino,8010,3.8
+CE,15-29,Feminino,7804,3.3
+CE,65+,Feminino,5803,7.5
+CE,65+,Masculino,5575,7.3
+CE,30-49,Masculino,4330,6.4
 CE,50-64,Masculino,4042,7.2
-CE,1-14,Masculino,4014,4.8
 CE,50-64,Feminino,3706,5.8
-CE,1-14,Feminino,3162,5.2
-CE,15-29,Masculino,2557,6.2
-CE,< 1 ano,Feminino,412,11.1
-CE,< 1 ano,Masculino,391,10.7
-DF,30-49,Feminino,2287,4.2
-DF,15-29,Feminino,2248,3.2
-DF,1-14,Masculino,1574,4.0
-DF,65+,Feminino,1396,7.6
+CE,1-14,Masculino,2981,4.3
+CE,15-29,Masculino,2496,6.2
+CE,1-14,Feminino,2292,4.9
+CE,< 1 ano,Masculino,1459,7.5
+CE,< 1 ano,Feminino,1311,7.7
+DF,30-49,Feminino,2286,4.2
+DF,15-29,Feminino,2231,3.2
+DF,65+,Feminino,1401,7.6
 DF,50-64,Feminino,1311,6.3
 DF,65+,Masculino,1283,8.4
-DF,50-64,Masculino,1275,7.8
-DF,30-49,Masculino,1256,7.2
-DF,1-14,Feminino,1254,3.9
-DF,15-29,Masculino,620,6.7
-DF,< 1 ano,Masculino,474,5.0
-DF,< 1 ano,Feminino,444,4.9
-ES,30-49,Feminino,3757,3.1
-ES,15-29,Feminino,3558,3.0
-ES,65+,Masculino,3184,6.4
-ES,65+,Feminino,3091,5.6
+DF,50-64,Masculino,1274,7.8
+DF,30-49,Masculino,1254,7.2
+DF,1-14,Masculino,1121,3.3
+DF,< 1 ano,Masculino,956,5.4
+DF,1-14,Feminino,940,3.6
+DF,< 1 ano,Feminino,770,5.0
+DF,15-29,Masculino,591,6.6
+ES,30-49,Feminino,3752,3.1
+ES,15-29,Feminino,3529,2.9
+ES,65+,Masculino,3190,6.4
+ES,65+,Feminino,3106,5.6
 ES,50-64,Masculino,2512,5.7
-ES,30-49,Masculino,2464,4.8
+ES,30-49,Masculino,2463,4.8
 ES,50-64,Feminino,2328,4.3
-ES,1-14,Masculino,2078,3.9
-ES,1-14,Feminino,1539,4.1
-ES,15-29,Masculino,1447,4.6
-ES,< 1 ano,Masculino,124,8.9
-ES,< 1 ano,Feminino,115,11.2
-GO,15-29,Feminino,6738,3.0
-GO,30-49,Feminino,6515,3.8
-GO,65+,Masculino,4748,5.2
-GO,30-49,Masculino,4673,5.3
-GO,65+,Feminino,4379,5.0
-GO,50-64,Masculino,4122,5.4
+ES,15-29,Masculino,1420,4.5
+ES,1-14,Masculino,1412,3.1
+ES,1-14,Feminino,1030,3.5
+ES,< 1 ano,Masculino,811,6.1
+ES,< 1 ano,Feminino,643,6.7
+GO,15-29,Feminino,6718,3.0
+GO,30-49,Feminino,6514,3.8
+GO,65+,Masculino,4759,5.2
+GO,30-49,Masculino,4670,5.3
+GO,65+,Feminino,4394,5.0
+GO,50-64,Masculino,4121,5.4
 GO,50-64,Feminino,3815,4.6
-GO,1-14,Masculino,2996,3.6
-GO,15-29,Masculino,2452,4.7
-GO,1-14,Feminino,2151,4.3
-GO,< 1 ano,Masculino,546,6.1
-GO,< 1 ano,Feminino,434,6.3
-MA,15-29,Feminino,7903,3.1
-MA,30-49,Feminino,6550,4.1
-MA,30-49,Masculino,4015,7.0
-MA,65+,Masculino,3918,6.5
-MA,1-14,Masculino,3898,4.2
-MA,65+,Feminino,3826,6.3
-MA,1-14,Feminino,3113,4.4
-MA,50-64,Masculino,2969,6.8
+GO,15-29,Masculino,2419,4.6
+GO,1-14,Masculino,2171,2.9
+GO,1-14,Feminino,1561,3.5
+GO,< 1 ano,Masculino,1395,5.7
+GO,< 1 ano,Feminino,1030,6.4
+MA,15-29,Feminino,7871,3.1
+MA,30-49,Feminino,6548,4.1
+MA,30-49,Masculino,4005,7.0
+MA,65+,Masculino,3939,6.5
+MA,65+,Feminino,3868,6.3
+MA,1-14,Masculino,3061,3.6
+MA,50-64,Masculino,2967,6.8
 MA,50-64,Feminino,2949,5.3
-MA,15-29,Masculino,2540,5.7
-MA,< 1 ano,Feminino,317,9.8
-MA,< 1 ano,Masculino,317,8.8
-MG,65+,Masculino,19859,6.0
-MG,30-49,Feminino,19277,3.2
-MG,65+,Feminino,19270,5.7
-MG,15-29,Feminino,16240,2.7
-MG,50-64,Masculino,14212,5.6
-MG,50-64,Feminino,12754,4.3
-MG,30-49,Masculino,12499,4.9
-MG,1-14,Masculino,7555,3.8
-MG,15-29,Masculino,6515,4.1
-MG,1-14,Feminino,5765,4.1
-MG,< 1 ano,Masculino,873,9.4
-MG,< 1 ano,Feminino,752,9.8
-MS,15-29,Feminino,2931,3.0
-MS,30-49,Feminino,2722,3.7
-MS,65+,Masculino,2157,5.6
-MS,65+,Feminino,2020,5.0
+MA,15-29,Masculino,2495,5.6
+MA,1-14,Feminino,2373,3.9
+MA,< 1 ano,Masculino,1185,7.0
+MA,< 1 ano,Feminino,1047,7.2
+MG,65+,Masculino,19909,6.0
+MG,65+,Feminino,19345,5.7
+MG,30-49,Feminino,19266,3.2
+MG,15-29,Feminino,16116,2.6
+MG,50-64,Masculino,14203,5.5
+MG,50-64,Feminino,12753,4.3
+MG,30-49,Masculino,12488,4.9
+MG,15-29,Masculino,6370,3.9
+MG,1-14,Masculino,5409,3.0
+MG,1-14,Feminino,3918,3.3
+MG,< 1 ano,Masculino,3114,7.0
+MG,< 1 ano,Feminino,2651,7.2
+MS,15-29,Feminino,2919,3.0
+MS,30-49,Feminino,2721,3.7
+MS,65+,Masculino,2158,5.6
+MS,65+,Feminino,2026,5.0
 MS,50-64,Masculino,1645,6.0
 MS,50-64,Feminino,1543,4.4
-MS,30-49,Masculino,1508,5.6
-MS,1-14,Masculino,1276,4.3
-MS,1-14,Feminino,944,4.8
-MS,15-29,Masculino,921,4.8
-MS,< 1 ano,Feminino,164,13.2
-MS,< 1 ano,Masculino,145,12.3
-MT,15-29,Feminino,4308,2.7
-MT,30-49,Feminino,3624,3.3
-MT,30-49,Masculino,2427,5.0
-MT,65+,Masculino,2194,6.1
-MT,50-64,Masculino,2132,5.7
-MT,1-14,Masculino,2071,3.6
-MT,65+,Feminino,1768,5.8
-MT,50-64,Feminino,1745,4.6
-MT,1-14,Feminino,1701,3.9
-MT,15-29,Masculino,1295,4.0
-MT,< 1 ano,Masculino,103,8.2
-MT,< 1 ano,Feminino,95,10.5
-PA,15-29,Feminino,10854,2.7
-PA,30-49,Feminino,8302,3.4
-PA,30-49,Masculino,4644,4.6
-PA,1-14,Masculino,4556,4.1
-PA,65+,Masculino,4203,5.9
+MS,30-49,Masculino,1503,5.6
+MS,1-14,Masculino,945,3.5
+MS,15-29,Masculino,894,4.7
+MS,1-14,Feminino,670,4.4
+MS,< 1 ano,Masculino,502,8.1
+MS,< 1 ano,Feminino,444,8.5
+MT,15-29,Feminino,4278,2.6
+MT,30-49,Feminino,3620,3.3
+MT,30-49,Masculino,2413,4.9
+MT,65+,Masculino,2200,6.1
+MT,50-64,Masculino,2126,5.7
+MT,65+,Feminino,1771,5.8
+MT,50-64,Feminino,1743,4.6
+MT,1-14,Masculino,1550,3.2
+MT,15-29,Masculino,1260,3.9
+MT,1-14,Feminino,1250,3.5
+MT,< 1 ano,Masculino,646,5.6
+MT,< 1 ano,Feminino,566,5.9
+PA,15-29,Feminino,10777,2.7
+PA,30-49,Feminino,8294,3.3
+PA,30-49,Masculino,4631,4.6
+PA,65+,Masculino,4217,5.9
 PA,50-64,Masculino,3869,5.5
-PA,65+,Feminino,3719,5.4
-PA,1-14,Feminino,3621,4.3
+PA,65+,Feminino,3738,5.4
 PA,50-64,Feminino,3423,4.8
-PA,15-29,Masculino,3051,4.3
-PA,< 1 ano,Masculino,305,10.7
-PA,< 1 ano,Feminino,259,10.7
-PB,30-49,Feminino,3687,3.7
-PB,15-29,Feminino,3547,3.3
-PB,65+,Feminino,2500,6.4
-PB,65+,Masculino,2350,6.6
-PB,30-49,Masculino,1932,5.9
-PB,1-14,Masculino,1865,4.5
-PB,50-64,Masculino,1856,6.7
+PA,1-14,Masculino,3337,3.6
+PA,15-29,Masculino,2995,4.2
+PA,1-14,Feminino,2634,3.8
+PA,< 1 ano,Masculino,1579,6.7
+PA,< 1 ano,Feminino,1312,6.8
+PB,30-49,Feminino,3682,3.7
+PB,15-29,Feminino,3522,3.2
+PB,65+,Feminino,2518,6.4
+PB,65+,Masculino,2361,6.6
+PB,30-49,Masculino,1927,5.9
+PB,50-64,Masculino,1853,6.7
 PB,50-64,Feminino,1827,5.0
-PB,1-14,Feminino,1434,4.7
-PB,15-29,Masculino,1052,5.6
-PB,< 1 ano,Masculino,217,8.9
-PB,< 1 ano,Feminino,197,9.2
-PE,30-49,Feminino,8604,3.7
-PE,15-29,Feminino,8502,3.0
-PE,65+,Feminino,7018,6.6
-PE,65+,Masculino,6019,6.8
-PE,30-49,Masculino,5348,5.5
-PE,50-64,Masculino,5231,6.3
+PB,1-14,Masculino,1347,4.0
+PB,1-14,Feminino,1035,4.0
+PB,15-29,Masculino,1028,5.5
+PB,< 1 ano,Masculino,743,6.9
+PB,< 1 ano,Feminino,605,7.4
+PE,30-49,Feminino,8597,3.7
+PE,15-29,Feminino,8434,3.0
+PE,65+,Feminino,7043,6.6
+PE,65+,Masculino,6032,6.8
+PE,30-49,Masculino,5345,5.5
+PE,50-64,Masculino,5230,6.3
 PE,50-64,Feminino,5072,4.9
-PE,1-14,Masculino,4442,4.4
-PE,1-14,Feminino,3308,4.8
-PE,15-29,Masculino,3055,4.6
-PE,< 1 ano,Masculino,578,7.3
-PE,< 1 ano,Feminino,432,7.8
-PI,15-29,Feminino,2918,3.3
-PI,30-49,Feminino,2649,4.0
-PI,65+,Masculino,2041,6.3
-PI,65+,Feminino,2007,6.3
-PI,30-49,Masculino,1615,6.4
+PE,15-29,Masculino,2940,4.4
+PE,1-14,Masculino,2797,3.6
+PE,< 1 ano,Masculino,2325,6.3
+PE,1-14,Feminino,1987,4.3
+PE,< 1 ano,Feminino,1802,6.3
+PI,15-29,Feminino,2900,3.3
+PI,30-49,Feminino,2648,4.0
+PI,65+,Masculino,2053,6.3
+PI,65+,Feminino,2017,6.3
+PI,30-49,Masculino,1614,6.4
 PI,50-64,Masculino,1538,6.2
-PI,1-14,Masculino,1317,4.6
 PI,50-64,Feminino,1287,5.4
-PI,1-14,Feminino,1029,5.2
-PI,15-29,Masculino,895,5.1
-PI,< 1 ano,Masculino,133,6.1
-PI,< 1 ano,Feminino,103,6.1
-PR,30-49,Feminino,12012,3.2
-PR,65+,Feminino,11023,4.3
-PR,65+,Masculino,11010,4.7
-PR,15-29,Feminino,10319,2.9
-PR,50-64,Masculino,8838,4.9
-PR,50-64,Feminino,8667,3.5
-PR,30-49,Masculino,8622,5.1
-PR,1-14,Masculino,5671,2.7
-PR,15-29,Masculino,4456,4.7
-PR,1-14,Feminino,3951,3.1
-PR,< 1 ano,Masculino,489,9.2
-PR,< 1 ano,Feminino,394,10.5
-RJ,15-29,Feminino,11596,3.4
-RJ,30-49,Feminino,11229,4.3
-RJ,65+,Feminino,10529,7.4
-RJ,65+,Masculino,9955,7.5
-RJ,50-64,Masculino,7756,7.3
-RJ,50-64,Feminino,7248,5.9
-RJ,30-49,Masculino,6660,6.3
-RJ,1-14,Masculino,5002,4.3
-RJ,15-29,Masculino,3811,5.8
-RJ,1-14,Feminino,3758,4.8
-RJ,< 1 ano,Masculino,533,13.1
-RJ,< 1 ano,Feminino,494,11.0
-RN,30-49,Feminino,3103,3.7
-RN,15-29,Feminino,2683,3.0
-RN,65+,Feminino,2090,6.0
-RN,65+,Masculino,2060,6.0
+PI,1-14,Masculino,1048,4.0
+PI,15-29,Masculino,881,5.0
+PI,1-14,Feminino,789,4.5
+PI,< 1 ano,Masculino,405,6.8
+PI,< 1 ano,Feminino,352,7.2
+PR,30-49,Feminino,12006,3.2
+PR,65+,Feminino,11040,4.3
+PR,65+,Masculino,11021,4.7
+PR,15-29,Feminino,10267,2.8
+PR,50-64,Masculino,8836,4.9
+PR,50-64,Feminino,8666,3.5
+PR,30-49,Masculino,8612,5.0
+PR,1-14,Masculino,4531,2.0
+PR,15-29,Masculino,4370,4.7
+PR,1-14,Feminino,3072,2.4
+PR,< 1 ano,Masculino,1706,6.7
+PR,< 1 ano,Feminino,1308,7.2
+RJ,15-29,Feminino,11506,3.4
+RJ,30-49,Feminino,11211,4.3
+RJ,65+,Feminino,10561,7.4
+RJ,65+,Masculino,9960,7.5
+RJ,50-64,Masculino,7748,7.3
+RJ,50-64,Feminino,7236,5.9
+RJ,30-49,Masculino,6642,6.3
+RJ,15-29,Masculino,3725,5.7
+RJ,1-14,Masculino,3705,3.8
+RJ,1-14,Feminino,2643,4.4
+RJ,< 1 ano,Masculino,1899,8.0
+RJ,< 1 ano,Feminino,1667,7.5
+RN,30-49,Feminino,3102,3.7
+RN,15-29,Feminino,2671,3.0
+RN,65+,Feminino,2101,6.0
+RN,65+,Masculino,2064,6.0
 RN,50-64,Masculino,1763,5.8
-RN,50-64,Feminino,1676,4.5
-RN,30-49,Masculino,1588,5.9
-RN,1-14,Masculino,1252,4.0
-RN,1-14,Feminino,973,4.3
-RN,15-29,Masculino,854,4.4
-RN,< 1 ano,Masculino,122,13.3
-RN,< 1 ano,Feminino,113,12.1
-RO,15-29,Feminino,1946,2.8
-RO,30-49,Feminino,1691,3.7
-RO,1-14,Masculino,1484,3.0
-RO,65+,Masculino,1330,6.4
-RO,1-14,Feminino,1109,3.2
+RN,50-64,Feminino,1675,4.5
+RN,30-49,Masculino,1587,5.9
+RN,1-14,Masculino,948,3.2
+RN,15-29,Masculino,837,4.3
+RN,1-14,Feminino,727,3.4
+RN,< 1 ano,Masculino,439,8.5
+RN,< 1 ano,Feminino,361,8.3
+RO,15-29,Feminino,1933,2.8
+RO,30-49,Feminino,1689,3.7
+RO,65+,Masculino,1333,6.4
+RO,1-14,Masculino,1101,2.7
 RO,50-64,Masculino,1029,6.5
-RO,30-49,Masculino,1011,6.7
-RO,65+,Feminino,974,5.5
+RO,30-49,Masculino,1010,6.7
+RO,65+,Feminino,979,5.5
 RO,50-64,Feminino,852,5.8
-RO,15-29,Masculino,581,6.2
-RO,< 1 ano,Masculino,214,6.2
-RO,< 1 ano,Feminino,187,5.3
-RR,15-29,Feminino,877,3.6
+RO,1-14,Feminino,839,2.8
+RO,< 1 ano,Masculino,635,4.7
+RO,15-29,Masculino,541,6.3
+RO,< 1 ano,Feminino,467,4.9
+RR,15-29,Feminino,867,3.5
 RR,30-49,Feminino,608,4.3
-RR,1-14,Feminino,362,6.8
-RR,1-14,Masculino,351,7.7
-RR,30-49,Masculino,226,6.3
+RR,1-14,Feminino,226,6.6
+RR,30-49,Masculino,224,6.3
+RR,1-14,Masculino,218,7.7
+RR,< 1 ano,Feminino,171,8.2
 RR,65+,Masculino,165,12.1
+RR,< 1 ano,Masculino,164,8.2
 RR,50-64,Feminino,145,5.6
-RR,15-29,Masculino,144,5.8
 RR,50-64,Masculino,134,9.3
-RR,65+,Feminino,114,9.6
-RR,< 1 ano,Feminino,26,14.0
-RR,< 1 ano,Masculino,15,14.3
-RS,65+,Feminino,11552,6.1
-RS,65+,Masculino,11295,6.4
-RS,30-49,Feminino,10431,4.3
-RS,15-29,Feminino,8414,3.8
-RS,50-64,Masculino,8300,6.5
-RS,50-64,Feminino,7746,5.1
-RS,30-49,Masculino,6989,6.6
-RS,1-14,Masculino,3897,4.2
-RS,15-29,Masculino,3360,6.1
-RS,1-14,Feminino,2736,5.2
-RS,< 1 ano,Masculino,347,14.4
-RS,< 1 ano,Feminino,326,12.6
-SC,30-49,Feminino,9106,3.0
-SC,15-29,Feminino,7374,3.0
-SC,65+,Masculino,7156,5.3
-SC,65+,Feminino,7065,4.9
-SC,50-64,Masculino,6282,4.8
-SC,30-49,Masculino,6037,4.1
-SC,50-64,Feminino,5941,3.5
-SC,1-14,Masculino,3452,2.9
-SC,15-29,Masculino,3124,3.9
-SC,1-14,Feminino,2579,3.5
-SC,< 1 ano,Masculino,398,9.1
-SC,< 1 ano,Feminino,336,10.6
-SE,15-29,Feminino,2360,2.7
-SE,30-49,Feminino,2219,3.1
-SE,30-49,Masculino,936,6.9
-SE,65+,Masculino,856,6.7
+RR,15-29,Masculino,130,5.7
+RR,65+,Feminino,115,9.7
+RS,65+,Feminino,11574,6.1
+RS,65+,Masculino,11291,6.3
+RS,30-49,Feminino,10404,4.3
+RS,15-29,Feminino,8347,3.7
+RS,50-64,Masculino,8269,6.4
+RS,50-64,Feminino,7728,5.1
+RS,30-49,Masculino,6933,6.5
+RS,15-29,Masculino,3280,6.0
+RS,1-14,Masculino,2898,3.3
+RS,1-14,Feminino,1906,4.2
+RS,< 1 ano,Masculino,1395,8.7
+RS,< 1 ano,Feminino,1174,9.0
+SC,30-49,Feminino,9094,3.0
+SC,15-29,Feminino,7335,2.9
+SC,65+,Masculino,7158,5.3
+SC,65+,Feminino,7079,4.9
+SC,50-64,Masculino,6279,4.8
+SC,30-49,Masculino,6024,4.0
+SC,50-64,Feminino,5936,3.4
+SC,15-29,Masculino,3070,3.8
+SC,1-14,Masculino,2706,2.3
+SC,1-14,Feminino,1952,2.8
+SC,< 1 ano,Masculino,1193,6.8
+SC,< 1 ano,Feminino,989,7.4
+SE,15-29,Feminino,2353,2.6
+SE,30-49,Feminino,2216,3.0
+SE,30-49,Masculino,933,6.9
+SE,65+,Masculino,863,6.7
 SE,50-64,Feminino,822,5.1
-SE,65+,Feminino,809,6.8
-SE,1-14,Masculino,760,4.9
+SE,65+,Feminino,816,6.8
 SE,50-64,Masculino,749,6.5
-SE,1-14,Feminino,608,4.9
-SE,15-29,Masculino,463,5.9
-SE,< 1 ano,Feminino,89,11.4
-SE,< 1 ano,Masculino,87,9.2
-SP,30-49,Feminino,37075,3.7
-SP,65+,Masculino,32465,5.9
-SP,65+,Feminino,32342,5.6
-SP,15-29,Feminino,31167,3.2
-SP,50-64,Masculino,25468,6.0
-SP,30-49,Masculino,24605,6.0
-SP,50-64,Feminino,24198,4.6
-SP,1-14,Masculino,15797,3.6
-SP,15-29,Masculino,12059,5.2
-SP,1-14,Feminino,11151,4.2
-SP,< 1 ano,Masculino,1903,10.5
-SP,< 1 ano,Feminino,1671,10.5
-TO,15-29,Feminino,1835,3.1
+SE,1-14,Masculino,499,4.1
+SE,15-29,Masculino,448,5.9
+SE,1-14,Feminino,368,3.8
+SE,< 1 ano,Masculino,359,7.4
+SE,< 1 ano,Feminino,332,8.1
+SP,30-49,Feminino,37051,3.7
+SP,65+,Masculino,32499,5.9
+SP,65+,Feminino,32438,5.6
+SP,15-29,Feminino,30951,3.2
+SP,50-64,Masculino,25462,5.9
+SP,30-49,Masculino,24579,6.0
+SP,50-64,Feminino,24196,4.6
+SP,15-29,Masculino,11819,5.1
+SP,1-14,Masculino,11663,2.9
+SP,1-14,Feminino,7867,3.6
+SP,< 1 ano,Masculino,6247,7.3
+SP,< 1 ano,Feminino,5094,7.3
+TO,15-29,Feminino,1820,3.1
 TO,30-49,Feminino,1507,3.9
-TO,65+,Masculino,967,6.8
-TO,30-49,Masculino,897,6.4
-TO,1-14,Masculino,811,4.6
+TO,65+,Masculino,969,6.8
+TO,30-49,Masculino,895,6.4
 TO,50-64,Masculino,747,6.9
-TO,65+,Feminino,723,6.9
-TO,1-14,Feminino,591,4.8
+TO,65+,Feminino,726,6.9
+TO,1-14,Masculino,573,4.0
 TO,50-64,Feminino,558,6.1
-TO,15-29,Masculino,548,6.0
-TO,< 1 ano,Masculino,105,8.0
-TO,< 1 ano,Feminino,73,10.9
+TO,15-29,Masculino,530,5.9
+TO,1-14,Feminino,410,4.7
+TO,< 1 ano,Masculino,361,6.9
+TO,< 1 ano,Feminino,266,7.0
