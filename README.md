@@ -60,6 +60,10 @@ Ainda faltam dois dicionários pequenos em `data/raw/` (salve manualmente):
 ## Como rodar
 
 ```bash
+# baixar os dados (gera data/raw/, não vai para o Git)
+uv run python baixar_dados.py             # baixa o SIH-RD de abril/2026 (27 UFs)
+uv run python gerar_dicionarios.py        # gera cid10.csv e municipios.csv
+
 # pipeline, do arquivo ao indicador
 uv run python -m pipeline.ingestao        # data/raw -> bronze
 uv run python -m pipeline.transformacao   # bronze   -> prata
@@ -71,6 +75,20 @@ uv run streamlit run app.py               # abre em localhost:8501
 # testes
 uv run pytest --cov                        # unitários, dado inventado, cobertura >= 70%
 ```
+
+### Resultado de uma execução (abril/2026, Brasil)
+
+Números reais de uma execução completa do pipeline, para conferência:
+
+```
+ingestao      bronze.internacoes  1.238.763 · cid10 7.928 · municipios 5.569
+transformacao prata.internacoes   1.238.763 linhas (0 removidas)
+marts         8 marts, 88.174 linhas na camada ouro
+```
+
+As 1.238.763 internações se distribuem pelas 27 UFs: **SP** lidera com 251.270,
+seguido de **MG** (135.007), **PR** (85.532), **BA** (83.766) e **RJ** (78.575).
+*(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
 
 ---
 
