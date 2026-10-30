@@ -16,6 +16,10 @@ import painel
 
 st.set_page_config(page_title="SUS · internações por estado", layout="wide", page_icon="🏥")
 
+# Esconde a barra de ferramentas do plotly (camera, zoom, etc.): visual mais
+# limpo e profissional. Desliga tambem o menuzinho "produced with plotly".
+PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
+
 # Visual: cards com borda arredondada e sombra, fundo suave, margens.
 st.markdown(
     """
@@ -93,11 +97,11 @@ def main():
     if uf is None:
         k = dados["kpis_gerais"].iloc[0]
         internacoes, valor, custo = k["internacoes"], k["valor_total"], k["custo_medio"]
-        dias, mort, n_ufs = k["dias_medio"], k["taxa_mortalidade_pct"], k["ufs"]
+        dias, mort = k["dias_medio"], k["taxa_mortalidade_pct"]
     else:
         linha = por_estado[por_estado["uf"] == uf].iloc[0]
         internacoes, valor, custo = linha["internacoes"], linha["valor_total"], linha["custo_medio"]
-        dias, mort, n_ufs = linha["dias_medio"], linha["taxa_mortalidade_pct"], 1
+        dias, mort = linha["dias_medio"], linha["taxa_mortalidade_pct"]
 
     c = st.columns(5)
     c[0].metric("Internações", painel.numero(internacoes))
@@ -112,16 +116,16 @@ def main():
     st.markdown('<div class="sus-sub">Visão nacional</div>', unsafe_allow_html=True)
     f1 = st.columns([3, 2])
     with f1[0]:
-        st.plotly_chart(painel.fig_mapa(por_estado, metrica), width="stretch")
+        st.plotly_chart(painel.fig_mapa(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
     with f1[1]:
-        st.plotly_chart(painel.fig_ranking_estados(por_estado, metrica), width="stretch")
+        st.plotly_chart(painel.fig_ranking_estados(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
 
     # mapa + rosca (o circulo classico) lado a lado com o custo por UF
     f1b = st.columns([2, 3])
     with f1b[0]:
-        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica), width="stretch")
+        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
     with f1b[1]:
-        st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch")
+        st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch", config=PLOTLY_CONFIG)
 
     st.divider()
 
@@ -140,11 +144,11 @@ def main():
     st.markdown(f'<div class="sus-sub">Detalhe · {rotulo}</div>', unsafe_allow_html=True)
     f2 = st.columns(2)
     with f2[0]:
-        st.plotly_chart(painel.fig_top_diagnosticos(diag, rotulo), width="stretch")
+        st.plotly_chart(painel.fig_top_diagnosticos(diag, rotulo), width="stretch", config=PLOTLY_CONFIG)
     with f2[1]:
-        st.plotly_chart(painel.fig_serie_diaria(serie, rotulo), width="stretch")
+        st.plotly_chart(painel.fig_serie_diaria(serie, rotulo), width="stretch", config=PLOTLY_CONFIG)
 
-    st.plotly_chart(painel.fig_perfil(perfil, rotulo), width="stretch")
+    st.plotly_chart(painel.fig_perfil(perfil, rotulo), width="stretch", config=PLOTLY_CONFIG)
 
 
 if __name__ == "__main__":

@@ -16,8 +16,12 @@ __pycache__/
 htmlcov/
 
 # dashboard
-relatorio.html
+# o relatorio gerado na raiz e descartavel; o de docs/ e publicado no GitHub Pages
+/relatorio.html
 
 # so/editor
 .DS_Store
 .vscode/
+
+# ferramentas locais do agente (nao fazem parte do projeto)
+.agents/
