@@ -1,0 +1,82 @@
+"""
+Etapa 1: ingestao (arquivos de data/raw/ -> schema bronze).
+
+Le os arquivos brutos do SIH/SUS e grava cada um como uma tabela no schema
+bronze do sih.duckdb. Regra da camada bronze: tudo entra como veio, todas as
+colunas como texto (VARCHAR), campo vazio virando NULL. Nada de tipo nem de
+limpeza aqui, isso e trabalho da transformacao.
+
+Fontes esperadas em data/raw/ (veja README para como baixar com o PySUS):
+    internacoes.parquet   microdados do SIH-RD (uma linha por internacao/AIH)
+    cid10.csv             dicionario CID-10: codigo -> nome da doenca
+    municipios.csv        dicionario IBGE: codigo -> municipio, UF, regiao
+
+Os microdados vem do PySUS ja convertidos de .dbc para parquet. Os dois
+dicionarios sao CSVs pequenos e estaveis. O DuckDB le parquet e csv direto.
+
+Idempotente: CREATE OR REPLACE TABLE, entao rodar de novo da o mesmo resultado.
+Rodar com:
+    uv run python -m pipeline.ingestao
+"""
+import sys
+from pathlib import Path
+
+from pipeline.db import conectar, criar_schema
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+RAIZ = Path(__file__).resolve().parent.parent
+RAW = RAIZ / "data" / "raw"
+
+# arquivo em data/raw/ -> (tabela bronze, leitor duckdb)
+# all_varchar=true garante a camada bronze: toda coluna como texto.
+ARQUIVOS = {
+    "internacoes.parquet": (
+        "internacoes",
+        "SELECT * FROM read_parquet('{caminho}')",
+    ),
+    "cid10.csv": (
+        "cid10",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+    ),
+    "municipios.csv": (
+        "municipios",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+    ),
+}
+
+
+def main():
+    con = conectar()
+    criar_schema(con, "bronze")
+
+    # Pre-requisito: os tres arquivos tem que existir. Faltando qualquer um,
+    # para antes de gravar nada (ingestao parcial produz dashboard errado).
+    faltando = [arq for arq in ARQUIVOS if not (RAW / arq).exists()]
+    if faltando:
+        print("ERRO: faltam arquivos em data/raw/:")
+        for arq in faltando:
+            print(f"  - {arq}")
+        print("Veja o README (secao 'Como baixar os dados') para gerar com o PySUS.")
+        sys.exit(1)
+
+    total = 0
+    for arquivo, (tabela, leitor) in ARQUIVOS.items():
+        caminho = (RAW / arquivo).as_posix()
+        # os microdados entram como texto para o parquet nao impor tipo antes
+        # da transformacao; o CAST AS VARCHAR cobre o caso do parquet.
+        sql_fonte = leitor.format(caminho=caminho)
+        con.execute(f"""
+            CREATE OR REPLACE TABLE bronze.{tabela} AS
+            SELECT * FROM ({sql_fonte})
+        """)
+        n = con.execute(f"SELECT count(*) FROM bronze.{tabela}").fetchone()[0]
+        total += n
+        print(f"  bronze.{tabela:<14} {n:>9,} registros".replace(",", "."))
+
+    print(f"  {'total':<14} {total:>9,} registros".replace(",", "."))
+    con.close()
+
+
+if __name__ == "__main__":
+    main()
