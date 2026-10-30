@@ -79,10 +79,12 @@ def main():
     with col_sel:
         escolha = st.selectbox("Estado", ["Brasil"] + ufs, index=0)
     with col_met:
+        opcoes = ["internacoes", "valor_total", "custo_medio", "dias_medio", "taxa_mortalidade_pct"]
         metrica = st.selectbox(
             "Métrica do mapa e ranking",
-            ["internacoes", "valor_total", "custo_medio", "dias_medio", "taxa_mortalidade_pct"],
+            opcoes,
             index=0,
+            format_func=painel.rotulo,  # mostra "Internações", guarda "internacoes"
         )
 
     uf = None if escolha == "Brasil" else escolha
@@ -99,8 +101,8 @@ def main():
 
     c = st.columns(5)
     c[0].metric("Internações", painel.numero(internacoes))
-    c[1].metric("Gasto total", painel.reais(valor))
-    c[2].metric("Custo médio", painel.reais(custo))
+    c[1].metric("Gasto total", painel.reais_curto(valor))      # R$ 2,26 bi, cabe no card
+    c[2].metric("Custo médio", painel.reais(custo, 0))          # R$ 1.824, sem centavos
     c[3].metric("Permanência média", painel.numero(dias, 1) + " dias")
     c[4].metric("Mortalidade", painel.pct(mort, 2))
 

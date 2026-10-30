@@ -29,6 +29,19 @@ def test_pct_duas_casas():
     assert painel.pct(4.27, 2) == "4,27%"
 
 
+def test_reais_curto_bilhoes_milhoes_mil():
+    assert painel.reais_curto(2_259_000_000) == "R$ 2,26 bi"
+    assert painel.reais_curto(5_400_000) == "R$ 5,40 mi"
+    assert painel.reais_curto(3_200) == "R$ 3,2 mil"
+
+
+def test_rotulo_traduz_metrica():
+    assert painel.rotulo("internacoes") == "Internações"
+    assert painel.rotulo("custo_medio") == "Custo médio"
+    # metrica desconhecida volta ela mesma
+    assert painel.rotulo("xyz") == "xyz"
+
+
 def test_formato_nao_depende_de_locale():
     # milhar e decimal juntos, sem trocar um pelo outro
     assert painel.numero(1234.5, 1) == "1.234,5"
