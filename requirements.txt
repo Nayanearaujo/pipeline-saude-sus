@@ -1,0 +1,6 @@
+# Dependencias do dashboard no Streamlit Community Cloud.
+# So o necessario para rodar app.py lendo os CSVs de dados_painel/ (camada ouro).
+# O processamento pesado (duckdb, pyreaddbc) roda na maquina local, nao no deploy.
+streamlit>=1.30
+plotly>=5.18
+pandas>=2.0

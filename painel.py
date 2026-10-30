@@ -19,10 +19,12 @@ Spec (fonte da verdade; o codigo e consequencia dela):
 """
 from __future__ import annotations
 
-import duckdb
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+
+# duckdb so e importado dentro de ler(), quando ha banco local. No deploy
+# (Streamlit Cloud) o painel le CSVs e nao precisa do duckdb instalado.
 
 BANCO = "sih.duckdb"
 
@@ -96,14 +98,34 @@ def _layout(fig, titulo: str):
 # 1. LEITURA
 # ---------------------------------------------------------------------------
 def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.DataFrame]:
-    """Le cada mart como DataFrame. So SELECT *; conexao read-only aberta e
-    fechada aqui dentro."""
+    """Le cada mart como DataFrame.
+
+    Duas fontes, nesta ordem:
+    1. o sih.duckdb (uso local, apos rodar o pipeline) -> le do schema ouro;
+    2. a pasta dados_painel/ com os CSVs exportados (uso no deploy, onde nao ha
+       banco) -> le de dados_painel/<mart>.csv.
+    Assim o mesmo painel roda na maquina (banco completo) e no Streamlit Cloud
+    (so a camada ouro, leve)."""
+    from pathlib import Path
+
     nomes = marts if marts is not None else MARTS
-    con = duckdb.connect(banco, read_only=True)
-    try:
-        return {nome: con.execute(f"SELECT * FROM ouro.{nome}").df() for nome in nomes}
-    finally:
-        con.close()
+
+    if Path(banco).exists():
+        import duckdb  # importado so aqui: no deploy nao ha banco nem duckdb
+        con = duckdb.connect(banco, read_only=True)
+        try:
+            return {nome: con.execute(f"SELECT * FROM ouro.{nome}").df() for nome in nomes}
+        finally:
+            con.close()
+
+    # Fallback: CSVs da camada ouro (deploy).
+    pasta = Path(__file__).resolve().parent / "dados_painel"
+    if not (pasta / f"{nomes[0]}.csv").exists():
+        raise FileNotFoundError(
+            "Nem o sih.duckdb nem a pasta dados_painel/ foram encontrados. "
+            "Rode o pipeline e depois 'uv run python exportar_painel.py'."
+        )
+    return {nome: pd.read_csv(pasta / f"{nome}.csv") for nome in nomes}
 
 
 # ---------------------------------------------------------------------------
