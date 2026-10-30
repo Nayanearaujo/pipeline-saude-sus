@@ -54,3 +54,15 @@ def test_serie_diaria_um_ponto_por_dia():
     df = pd.DataFrame({"dia": ["2026-07-01", "2026-07-02"], "internacoes": [5, 8]})
     fig = painel.fig_serie_diaria(df, "RJ")
     assert len(fig.data[0].x) == 2
+
+
+def test_rosca_regiao_uma_fatia_por_regiao():
+    df = pd.DataFrame({
+        "regiao": ["Sudeste", "Sul", "Nordeste"],
+        "internacoes": [100, 50, 30],
+    })
+    fig = painel.fig_rosca_regiao(df, "internacoes")
+    # uma fatia por regiao
+    assert len(fig.data[0].labels) == 3
+    # e um donut (tem buraco no meio)
+    assert fig.data[0].hole > 0

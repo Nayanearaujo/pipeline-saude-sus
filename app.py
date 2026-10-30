@@ -16,6 +16,37 @@ import painel
 
 st.set_page_config(page_title="SUS · internações por estado", layout="wide", page_icon="🏥")
 
+# Visual: cards com borda arredondada e sombra, fundo suave, margens.
+st.markdown(
+    """
+    <style>
+      .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1300px; }
+      /* cartoes de metrica (st.metric) com cara de card */
+      div[data-testid="stMetric"] {
+        background: #ffffff;
+        border: 1px solid #e3e8e4;
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(16,23,26,.35);
+      }
+      div[data-testid="stMetricLabel"] { color: #6b7b7c; font-size: 0.82rem; }
+      div[data-testid="stMetricValue"] { color: #10171a; font-weight: 700; }
+      /* graficos num cartao branco tambem */
+      div[data-testid="stPlotlyChart"] {
+        background: #ffffff;
+        border: 1px solid #e3e8e4;
+        border-radius: 14px;
+        padding: 8px;
+        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(16,23,26,.35);
+      }
+      h1 { color: #10171a; }
+      .sus-sub { color: #39474a; font-size: 1.05rem; font-weight: 600;
+                 margin: 8px 0 2px; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 
 @st.cache_data
 def carregar():
@@ -24,7 +55,7 @@ def carregar():
 
 def main():
     st.title("🏥 Internações hospitalares do SUS · por estado")
-    st.caption("Fonte: SIH/SUS (DATASUS). Uma linha = uma internação (AIH).")
+    st.caption("Fonte: SIH/SUS (DATASUS) · abril/2026 · uma linha = uma internação (AIH).")
 
     try:
         dados = carregar()
@@ -76,14 +107,19 @@ def main():
     st.divider()
 
     # ---- Faixa nacional: mapa + ranking (sempre Brasil, para comparar) -------
-    st.subheader("Visão nacional")
+    st.markdown('<div class="sus-sub">Visão nacional</div>', unsafe_allow_html=True)
     f1 = st.columns([3, 2])
     with f1[0]:
         st.plotly_chart(painel.fig_mapa(por_estado, metrica), width="stretch")
     with f1[1]:
         st.plotly_chart(painel.fig_ranking_estados(por_estado, metrica), width="stretch")
 
-    st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch")
+    # mapa + rosca (o circulo classico) lado a lado com o custo por UF
+    f1b = st.columns([2, 3])
+    with f1b[0]:
+        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica), width="stretch")
+    with f1b[1]:
+        st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch")
 
     st.divider()
 
@@ -99,7 +135,7 @@ def main():
         serie = dados["internacoes_diarias"][dados["internacoes_diarias"]["uf"] == uf]
         perfil = dados["perfil_demografico"][dados["perfil_demografico"]["uf"] == uf]
 
-    st.subheader(f"Detalhe · {rotulo}")
+    st.markdown(f'<div class="sus-sub">Detalhe · {rotulo}</div>', unsafe_allow_html=True)
     f2 = st.columns(2)
     with f2[0]:
         st.plotly_chart(painel.fig_top_diagnosticos(diag, rotulo), width="stretch")

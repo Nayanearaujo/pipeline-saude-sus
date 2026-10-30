@@ -40,6 +40,23 @@ MARTS = [
 # Paleta: uma cor base (verde saude) e uma escala continua para o mapa.
 COR = "#1a6b52"
 ESCALA = "Greens"
+# Paleta qualitativa para graficos categoricos (rosca, barras por grupo).
+PALETA = ["#1a6b52", "#2e9e74", "#5cc99a", "#a86e05", "#e0a800", "#7d8d88"]
+
+
+def _layout(fig, titulo: str):
+    """Aplica um visual consistente a qualquer figura: titulo, fonte, margens."""
+    fig.update_layout(
+        title=dict(text=titulo, font=dict(size=16, family="Arial", color="#10171a")),
+        font=dict(family="Arial", size=13, color="#39474a"),
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        margin=dict(l=10, r=10, t=52, b=10),
+        title_x=0.02,
+    )
+    fig.update_xaxes(showgrid=True, gridcolor="#eef1ee", zeroline=False)
+    fig.update_yaxes(showgrid=True, gridcolor="#eef1ee", zeroline=False)
+    return fig
 
 
 # ---------------------------------------------------------------------------
@@ -83,16 +100,16 @@ def pct(valor: float, casas: int = 1) -> str:
 # Graficos: uma funcao por grafico. Nenhuma agrega; o dado ja vem do mart.
 # ---------------------------------------------------------------------------
 def _barh(df: pd.DataFrame, x: str, y: str, titulo: str) -> go.Figure:
-    """Barras horizontais, maior em cima."""
-    fig = px.bar(df, x=x, y=y, orientation="h", title=titulo)
-    fig.update_traces(marker_color=COR)
-    fig.update_layout(yaxis=dict(autorange="reversed"), margin=dict(l=8, r=8, t=48, b=8))
-    return fig
+    """Barras horizontais, maior em cima, com visual consistente."""
+    fig = px.bar(df, x=x, y=y, orientation="h", text=x)
+    fig.update_traces(marker_color=COR, textposition="outside",
+                      texttemplate="%{text:,.0f}", cliponaxis=False)
+    fig.update_layout(yaxis=dict(autorange="reversed"))
+    return _layout(fig, titulo)
 
 
 def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
-    """Mapa coropletico do Brasil por UF. O 'salta aos olhos' do painel.
-    Usa o GeoJSON oficial do IBGE via a propriedade de sigla de estado."""
+    """Mapa coropletico do Brasil por UF. O 'salta aos olhos' do painel."""
     fig = px.choropleth(
         por_estado,
         geojson="https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson",
@@ -101,10 +118,25 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
         color=metrica,
         color_continuous_scale=ESCALA,
         scope="south america",
-        title=f"Internações por estado · {metrica}",
     )
     fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(margin=dict(l=8, r=8, t=48, b=8))
+    fig = _layout(fig, f"Mapa · {metrica} por estado")
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+    return fig
+
+
+def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
+    """Grafico de rosca (donut) com a participacao de cada regiao na metrica.
+    O 'circulo classico': mostra como o total se divide entre as 5 regioes."""
+    fig = px.pie(
+        por_estado, names="regiao", values=metrica, hole=0.55,
+        color_discrete_sequence=PALETA,
+    )
+    fig.update_traces(textposition="inside", textinfo="percent+label",
+                      marker=dict(line=dict(color="white", width=2)))
+    fig = _layout(fig, f"Participação por região · {metrica}")
+    fig.update_layout(showlegend=True)
     return fig
 
 
@@ -132,12 +164,11 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
 def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
     """Internacoes por dia ao longo do mes, no escopo recebido."""
     serie = df.sort_values("dia")
-    fig = px.line(serie, x="dia", y="internacoes", markers=True,
-                  title=f"Internações por dia · {rotulo}")
-    fig.update_traces(line_color=COR, marker_color=COR)
-    fig.update_layout(xaxis_title="dia", yaxis_title="internações",
-                      margin=dict(l=8, r=8, t=48, b=8))
-    return fig
+    fig = px.line(serie, x="dia", y="internacoes", markers=True)
+    fig.update_traces(line_color=COR, marker_color=COR, line_width=2,
+                      fill="tozeroy", fillcolor="rgba(26,107,82,0.08)")
+    fig.update_layout(xaxis_title="dia", yaxis_title="internações")
+    return _layout(fig, f"Internações por dia · {rotulo}")
 
 
 def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
@@ -146,7 +177,7 @@ def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
     fig = px.bar(
         df, x="faixa_etaria", y="internacoes", color="sexo", barmode="group",
         category_orders={"faixa_etaria": ordem},
-        title=f"Perfil por faixa etária e sexo · {rotulo}",
+        color_discrete_sequence=PALETA,
     )
-    fig.update_layout(margin=dict(l=8, r=8, t=48, b=8))
-    return fig
+    fig.update_layout(xaxis_title="faixa etária", yaxis_title="internações")
+    return _layout(fig, f"Perfil por faixa etária e sexo · {rotulo}")
