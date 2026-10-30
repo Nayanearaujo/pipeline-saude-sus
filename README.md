@@ -8,6 +8,24 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 > Recorte: internações de **abril de 2026**, Brasil inteiro, com o **Rio de
 > Janeiro** como foco da análise. Dados públicos do Ministério da Saúde.
 
+## Links
+
+- 📊 **Dashboard ao vivo (Streamlit):** _substituir pelo link do deploy_
+- 📖 **Guia do projeto (GitHub Pages):** https://nayanearaujo.github.io/pipeline-saude-sus/
+- 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
+
+## As quatro etapas do pipeline
+
+Este projeto refaz, do zero e com um dataset novo (SUS), o caminho das quatro
+aulas do curso: da ingestão ao dashboard.
+
+| Etapa | O que faz | Arquivo |
+|---|---|---|
+| **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
+| **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
+| **3 · SQL / Marts** | 8 indicadores em **SQL puro** (camada ouro) | `pipeline/marts.py` + `sql/marts/*.sql` |
+| **4 · Dashboard + testes** | painel interativo por estado e 27 testes (89%) | `app.py`, `painel.py`, `test/` |
+
 ---
 
 ## Arquitetura: três camadas
