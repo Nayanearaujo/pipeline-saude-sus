@@ -1,15 +1,17 @@
 """
-Gera os dois dicionarios de apoio em data/raw/ a partir do internacoes.parquet
-que o baixar_dados.py ja criou. Roda na SUA maquina, depois do baixar_dados.py:
+Gera os dois dicionarios de apoio em data/raw/: cid10.csv e municipios.csv.
+Roda na SUA maquina, depois do baixar_dados.py:
 
     uv run python gerar_dicionarios.py
 
-Por que isso existe: cid10.csv e municipios.csv sao tabelas de apoio. Em vez de
-caçar os arquivos oficiais do IBGE/DATASUS (formatos chatos), este script extrai
-os codigos que de fato aparecem nos microdados e monta os dois CSVs no formato
-que a ingestao espera. Os nomes vem de uma lista enxuta embutida; o que nao
-tiver nome fica rotulado de forma neutra, e o pipeline continua funcionando
-(a camada ouro usa LEFT JOIN e nunca perde linha por falta de traducao).
+Estrategia: baixa as tabelas OFICIAIS (IBGE para municipios, DATASUS para
+CID-10) e salva no formato que a ingestao espera (codigo -> nome). Se nao houver
+internet, cai num modo neutro (nomes rotulados pelo codigo) para nao travar o
+pipeline. A camada ouro usa LEFT JOIN e nunca perde linha por falta de nome.
+
+Fontes (dados publicos):
+  municipios  IBGE via kelvins/municipios-brasileiros (CSV, 5.570 municipios)
+  cid10       DATASUS via cleytonferrari/CidDataSus (CSV, subcategorias)
 """
 import sys
 from pathlib import Path
@@ -19,8 +21,15 @@ import pandas as pd
 RAW = Path(__file__).resolve().parent / "data" / "raw"
 PARQUET = RAW / "internacoes.parquet"
 
-# UF (codigo IBGE de 2 digitos) -> sigla. Usado para nomear o municipio de forma
-# util mesmo sem a lista completa do IBGE.
+URL_MUNICIPIOS = (
+    "https://raw.githubusercontent.com/kelvins/municipios-brasileiros/"
+    "main/csv/municipios.csv"
+)
+URL_CID = (
+    "https://raw.githubusercontent.com/cleytonferrari/CidDataSus/"
+    "master/CIDImport/Repositorio/Resources/CID-10-SUBCATEGORIAS.CSV"
+)
+
 UF_POR_COD = {
     "11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP",
     "17": "TO", "21": "MA", "22": "PI", "23": "CE", "24": "RN", "25": "PB",
@@ -31,11 +40,67 @@ UF_POR_COD = {
 
 
 def _coluna(df, *nomes):
-    """Encontra a primeira coluna existente entre varios nomes possiveis."""
     for n in nomes:
         if n in df.columns:
             return n
-    raise KeyError(f"nenhuma destas colunas no parquet: {nomes}")
+    raise KeyError(f"nenhuma destas colunas: {nomes}")
+
+
+# ---------------------------------------------------------------------------
+# Municipios: baixa a tabela do IBGE; fallback para nomes neutros.
+# ---------------------------------------------------------------------------
+def gerar_municipios(codigos_usados: set[str]):
+    try:
+        ibge = pd.read_csv(URL_MUNICIPIOS, dtype=str)
+        # a tabela tem codigo_ibge (7 digitos), nome, codigo_uf
+        col_cod = _coluna(ibge, "codigo_ibge", "codigo", "cod_ibge")
+        col_nome = _coluna(ibge, "nome", "municipio", "name")
+        ibge["codigo6"] = ibge[col_cod].str[:6]
+        ibge["uf"] = ibge["codigo6"].str[:2].map(UF_POR_COD).fillna("NA")
+        munic = ibge[["codigo6", col_nome, "uf"]].rename(
+            columns={"codigo6": "codigo", col_nome: "municipio"}
+        )
+        munic = munic.drop_duplicates("codigo")
+        munic.to_csv(RAW / "municipios.csv", index=False, encoding="utf-8")
+        print(f"  ok: municipios.csv ({len(munic):,} do IBGE)".replace(",", "."))
+        return
+    except Exception as e:  # noqa: BLE001
+        print(f"  aviso: nao baixei o IBGE ({e}); usando nomes neutros.")
+
+    munic = pd.DataFrame({"codigo": sorted(c for c in codigos_usados if len(c) == 6)})
+    munic["uf"] = munic["codigo"].str[:2].map(UF_POR_COD).fillna("NA")
+    munic["municipio"] = "Municipio " + munic["codigo"]
+    munic[["codigo", "municipio", "uf"]].to_csv(
+        RAW / "municipios.csv", index=False, encoding="utf-8"
+    )
+    print(f"  ok: municipios.csv ({len(munic):,} neutros)".replace(",", "."))
+
+
+# ---------------------------------------------------------------------------
+# CID-10: baixa a tabela do DATASUS; fallback para nomes neutros.
+# ---------------------------------------------------------------------------
+def gerar_cid(codigos_usados: set[str]):
+    try:
+        # a tabela do DATASUS vem em latin-1, separada por ';', com colunas
+        # SUBCAT (codigo) e DESCRICAO.
+        cid = pd.read_csv(URL_CID, sep=";", dtype=str, encoding="latin-1")
+        col_cod = _coluna(cid, "SUBCAT", "CODIGO", "CAT")
+        col_desc = _coluna(cid, "DESCRICAO", "DESCRABREV", "descricao")
+        out = cid[[col_cod, col_desc]].rename(
+            columns={col_cod: "codigo", col_desc: "descricao"}
+        )
+        out["codigo"] = out["codigo"].str.strip().str.replace(".", "", regex=False)
+        out = out.drop_duplicates("codigo")
+        out.to_csv(RAW / "cid10.csv", index=False, encoding="utf-8")
+        print(f"  ok: cid10.csv ({len(out):,} do DATASUS)".replace(",", "."))
+        return
+    except Exception as e:  # noqa: BLE001
+        print(f"  aviso: nao baixei o CID-10 ({e}); usando nomes neutros.")
+
+    cid = pd.DataFrame({"codigo": sorted(c for c in codigos_usados if c and c != "nan")})
+    cid["descricao"] = "CID " + cid["codigo"]
+    cid.to_csv(RAW / "cid10.csv", index=False, encoding="utf-8")
+    print(f"  ok: cid10.csv ({len(cid):,} neutros)".replace(",", "."))
 
 
 def main():
@@ -44,30 +109,13 @@ def main():
         sys.exit(1)
 
     df = pd.read_parquet(PARQUET)
-
-    # --- municipios.csv (codigo de 6 digitos -> municipio, uf) --------------
     col_munic = _coluna(df, "MUNIC_RES", "munic_res")
-    codigos = (
-        df[col_munic].astype(str).str.strip().str[:6]
-        .dropna().unique()
-    )
-    munic = pd.DataFrame({"codigo": sorted(c for c in codigos if len(c) == 6)})
-    munic["uf"] = munic["codigo"].str[:2].map(UF_POR_COD).fillna("NA")
-    munic["municipio"] = "Municipio " + munic["codigo"]
-    munic = munic[["codigo", "municipio", "uf"]]
-    munic.to_csv(RAW / "municipios.csv", index=False, encoding="utf-8")
-    print(f"  ok: municipios.csv ({len(munic):,} codigos)".replace(",", "."))
-
-    # --- cid10.csv (codigo do diagnostico -> nome) --------------------------
     col_cid = _coluna(df, "DIAG_PRINC", "diag_princ")
-    cids = (
-        df[col_cid].astype(str).str.strip()
-        .dropna().unique()
-    )
-    cid = pd.DataFrame({"codigo": sorted(c for c in cids if c and c != "nan")})
-    cid["descricao"] = "CID " + cid["codigo"]
-    cid.to_csv(RAW / "cid10.csv", index=False, encoding="utf-8")
-    print(f"  ok: cid10.csv ({len(cid):,} codigos)".replace(",", "."))
+    cods_munic = set(df[col_munic].astype(str).str.strip().str[:6].dropna().unique())
+    cods_cid = set(df[col_cid].astype(str).str.strip().dropna().unique())
+
+    gerar_municipios(cods_munic)
+    gerar_cid(cods_cid)
 
     print("\nPronto. Agora rode o pipeline:")
     print("  uv run python -m pipeline.ingestao")
