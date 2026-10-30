@@ -29,11 +29,13 @@ RAIZ = Path(__file__).resolve().parent.parent
 RAW = RAIZ / "data" / "raw"
 
 # arquivo em data/raw/ -> (tabela bronze, leitor duckdb)
-# all_varchar=true garante a camada bronze: toda coluna como texto.
+# all_varchar=true garante a camada bronze para CSV; para o parquet, que carrega
+# o proprio tipo, o CAST(COLUMNS(*) AS VARCHAR) forca toda coluna a texto. Sem
+# ele, VAL_TOT entraria DOUBLE e IDADE BIGINT, quebrando a regra da bronze.
 ARQUIVOS = {
     "internacoes.parquet": (
         "internacoes",
-        "SELECT * FROM read_parquet('{caminho}')",
+        "SELECT CAST(COLUMNS(*) AS VARCHAR) FROM read_parquet('{caminho}')",
     ),
     "cid10.csv": (
         "cid10",
@@ -47,6 +49,7 @@ ARQUIVOS = {
 
 
 def main():
+    """Lê os arquivos de data/raw/ e grava cada um como tabela na bronze (texto)."""
     con = conectar()
     criar_schema(con, "bronze")
 
@@ -63,8 +66,8 @@ def main():
     total = 0
     for arquivo, (tabela, leitor) in ARQUIVOS.items():
         caminho = (RAW / arquivo).as_posix()
-        # os microdados entram como texto para o parquet nao impor tipo antes
-        # da transformacao; o CAST AS VARCHAR cobre o caso do parquet.
+        # os microdados entram como texto: o leitor de parquet ja aplica
+        # CAST(COLUMNS(*) AS VARCHAR), o de CSV usa all_varchar=true.
         sql_fonte = leitor.format(caminho=caminho)
         con.execute(f"""
             CREATE OR REPLACE TABLE bronze.{tabela} AS
