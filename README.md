@@ -75,7 +75,7 @@ aulas do curso: da ingestão ao dashboard.
 |---|---|---|
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
-| **3 · SQL / Marts** | 8 indicadores em **SQL puro** (camada ouro) | `pipeline/marts.py` + `sql/marts/*.sql` |
+| **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
 | **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura acima de 90% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
@@ -168,7 +168,7 @@ Números reais de uma execução completa do pipeline, para conferência:
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
 transformacao prata.internacoes   1.238.234 linhas (-529 sem valor)
-marts         8 marts, 80.923 linhas na camada ouro
+marts         10 marts, 16.400 linhas na camada ouro
 ```
 
 A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
@@ -198,13 +198,15 @@ Feminino, `MORTE` → booleano, `DT_INTER` (AAAAMMDD) → data, `VAL_TOT` →
 
 Cada mart tem o grão declarado na primeira linha do `.sql`.
 
-| Mart | Pergunta |
-|---|---|
-| `kpis_gerais` | os números de topo do painel (Brasil) |
-| `por_estado` | volume, gasto, custo médio, permanência e mortalidade por UF |
-| `top_diagnosticos` / `_brasil` | doenças que mais internam, por UF e nacional |
-| `perfil_demografico` / `_brasil` | internações por faixa etária e sexo |
-| `internacoes_diarias` / `_brasil` | série diária ao longo do mês |
+| Mart | Pergunta | SQL em destaque |
+|---|---|---|
+| `kpis_gerais` | os números de topo do painel (Brasil) | agregações + `FILTER` |
+| `por_estado` | volume, gasto, custo médio/mediano, permanência e mortalidade por UF | `MEDIAN`, `SUM() OVER ()` |
+| `top_diagnosticos` / `_brasil` | as 10 doenças que mais internam, por UF e nacional | `ROW_NUMBER() OVER (PARTITION BY uf)` |
+| `perfil_demografico` / `_brasil` | internações por faixa etária e sexo | `CASE WHEN` |
+| `internacoes_diarias` / `_brasil` | série diária ao longo do mês | `GROUP BY` data |
+| `mortalidade_por_cid` | doenças de maior letalidade (100+ internações) | CTE + `HAVING` + `RANK()` |
+| `municipios_pareto` | quantos municípios concentram 80% do gasto | soma acumulada `SUM() OVER (ORDER BY)` |
 
 ---
 
@@ -229,7 +231,7 @@ pipeline-saude-sus/
 ├── pipeline/            db.py, ingestao.py, transformacao.py, marts.py, qualidade.py
 ├── executar.py          roda bronze -> prata -> ouro -> qualidade numa tacada
 ├── .github/workflows/   ci.yml (pytest + ruff a cada push/PR)
-├── sql/marts/           8 marts .sql, grão no topo de cada um
+├── sql/marts/           10 marts .sql, grão no topo de cada um
 ├── painel.py            lê os marts, formata e desenha (sem cálculo)
 ├── app.py               dashboard Streamlit interativo por estado
 ├── baixar_dados.py      baixa os .dbc do SIH (DATASUS) para data/raw/

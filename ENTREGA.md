@@ -22,21 +22,22 @@ de saúde brasileiro, cru e sem documentação amigável.
 | Requisito | Como foi atendido |
 |---|---|
 | Dataset diferente do das aulas | SIH/SUS (DATASUS), 1,2 milhão de internações |
-| Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 8 SQL (ouro) |
-| Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença) e × `ufs` (sigla e região) |
-| Testes com cobertura mínima de 70% | 44 testes, cobertura de 95% |
+| Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 10 SQL (ouro) |
+| Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença), × `ufs` (sigla e região) e × `municipios` (nome da cidade) |
+| Testes com cobertura mínima de 70% | 57 testes, cobertura de 95% |
 | Repositório com todo o código e README | Sim, com README de instalação e execução |
 | Histórico de commits passo a passo | Commits pequenos e temáticos, em português (Conventional Commits) |
 | Dashboard (opcional) | Streamlit interativo por estado, com deploy no Streamlit Cloud |
 
 ## Além do pedido
 
-- **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 17 regras
+- **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 26 regras
   que falham o pipeline se um número não fechar (as partes somam o todo, o grão é
-  real, valores dentro do domínio).
+  real, valores dentro do domínio, consistência por UF x nacional).
 - **CI no GitHub Actions**: roda testes e lint (ruff) a cada push.
-- **Relatório HTML estático** publicado no GitHub Pages, por ano.
+- **Relatório HTML estático** publicado no GitHub Pages.
 - **Comando único** (`executar.py`) roda tudo: bronze, prata, ouro e qualidade.
+- **CAST estrito** na transformação e **API oficial do IBGE** com fallback.
 
 ## Achados (o que o dado revelou ao ser conferido contra a fonte)
 
