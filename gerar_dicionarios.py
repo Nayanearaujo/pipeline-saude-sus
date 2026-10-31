@@ -10,7 +10,7 @@ internet, cai num modo neutro (nomes rotulados pelo codigo) para nao travar o
 pipeline. A camada ouro usa LEFT JOIN e nunca perde linha por falta de nome.
 
 Fontes (dados publicos):
-  municipios  IBGE via kelvins/municipios-brasileiros (CSV, 5.570 municipios)
+  municipios  API oficial do IBGE (localidades); espelho CSV como fallback
   cid10       DATASUS via cleytonferrari/CidDataSus (CSV, subcategorias)
 """
 import sys
@@ -21,6 +21,10 @@ import pandas as pd
 RAW = Path(__file__).resolve().parent / "data" / "raw"
 PARQUET = RAW / "internacoes.parquet"
 
+# Fonte primaria: API oficial do IBGE (JSON). Cada item tem id (codigo de 7
+# digitos) e nome do municipio. E a fonte que o README cita.
+URL_IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
+# Fonte secundaria (espelho em CSV), usada so se a API oficial falhar.
 URL_MUNICIPIOS = (
     "https://raw.githubusercontent.com/kelvins/municipios-brasileiros/"
     "main/csv/municipios.csv"
@@ -40,19 +44,58 @@ UF_POR_COD = {
 
 
 def _coluna(df, *nomes):
+    """Devolve o primeiro nome de coluna presente no DataFrame."""
     for n in nomes:
         if n in df.columns:
             return n
     raise KeyError(f"nenhuma destas colunas: {nomes}")
 
 
+def _municipios_da_api_ibge() -> pd.DataFrame:
+    """Le os municipios da API oficial do IBGE (JSON) com timeout e validacao.
+
+    Devolve um DataFrame com as colunas codigo (6 digitos), municipio e uf.
+    Levanta excecao se a rede falhar ou o formato nao bater (quem chama trata)."""
+    import gzip
+    import json
+    import urllib.request
+
+    # alguns endpoints do IBGE respondem com gzip; pede texto e descomprime se vier.
+    req = urllib.request.Request(URL_IBGE_API, headers={"Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(req, timeout=30) as resposta:
+        bruto = resposta.read()
+        if resposta.headers.get("Content-Encoding") == "gzip" or bruto[:2] == b"\x1f\x8b":
+            bruto = gzip.decompress(bruto)
+    dados = json.loads(bruto.decode("utf-8"))
+    if not isinstance(dados, list) or not dados:
+        raise ValueError("resposta da API do IBGE vazia ou em formato inesperado")
+
+    linhas = []
+    for item in dados:
+        codigo7 = str(item["id"])              # id = codigo IBGE de 7 digitos
+        codigo6 = codigo7[:6]
+        uf = UF_POR_COD.get(codigo6[:2], "NA")
+        linhas.append({"codigo": codigo6, "municipio": item["nome"], "uf": uf})
+    return pd.DataFrame(linhas).drop_duplicates("codigo")
+
+
 # ---------------------------------------------------------------------------
-# Municipios: baixa a tabela do IBGE; fallback para nomes neutros.
+# Municipios: 1) API oficial do IBGE; 2) espelho em CSV; 3) nomes neutros.
 # ---------------------------------------------------------------------------
 def gerar_municipios(codigos_usados: set[str]):
+    """Gera municipios.csv, tentando a API oficial do IBGE antes dos fallbacks."""
+    # 1) fonte primaria: API oficial do IBGE (o que o README promete)
+    try:
+        munic = _municipios_da_api_ibge()
+        munic.to_csv(RAW / "municipios.csv", index=False, encoding="utf-8")
+        print(f"  ok: municipios.csv ({len(munic):,} da API do IBGE)".replace(",", "."))
+        return
+    except (OSError, ValueError, KeyError) as e:
+        print(f"  aviso: API do IBGE indisponivel ({e}); tentando o espelho CSV.")
+
+    # 2) fonte secundaria: espelho em CSV (GitHub)
     try:
         ibge = pd.read_csv(URL_MUNICIPIOS, dtype=str)
-        # a tabela tem codigo_ibge (7 digitos), nome, codigo_uf
         col_cod = _coluna(ibge, "codigo_ibge", "codigo", "cod_ibge")
         col_nome = _coluna(ibge, "nome", "municipio", "name")
         ibge["codigo6"] = ibge[col_cod].str[:6]
@@ -62,11 +105,12 @@ def gerar_municipios(codigos_usados: set[str]):
         )
         munic = munic.drop_duplicates("codigo")
         munic.to_csv(RAW / "municipios.csv", index=False, encoding="utf-8")
-        print(f"  ok: municipios.csv ({len(munic):,} do IBGE)".replace(",", "."))
+        print(f"  ok: municipios.csv ({len(munic):,} do espelho CSV)".replace(",", "."))
         return
-    except Exception as e:  # noqa: BLE001
-        print(f"  aviso: nao baixei o IBGE ({e}); usando nomes neutros.")
+    except (OSError, ValueError, KeyError) as e:
+        print(f"  aviso: espelho CSV indisponivel ({e}); usando nomes neutros.")
 
+    # 3) ultimo recurso: nomes neutros (nao trava o pipeline sem internet)
     munic = pd.DataFrame({"codigo": sorted(c for c in codigos_usados if len(c) == 6)})
     munic["uf"] = munic["codigo"].str[:2].map(UF_POR_COD).fillna("NA")
     munic["municipio"] = "Municipio " + munic["codigo"]
