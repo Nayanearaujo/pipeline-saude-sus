@@ -24,7 +24,10 @@ def _banco_coerente(banco):
     """)
     # dicionarios com chave unica (regras de unicidade)
     con.execute("CREATE TABLE prata.cid10 AS SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)")
-    con.execute("CREATE TABLE prata.municipios AS SELECT * FROM (VALUES ('330455','Rio','RJ')) AS t(cod_municipio, municipio, uf)")
+    con.execute(
+        "CREATE TABLE prata.municipios AS SELECT * FROM "
+        "(VALUES ('330455','Rio','RJ')) AS t(cod_municipio, municipio, uf)"
+    )
     # ouro: totais coerentes (3 internacoes, 2 UFs)
     con.execute("CREATE TABLE ouro.kpis_gerais AS SELECT 3 AS internacoes, 1800.0 AS valor_total")
     con.execute("""
@@ -33,14 +36,20 @@ def _banco_coerente(banco):
         ) AS t(uf, internacoes, valor_total, taxa_mortalidade_pct)
     """)
     con.execute("CREATE TABLE ouro.perfil_demografico_brasil AS SELECT 3 AS internacoes")
-    con.execute("CREATE TABLE ouro.top_diagnosticos_brasil AS SELECT * FROM (VALUES ('A001','Colera',3)) AS t(cid, doenca, internacoes)")
+    con.execute(
+        "CREATE TABLE ouro.top_diagnosticos_brasil AS SELECT * FROM "
+        "(VALUES ('A001','Colera',3)) AS t(cid, doenca, internacoes)"
+    )
     # perfil e serie por UF batem com os nacionais (3 internacoes)
     con.execute("CREATE TABLE ouro.perfil_demografico AS SELECT 3 AS internacoes")
     con.execute("CREATE TABLE ouro.internacoes_diarias AS SELECT 3 AS internacoes")
     con.execute("CREATE TABLE ouro.internacoes_diarias_brasil AS SELECT 3 AS internacoes")
     con.execute("CREATE TABLE ouro.top_diagnosticos AS SELECT 1 AS x")
     # marts novos: mortalidade (obitos <= internacoes, taxa 0..100) e pareto (fecha 100%)
-    con.execute("CREATE TABLE ouro.mortalidade_por_cid AS SELECT 'A001' AS cid, 10 AS internacoes, 2 AS obitos, 20.0 AS taxa_mortalidade_pct")
+    con.execute(
+        "CREATE TABLE ouro.mortalidade_por_cid AS "
+        "SELECT 'A001' AS cid, 10 AS internacoes, 2 AS obitos, 20.0 AS taxa_mortalidade_pct"
+    )
     con.execute("CREATE TABLE ouro.municipios_pareto AS SELECT '330455' AS cod_municipio, 100.0 AS pct_acumulado")
     con.close()
 
