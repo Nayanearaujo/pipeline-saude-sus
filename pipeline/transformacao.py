@@ -68,26 +68,31 @@ WITH base AS (
         substr(CAST(MUNIC_RES AS VARCHAR), 1, 2)           AS cod_uf,
         CAST(DIAG_PRINC AS VARCHAR)                        AS cid_principal,
         CAST(PROC_REA AS VARCHAR)                          AS cod_procedimento,
-        TRY_CAST(VAL_TOT AS DECIMAL(12,2))                 AS valor_total,
-        TRY_CAST(DIAS_PERM AS INTEGER)                     AS dias_permanencia,
+        -- CAST estrito, nao TRY_CAST: campo vazio vira NULL de proposito
+        -- (NULLIF do TRIM), mas lixo que nao converte ESTOURA o pipeline em vez
+        -- de virar NULL calado. O diagnostico_cast.py provou que hoje nao ha
+        -- valor sujo nestas colunas; se um dia houver, a transformacao falha e
+        -- avisa, como manda a aula.
+        CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2))  AS valor_total,
+        CAST(NULLIF(TRIM(CAST(DIAS_PERM AS VARCHAR)), '') AS INTEGER)      AS dias_permanencia,
         -- idade em ANOS, combinando IDADE com COD_IDADE (a unidade no SIH):
         -- 0/1/2/3 = minutos/horas/dias/meses -> < 1 ano (0); 4 = anos; 5 = 100+.
         CASE CAST(COD_IDADE AS VARCHAR)
-            WHEN '5' THEN TRY_CAST(IDADE AS INTEGER) + 100
-            WHEN '4' THEN TRY_CAST(IDADE AS INTEGER)
+            WHEN '5' THEN CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER) + 100
+            WHEN '4' THEN CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER)
             WHEN '0' THEN 0
             WHEN '1' THEN 0
             WHEN '2' THEN 0
             WHEN '3' THEN 0
-            ELSE TRY_CAST(IDADE AS INTEGER)
+            ELSE CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER)
         END                                                AS idade,
         CASE CAST(SEXO AS VARCHAR)
             WHEN '1' THEN 'Masculino'
             WHEN '3' THEN 'Feminino'
             ELSE NULL END                                  AS sexo,
         (CAST(MORTE AS VARCHAR) = '1')                     AS morte,
-        TRY_CAST(strptime(CAST(DT_INTER AS VARCHAR), '%Y%m%d') AS DATE) AS data_internacao,
-        TRY_CAST(strptime(CAST(DT_SAIDA AS VARCHAR), '%Y%m%d') AS DATE) AS data_saida
+        strptime(NULLIF(TRIM(CAST(DT_INTER AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_internacao,
+        strptime(NULLIF(TRIM(CAST(DT_SAIDA AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_saida
     FROM bronze.internacoes
     QUALIFY row_number() OVER (PARTITION BY CAST(N_AIH AS VARCHAR) ORDER BY 1) = 1
 )
