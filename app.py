@@ -26,27 +26,30 @@ PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 st.markdown(
     """
     <style>
+      /* fundo verde-agua claro na pagina inteira (reforca o config.toml) */
+      .stApp { background: #eef6f2; }
       .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1300px; }
-      /* cartoes de metrica (st.metric) com cara de card */
+      /* cartoes de metrica (st.metric): brancos sobre o fundo verde, borda verdinha */
       div[data-testid="stMetric"] {
         background: #ffffff;
-        border: 1px solid #e3e8e4;
+        border: 1px solid #cfe3d8;
+        border-left: 4px solid #5bb6a6;
         border-radius: 14px;
         padding: 16px 18px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(16,23,26,.35);
+        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
       }
       div[data-testid="stMetricLabel"] { color: #6b7b7c; font-size: 0.82rem; }
       div[data-testid="stMetricValue"] { color: #10171a; font-weight: 700; }
-      /* graficos num cartao branco tambem */
+      /* graficos num cartao branco tambem, com a mesma borda verdinha */
       div[data-testid="stPlotlyChart"] {
         background: #ffffff;
-        border: 1px solid #e3e8e4;
+        border: 1px solid #cfe3d8;
         border-radius: 14px;
         padding: 8px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(16,23,26,.35);
+        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
       }
-      h1 { color: #10171a; }
-      .sus-sub { color: #39474a; font-size: 1.05rem; font-weight: 600;
+      h1 { color: #1a6b52; }
+      .sus-sub { color: #1a6b52; font-size: 1.05rem; font-weight: 700;
                  margin: 8px 0 2px; }
     </style>
     """,
