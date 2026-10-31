@@ -277,7 +277,26 @@ indicadores:
 - **Um único mês (abril/2026).** Não há base para falar de sazonalidade ou
   tendência; a série mostra só a variação dentro do mês.
 
-## Fonte
+## Fonte dos dados
 
-Microdados do **SIH/SUS**, DATASUS/Ministério da Saúde (dados públicos). CID-10
-e municípios: DATASUS e IBGE. Uso não comercial, para fins de estudo.
+Microdados do **SIH/SUS** (Sistema de Informações Hospitalares), DATASUS /
+Ministério da Saúde, dados públicos. CID-10 e municípios: DATASUS e IBGE.
+
+- **SIH/SUS (microdados, AIH-RD):** https://datasus.saude.gov.br/transferencia-de-arquivos/
+- **CID-10 (tabela de doenças):** DATASUS
+- **Municípios (código IBGE):** https://servicodados.ibge.gov.br/api/v1/localidades/municipios
+
+Os dados são públicos e usados aqui apenas para fins de estudo, sem finalidade
+comercial.
+
+## Licença
+
+O **código** deste repositório está sob a licença [MIT](LICENSE): você pode usar,
+copiar e adaptar, mantendo o aviso de copyright. Os **dados** do SIH/SUS seguem a
+política de dados abertos do Ministério da Saúde e não são cobertos por esta
+licença.
+
+---
+
+**Autora:** Nayane Araujo · Desafio Final da Trilha de Engenharia de Dados ·
+outubro de 2026.
