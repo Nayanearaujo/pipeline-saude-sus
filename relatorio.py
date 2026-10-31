@@ -35,15 +35,23 @@ def _card(rotulo: str, valor: str, nota: str = "") -> str:
     )
 
 
-def _grafico(fig, incluir_js: bool) -> str:
-    """Converte uma figura Plotly em um bloco HTML (card branco)."""
-    # include_plotlyjs so no primeiro grafico; os demais reusam o mesmo <script>.
+def _grafico(fig, incluir_js: bool, largo: bool = False) -> str:
+    """Converte uma figura Plotly em um bloco HTML (card branco).
+
+    largo=True ocupa a linha inteira da grade (bom para serie e perfil); por
+    padrao cada grafico ocupa metade (grade de 2 colunas)."""
+    # a altura vem do CSS (.grafico height:380px); o grafico preenche o card.
+    # autosize + responsive deixam o Plotly acompanhar a largura da coluna da grade.
+    fig.update_layout(autosize=True)
     html = fig.to_html(
         full_html=False,
         include_plotlyjs="cdn" if incluir_js else False,
-        config={"displayModeBar": False, "displaylogo": False},
+        config={"displayModeBar": False, "displaylogo": False, "responsive": True},
+        default_height="100%",
+        default_width="100%",
     )
-    return f'<div class="grafico">{html}</div>'
+    classe = "grafico largo" if largo else "grafico"
+    return f'<div class="{classe}">{html}</div>'
 
 
 def construir_html(dados: dict) -> str:
@@ -62,17 +70,27 @@ def construir_html(dados: dict) -> str:
         _card("Mortalidade hospitalar", painel.pct(k["taxa_mortalidade_pct"], 2)),
     ])
 
-    # os mesmos graficos do dashboard, na ordem da visao nacional + detalhe Brasil
-    figs = [
-        painel.fig_mapa(por_estado, METRICA),
-        painel.fig_ranking_estados(por_estado, METRICA),
-        painel.fig_rosca_regiao(por_estado, METRICA),
-        painel.fig_custo_medio_uf(por_estado),
-        painel.fig_top_diagnosticos(diag, "Brasil"),
-        painel.fig_serie_diaria(serie, "Brasil"),
-        painel.fig_perfil(perfil, "Brasil"),
+    # o mapa centralizado e sem margem lateral sobrando (o Brasil e estreito e
+    # alto; sem isso sobra muito branco dos lados no relatorio).
+    mapa = painel.fig_mapa(por_estado, METRICA)
+    mapa.update_geos(fitbounds="locations", visible=False)
+    mapa.update_layout(margin=dict(l=0, r=0, t=56, b=0))
+
+    # grade de 2 colunas: mapa + ranking no topo; rosca + custo; top diagnosticos
+    # emparelhado; serie e perfil ocupam a linha inteira (sao series temporais).
+    blocos = [
+        (mapa, False),
+        (painel.fig_ranking_estados(por_estado, METRICA), False),
+        (painel.fig_rosca_regiao(por_estado, METRICA), False),
+        (painel.fig_custo_medio_uf(por_estado), False),
+        (painel.fig_top_diagnosticos(diag, "Brasil"), False),
+        (painel.fig_perfil(perfil, "Brasil"), False),
+        (painel.fig_serie_diaria(serie, "Brasil"), True),
     ]
-    graficos = "".join(_grafico(f, incluir_js=(i == 0)) for i, f in enumerate(figs))
+    graficos = "".join(
+        _grafico(f, incluir_js=(i == 0), largo=largo)
+        for i, (f, largo) in enumerate(blocos)
+    )
 
     return _PAGINA.format(cards=cards, graficos=graficos)
 
@@ -117,8 +135,13 @@ _PAGINA = """<!doctype html>
   .kpi .rot{{font-size:12px;color:var(--ink-3);}}
   .kpi .val{{font-size:23px;font-weight:700;margin-top:4px;}}
   .kpi .nota{{font-size:11.5px;color:var(--ink-3);margin-top:2px;}}
+  .grade{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}}
   .grafico{{background:var(--surface);border:1px solid var(--line);
-    border-radius:14px;padding:8px;margin:0 0 16px;box-shadow:var(--shadow);}}
+    border-radius:14px;padding:8px;box-shadow:var(--shadow);
+    min-width:0;height:380px;}}
+  .grafico .plotly-graph-div{{width:100%!important;height:100%!important;}}
+  .grafico.largo{{grid-column:1 / -1;}}
+  @media (max-width:900px){{.grade{{grid-template-columns:1fr;}}}}
   footer{{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
     font-size:13px;color:var(--ink-3);text-align:center;}}
 </style>
@@ -133,7 +156,7 @@ _PAGINA = """<!doctype html>
        <a href="https://pipeline-saude-sus.streamlit.app/">dashboard interativo</a></p>
   </div>
   <div class="kpis">{cards}</div>
-  {graficos}
+  <div class="grade">{graficos}</div>
   <footer>
     Nayane Araujo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
