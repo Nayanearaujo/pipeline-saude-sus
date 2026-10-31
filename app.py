@@ -10,6 +10,8 @@ passam a ler a linha daquela UF no mart por_estado, e os graficos de
 diagnostico, serie diaria e perfil recortam para o estado. Os valores por UF
 ja vem prontos do mart: a tela so escolhe a linha, nao recalcula.
 """
+import logging
+
 import streamlit as st
 
 import painel
@@ -63,11 +65,14 @@ def main():
 
     try:
         dados = carregar()
-    except Exception as e:  # noqa: BLE001
+    except Exception:  # noqa: BLE001
+        # Mensagem amigavel na tela; o detalhe tecnico vai para o log do
+        # servidor, nao para o usuario (evita vazar caminho/stack na UI).
+        logging.exception("Falha ao ler os marts do sih.duckdb")
         st.error(
-            "Não consegui ler os marts do sih.duckdb.\n\n"
-            f"Detalhe: {e}\n\n"
-            "Rode antes: `uv run python -m pipeline.marts`"
+            "Não consegui carregar os dados do painel. "
+            "Se você está rodando localmente, gere os marts antes com "
+            "`uv run python -m pipeline.marts`."
         )
         st.stop()
 
