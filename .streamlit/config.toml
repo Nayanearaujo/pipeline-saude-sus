@@ -1,8 +1,8 @@
-# Tema do dashboard: fundo verde-agua claro (nao branco), na paleta do projeto.
+# Tema do dashboard: fundo verde-saude light (nao branco), na paleta do projeto.
 [theme]
 base = "light"
 primaryColor = "#1a6b52"             # verde escuro: botoes, destaques, seletor
-backgroundColor = "#eef6f2"          # fundo da pagina: verde-agua bem claro
-secondaryBackgroundColor = "#dcece4" # fundo de widgets/sidebar: verde um tom acima
+backgroundColor = "#dff0e8"          # fundo da pagina: verde-saude claro, visivel
+secondaryBackgroundColor = "#eaf6ef" # fundo de widgets/cartoes: verde um tom acima
 textColor = "#10171a"                # texto quase preto, bom contraste
 font = "sans serif"

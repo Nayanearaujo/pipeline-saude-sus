@@ -26,8 +26,14 @@ PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 st.markdown(
     """
     <style>
-      /* fundo verde-agua claro na pagina inteira (reforca o config.toml) */
-      .stApp { background: #eef6f2; }
+      /* fundo verde-saude light na pagina inteira (reforca o config.toml;
+         cobre os seletores que mudam entre versoes do Streamlit) */
+      .stApp,
+      [data-testid="stAppViewContainer"],
+      [data-testid="stMain"],
+      .main,
+      section.main { background: #dff0e8 !important; }
+      [data-testid="stHeader"] { background: transparent !important; }
       .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1300px; }
       /* cartoes de metrica (st.metric): brancos sobre o fundo verde, borda verdinha */
       div[data-testid="stMetric"] {
