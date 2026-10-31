@@ -271,11 +271,27 @@ indicadores:
   internação (`UF_ARQUIVO`); trocar a referência muda o resultado.
 - **Valor = valor pago pelo SUS** (`VAL_TOT`), não o custo real do hospital. O
   rótulo "custo médio" significa o valor médio pago por AIH.
-- **Idade em anos.** A faixa etária usa `IDADE`; o SIH traz `COD_IDADE` (unidade:
-  dias, meses, anos) que este recorte não desdobra. Recém-nascidos contados em
-  dias/meses podem cair fora da faixa "< 1 ano".
+- **Idade em anos, derivada de `COD_IDADE`.** O SIH guarda a idade com uma
+  unidade (`COD_IDADE`): a transformação converte 0/1/2/3 (minutos/horas/dias/
+  meses) para 0 anos (faixa "< 1 ano") e 5 para a idade + 100. Sem isso, bebês
+  medidos em dias ou meses cairiam em faixas de adulto (ver Achado nº 2).
 - **Um único mês (abril/2026).** Não há base para falar de sazonalidade ou
   tendência; a série mostra só a variação dentro do mês.
+
+### O que ficou no dado de propósito
+
+A camada prata não corrige o fato: estas anomalias reais do SIH são mantidas e
+documentadas, não apagadas.
+
+- **Entradas de meses anteriores.** Metade das AIH da competência de abril tem
+  data de entrada em meses anteriores. Ficam na base; só a série diária as
+  recorta (ver Achado nº 1).
+- **Internações com `dias_permanencia` = 0.** Entrada e saída no mesmo dia
+  existem no SIH (procedimento de day clinic, óbito no primeiro dia); são dado
+  válido, não erro.
+- **Datas de internação muito antigas.** Poucas AIH trazem data de entrada de
+  anos atrás (internações longas ou erro de digitação na origem). Entram na
+  prata; a série diária, por filtrar o mês de referência, as deixa de fora.
 
 ## Fonte dos dados
 

@@ -39,29 +39,31 @@ ARQUIVOS = {
     ),
     "cid10.csv": (
         "cid10",
-        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true, encoding='utf-8')",
     ),
     "municipios.csv": (
         "municipios",
-        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true, encoding='utf-8')",
     ),
 }
 
 
 def main():
     """Lê os arquivos de data/raw/ e grava cada um como tabela na bronze (texto)."""
-    con = conectar()
-    criar_schema(con, "bronze")
-
-    # Pre-requisito: os tres arquivos tem que existir. Faltando qualquer um,
-    # para antes de gravar nada (ingestao parcial produz dashboard errado).
+    # Pre-requisito ANTES de conectar: os tres arquivos tem que existir. Se
+    # faltar algum, o script nao pode nem criar um sih.duckdb vazio no disco
+    # (ingestao parcial produz dashboard errado). Por isso a checagem vem antes
+    # de conectar() e criar_schema().
     faltando = [arq for arq in ARQUIVOS if not (RAW / arq).exists()]
     if faltando:
         print("ERRO: faltam arquivos em data/raw/:")
         for arq in faltando:
             print(f"  - {arq}")
-        print("Veja o README (secao 'Como baixar os dados') para gerar com o PySUS.")
+        print("Veja o README (secao 'Como baixar os dados') para gerar os arquivos.")
         sys.exit(1)
+
+    con = conectar()
+    criar_schema(con, "bronze")
 
     total = 0
     for arquivo, (tabela, leitor) in ARQUIVOS.items():

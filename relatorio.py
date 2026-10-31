@@ -13,6 +13,7 @@ lado do index.html). Rode depois do pipeline (pipeline.marts) ou com os CSVs de
 dados_painel/ ja presentes.
 """
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import painel
@@ -35,11 +36,13 @@ def _card(rotulo: str, valor: str, nota: str = "") -> str:
     )
 
 
-def _grafico(fig, incluir_js: bool, largo: bool = False) -> str:
+def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     """Converte uma figura Plotly em um bloco HTML (card branco).
 
     largo=True ocupa a linha inteira da grade (bom para serie e perfil); por
-    padrao cada grafico ocupa metade (grade de 2 colunas)."""
+    padrao cada grafico ocupa metade (grade de 2 colunas). div_id fixo deixa o
+    HTML deterministico: sem ele o Plotly sorteia um id a cada execucao e o
+    arquivo muda mesmo com o dado igual."""
     # a altura vem do CSS (.grafico height:380px); o grafico preenche o card.
     # autosize + responsive deixam o Plotly acompanhar a largura da coluna da grade.
     fig.update_layout(autosize=True)
@@ -49,6 +52,7 @@ def _grafico(fig, incluir_js: bool, largo: bool = False) -> str:
         config={"displayModeBar": False, "displaylogo": False, "responsive": True},
         default_height="100%",
         default_width="100%",
+        div_id=div_id,
     )
     classe = "grafico largo" if largo else "grafico"
     return f'<div class="{classe}">{html}</div>'
@@ -88,11 +92,12 @@ def construir_html(dados: dict) -> str:
         (painel.fig_serie_diaria(serie, "Brasil"), True),
     ]
     graficos = "".join(
-        _grafico(f, incluir_js=(i == 0), largo=largo)
+        _grafico(f, incluir_js=(i == 0), div_id=f"g{i:02d}", largo=largo)
         for i, (f, largo) in enumerate(blocos)
     )
 
-    return _PAGINA.format(cards=cards, graficos=graficos)
+    gerado = datetime.now().strftime("%d/%m/%Y às %H:%M")
+    return _PAGINA.format(cards=cards, graficos=graficos, gerado=gerado)
 
 
 def main():
@@ -160,7 +165,8 @@ _PAGINA = """<!doctype html>
   <footer>
     Nayane Araujo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
-    Números lidos direto dos marts, sem cálculo na página.
+    Números lidos direto dos marts, sem cálculo na página.<br>
+    Relatório gerado em {gerado}.
   </footer>
 </div>
 </body>

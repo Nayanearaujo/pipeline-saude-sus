@@ -143,3 +143,106 @@ def test_mart02_por_estado_agrupa_certo(tmp_path):
     assert int(rj["internacoes"]) == 2
     assert float(rj["valor_total"]) == 1500.0         # 1000 + 500
     assert float(rj["taxa_mortalidade_pct"]) == 50.0  # 1 obito em 2
+
+
+def test_mart06_brasil_ranqueia_com_desempate(tmp_path):
+    """O mart nacional traz posicao (window) e desempata por cid.
+
+    Na prata minima ha 2 internacoes com cid A001 e 1 com B002, entao A001 fica
+    em 1o. A posicao vem de ROW_NUMBER, nao da ordem de leitura."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    _prata_minima(con)
+    r = con.execute(_ler_sql("06_top_diagnosticos_brasil.sql")).df()
+    con.close()
+    assert list(r["posicao"]) == [1, 2]            # posicao sequencial
+    primeiro = r.iloc[0]
+    assert primeiro["cid"] == "A001"              # 2 internacoes, lidera
+    assert int(primeiro["internacoes"]) == 2
+    assert primeiro["doenca"] == "Colera"         # veio do LEFT JOIN cid10
+    # participacao pronta: 2 de 3 internacoes = 66,67%
+    assert float(primeiro["pct_do_total"]) == 66.67
+
+
+def test_mart03_por_uf_limita_a_dez_e_ordena(tmp_path):
+    """O mart 03 ja entrega o top 10 por UF (posicao <= 10), ordenado."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    _prata_minima(con)
+    r = con.execute(_ler_sql("03_top_diagnosticos.sql")).df()
+    con.close()
+    # a prata minima tem poucos CIDs, entao nenhuma UF passa de 10 linhas
+    assert (r.groupby("uf").size() <= 10).all()
+    # dentro de cada UF, posicao comeca em 1 e cresce
+    for _uf, grupo in r.groupby("uf"):
+        assert list(grupo.sort_values("posicao")["posicao"])[0] == 1
+
+
+def test_mart09_mortalidade_filtra_volume_e_ranqueia(tmp_path):
+    """O mart 09 so mantem CID com 100+ internacoes (HAVING) e ordena por RANK.
+
+    Monta 101 internacoes do CID A (1 obito) e 2 do CID B (1 obito): o CID B,
+    apesar de 50% de letalidade, fica de fora por nao atingir o volume minimo."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    con.execute("CREATE SCHEMA prata")
+    con.execute("""
+        CREATE TABLE prata.internacoes AS
+        SELECT 'A' AS cid_principal, (i = 0) AS morte
+        FROM range(101) AS t(i)
+        UNION ALL SELECT 'B', TRUE
+        UNION ALL SELECT 'B', FALSE
+    """)
+    con.execute("CREATE TABLE prata.cid10 AS SELECT * FROM (VALUES ('A','Doenca A')) AS t(cid, doenca)")
+    r = con.execute(_ler_sql("09_mortalidade_por_cid.sql")).df()
+    con.close()
+    assert list(r["cid"]) == ["A"]            # B ficou fora pelo HAVING
+    assert int(r.iloc[0]["internacoes"]) == 101
+    assert int(r.iloc[0]["obitos"]) == 1
+    assert int(r.iloc[0]["posicao"]) == 1
+
+
+def test_mart10_pareto_fecha_em_cem_por_cento(tmp_path):
+    """O Pareto acumula o gasto do maior para o menor e a ultima linha da 100%."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    con.execute("CREATE SCHEMA prata")
+    con.execute("""
+        CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
+            ('330455', 600.0), ('355030', 300.0), ('310620', 100.0)
+        ) AS t(cod_municipio, valor_total)
+    """)
+    con.execute("""
+        CREATE TABLE prata.municipios AS SELECT * FROM (VALUES
+            ('330455','Rio','RJ'), ('355030','Sao Paulo','SP')
+        ) AS t(cod_municipio, municipio, uf)
+    """)
+    r = con.execute(_ler_sql("10_municipios_pareto.sql")).df()
+    con.close()
+    assert list(r["posicao"]) == [1, 2, 3]                 # ordenado por gasto
+    assert r.iloc[0]["cod_municipio"] == "330455"          # maior gasto em 1o
+    assert float(r.iloc[0]["pct_acumulado"]) == 60.0       # 600 de 1000
+    assert round(float(r.iloc[-1]["pct_acumulado"])) == 100  # fecha em 100%
+    # municipio sem cadastro no dicionario vira 'nao identificado'
+    assert r.iloc[-1]["municipio"] == "nao identificado"
+
+
+def test_mart04_faixa_etaria_nas_fronteiras(tmp_path):
+    """O CASE de faixa_etaria classifica certo as idades de fronteira e o NULL."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    con.execute("CREATE SCHEMA prata")
+    # uma internacao por idade de fronteira, todas no RJ
+    con.execute("""
+        CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
+            ('RJ', 0,    'F', 1), ('RJ', 1,  'F', 1), ('RJ', 14, 'F', 1),
+            ('RJ', 15,   'F', 1), ('RJ', 29, 'F', 1), ('RJ', 30, 'F', 1),
+            ('RJ', 49,   'F', 1), ('RJ', 50, 'F', 1), ('RJ', 64, 'F', 1),
+            ('RJ', 65,   'F', 1), ('RJ', NULL, 'F', 1)
+        ) AS t(uf, idade, sexo, dias_permanencia)
+    """)
+    r = con.execute(_ler_sql("04_perfil_demografico.sql")).df()
+    con.close()
+    faixas = dict(zip(r["faixa_etaria"], r["internacoes"]))
+    assert faixas.get("< 1 ano") == 1          # idade 0
+    assert faixas.get("1-14") == 2             # idades 1 e 14
+    assert faixas.get("15-29") == 2            # idades 15 e 29
+    assert faixas.get("30-49") == 2            # idades 30 e 49
+    assert faixas.get("50-64") == 2            # idades 50 e 64
+    assert faixas.get("65+") == 1              # idade 65
+    assert faixas.get("nao informado") == 1    # idade NULL
