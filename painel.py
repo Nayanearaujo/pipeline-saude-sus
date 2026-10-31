@@ -19,6 +19,8 @@ Spec (fonte da verdade; o codigo e consequencia dela):
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -26,7 +28,9 @@ import plotly.graph_objects as go
 # duckdb so e importado dentro de ler(), quando ha banco local. No deploy
 # (Streamlit Cloud) o painel le CSVs e nao precisa do duckdb instalado.
 
-BANCO = "sih.duckdb"
+# Caminho absoluto a partir deste arquivo: o painel acha o banco mesmo quando
+# o Streamlit e iniciado de outra pasta (nao depende do diretorio atual).
+BANCO = str(Path(__file__).resolve().parent / "sih.duckdb")
 
 # GeoJSON dos estados do Brasil (sigla da UF em properties.sigla), usado no mapa.
 GEOJSON_UF = (
@@ -118,8 +122,6 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
        banco) -> le de dados_painel/<mart>.csv.
     Assim o mesmo painel roda na maquina (banco completo) e no Streamlit Cloud
     (so a camada ouro, leve)."""
-    from pathlib import Path
-
     nomes = marts if marts is not None else MARTS
 
     if Path(banco).exists():
@@ -175,18 +177,20 @@ def pct(valor: float, casas: int = 1) -> str:
     return _br(f"{valor:,.{casas}f}") + "%"
 
 
-def lidera(df: pd.DataFrame, rotulo_col: str, valor_col: str) -> str:
+def lidera(df: pd.DataFrame, rotulo_col: str, valor_col: str,
+           pct_col: str | None = None) -> str:
     """Frase-resposta do tipo 'SP lidera: 249.866 (20,2% do total)'.
 
-    Nao agrega: le a maior linha de um DataFrame que ja veio somado do mart e
-    descreve quem lidera e sua participacao. E apresentacao, nao calculo de
-    negocio (a regra 'o painel nao agrega' continua valendo)."""
+    Nao calcula nada: le a primeira linha (os marts ja vem ordenados do maior
+    para o menor). Quando pct_col e dado, a participacao ja vem pronta na coluna
+    (somada por window function no proprio mart); sem ela, mostra so o valor."""
     if df.empty:
         return ""
-    total = df[valor_col].sum()
-    topo = df.loc[df[valor_col].idxmax()]
-    parte = 100.0 * topo[valor_col] / total if total else 0.0
-    return f"{topo[rotulo_col]} lidera: {numero(topo[valor_col])} ({pct(parte)} do total)"
+    topo = df.iloc[0]
+    if pct_col is not None and pct_col in df.columns:
+        return (f"{topo[rotulo_col]} lidera: {numero(topo[valor_col])} "
+                f"({pct(topo[pct_col])} do total)")
+    return f"{topo[rotulo_col]} lidera: {numero(topo[valor_col])}"
 
 
 # ---------------------------------------------------------------------------
@@ -245,8 +249,11 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
             f"{rotulo(metrica)}: " + "%{customdata[2]:,.0f}<extra></extra>"
         ),
     )
-    # titulo que responde: quem lidera na metrica e com que participacao
-    resposta = lidera(por_estado, "uf", metrica)
+    # titulo que responde: quem lidera na metrica e com que participacao.
+    # pct_internacoes (do mart) so vale para a metrica internacoes.
+    ordenado = por_estado.sort_values(metrica, ascending=False)
+    pct_col = "pct_internacoes" if metrica == "internacoes" else None
+    resposta = lidera(ordenado, "uf", metrica, pct_col)
     titulo = f"{rotulo(metrica)} por estado<br><sub>{resposta}</sub>"
     fig = _layout(fig, titulo)
     fig.update_xaxes(showgrid=False)
@@ -277,7 +284,8 @@ def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> 
 def fig_ranking_estados(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
     """Ranking das UFs pela metrica escolhida, maior em cima."""
     df = por_estado.sort_values(metrica, ascending=False)
-    resposta = lidera(por_estado, "uf", metrica)
+    pct_col = "pct_internacoes" if metrica == "internacoes" else None
+    resposta = lidera(df, "uf", metrica, pct_col)
     return _barh(df, x=metrica, y="uf",
                  titulo=f"Ranking de estados · {rotulo(metrica).lower()}<br><sub>{resposta}</sub>")
 
@@ -285,13 +293,13 @@ def fig_ranking_estados(por_estado: pd.DataFrame, metrica: str = "internacoes") 
 def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
     """Custo medio por internacao em cada UF: mostra a desigualdade regional."""
     df = por_estado.sort_values("custo_medio", ascending=False)
-    # resposta: o contraste entre o maior e o menor custo medio (desigualdade)
+    # resposta: o contraste entre o maior e o menor custo medio (desigualdade).
+    # So leitura das pontas do ranking ja ordenado, sem conta.
     resposta = ""
     if not df.empty:
         alto, baixo = df.iloc[0], df.iloc[-1]
-        resposta = (f"{alto['uf']} ({reais(alto['custo_medio'], 0)}) custa "
-                    f"{alto['custo_medio'] / baixo['custo_medio']:.1f}× o de "
-                    f"{baixo['uf']} ({reais(baixo['custo_medio'], 0)})")
+        resposta = (f"{alto['uf']} ({reais(alto['custo_medio'], 0)}) no topo, "
+                    f"{baixo['uf']} ({reais(baixo['custo_medio'], 0)}) na base")
     return _barh(df, x="custo_medio", y="uf",
                  titulo=f"Custo médio por internação · por UF<br><sub>{resposta}</sub>")
 
@@ -304,13 +312,15 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
 
     Eixo mostra o nome da doenca; o codigo CID e o valor pago vao para o hover,
     para o rotulo ficar limpo mas a informacao tecnica continuar a um passe de mouse."""
-    top = df.sort_values("internacoes", ascending=False).head(10).copy()
+    # o mart ja vem ordenado por 'posicao' e com o top 10 (mart 03) ou todos
+    # (mart 06); head(10) cobre os dois casos sem reordenar nem calcular.
+    top = df.sort_values("posicao").head(10).copy()
     # corta nomes muito longos no eixo, sem perder o nome inteiro (fica no hover)
     top["rotulo"] = top["doenca"].str.slice(0, 32).where(
         top["doenca"].str.len() <= 32, top["doenca"].str.slice(0, 32) + "…"
     )
     # titulo que responde: a doenca que mais interna no escopo e sua participacao
-    resposta = lidera(df, "doenca", "internacoes")
+    resposta = lidera(top, "doenca", "internacoes", "pct_do_total")
     fig = _barh(
         top, x="internacoes", y="rotulo",
         titulo=f"Top 10 diagnósticos · {rotulo}<br><sub>{resposta}</sub>",
@@ -339,10 +349,10 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
         fill="tozeroy", fillcolor="rgba(91,182,166,0.12)",
         hovertemplate="%{x|%d/%m}<br>%{y:,.0f} internações<extra></extra>",
     )
-    # resposta: o dia de pico de entradas no mes
+    # resposta: o dia de pico de entradas no mes (le a maior linha, nao calcula)
     resposta = ""
     if not serie.empty:
-        pico = serie.loc[serie["internacoes"].idxmax()]
+        pico = serie.sort_values("internacoes", ascending=False).iloc[0]
         dia_br = str(pico["dia"])[8:10] + "/" + str(pico["dia"])[5:7]
         resposta = f"pico em {dia_br}: {numero(pico['internacoes'])} entradas"
     fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações")

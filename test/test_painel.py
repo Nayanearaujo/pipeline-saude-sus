@@ -42,15 +42,26 @@ def test_ler_sem_banco_nem_csv_erro(tmp_path, monkeypatch):
 
 
 def test_lidera_descreve_o_maior_e_a_participacao():
-    """lidera() aponta a maior linha e sua % do total, em padrao BR."""
-    df = pd.DataFrame({"uf": ["SP", "MG", "RJ"], "internacoes": [50, 30, 20]})
-    frase = painel.lidera(df, "uf", "internacoes")
+    """lidera() le a 1a linha e a % pronta (pct_col), sem calcular."""
+    # o mart ja vem ordenado e com a participacao pronta na coluna
+    df = pd.DataFrame({
+        "uf": ["SP", "MG", "RJ"],
+        "internacoes": [50, 30, 20],
+        "pct": [50.0, 30.0, 20.0],
+    })
+    frase = painel.lidera(df, "uf", "internacoes", "pct")
     assert frase == "SP lidera: 50 (50,0% do total)"
+
+
+def test_lidera_sem_pct_mostra_so_o_valor():
+    """Sem coluna de % pronta, lidera() nao inventa a conta: so o valor."""
+    df = pd.DataFrame({"uf": ["SP", "MG"], "custo_medio": [2000.0, 1500.0]})
+    assert painel.lidera(df, "uf", "custo_medio") == "SP lidera: 2.000"
 
 
 def test_lidera_df_vazio_volta_string_vazia():
     df = pd.DataFrame({"uf": [], "internacoes": []})
-    assert painel.lidera(df, "uf", "internacoes") == ""
+    assert painel.lidera(df, "uf", "internacoes", "pct") == ""
 
 
 def test_reais_milhar_e_centavos():
@@ -98,14 +109,21 @@ def test_ranking_estados_ordena_do_maior():
     assert list(fig.data[0].x) == [30, 20, 10]
 
 
-def test_top_diagnosticos_corta_em_dez():
-    df = pd.DataFrame({
-        "cid": [f"C{i:03d}" for i in range(15)],
-        "doenca": [f"d{i}" for i in range(15)],
-        "internacoes": list(range(15, 0, -1)),
-        "valor_total": [i * 100.0 for i in range(15)],
+def _diag_df(n):
+    """DataFrame de diagnosticos no formato que o mart 03/06 entrega hoje:
+    ja ordenado, com posicao e pct_do_total prontos."""
+    return pd.DataFrame({
+        "cid": [f"C{i:03d}" for i in range(n)],
+        "doenca": [f"d{i}" for i in range(n)],
+        "internacoes": list(range(n, 0, -1)),
+        "valor_total": [i * 100.0 for i in range(n)],
+        "pct_do_total": [100.0 / n] * n,
+        "posicao": list(range(1, n + 1)),
     })
-    fig = painel.fig_top_diagnosticos(df, "Brasil")
+
+
+def test_top_diagnosticos_corta_em_dez():
+    fig = painel.fig_top_diagnosticos(_diag_df(15), "Brasil")
     assert len(fig.data[0].y) == 10
 
 
@@ -117,6 +135,8 @@ def test_top_diagnosticos_nome_longo_cortado_no_eixo():
         "doenca": [nome_longo],
         "internacoes": [10],
         "valor_total": [1234.56],
+        "pct_do_total": [100.0],
+        "posicao": [1],
     })
     fig = painel.fig_top_diagnosticos(df, "Brasil")
     assert fig.data[0].y[0].endswith("…")                  # eixo truncado
