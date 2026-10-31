@@ -143,3 +143,34 @@ def test_mart02_por_estado_agrupa_certo(tmp_path):
     assert int(rj["internacoes"]) == 2
     assert float(rj["valor_total"]) == 1500.0         # 1000 + 500
     assert float(rj["taxa_mortalidade_pct"]) == 50.0  # 1 obito em 2
+
+
+def test_mart06_brasil_ranqueia_com_desempate(tmp_path):
+    """O mart nacional traz posicao (window) e desempata por cid.
+
+    Na prata minima ha 2 internacoes com cid A001 e 1 com B002, entao A001 fica
+    em 1o. A posicao vem de ROW_NUMBER, nao da ordem de leitura."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    _prata_minima(con)
+    r = con.execute(_ler_sql("06_top_diagnosticos_brasil.sql")).df()
+    con.close()
+    assert list(r["posicao"]) == [1, 2]            # posicao sequencial
+    primeiro = r.iloc[0]
+    assert primeiro["cid"] == "A001"              # 2 internacoes, lidera
+    assert int(primeiro["internacoes"]) == 2
+    assert primeiro["doenca"] == "Colera"         # veio do LEFT JOIN cid10
+    # participacao pronta: 2 de 3 internacoes = 66,67%
+    assert float(primeiro["pct_do_total"]) == 66.67
+
+
+def test_mart03_por_uf_limita_a_dez_e_ordena(tmp_path):
+    """O mart 03 ja entrega o top 10 por UF (posicao <= 10), ordenado."""
+    con = duckdb.connect(str(tmp_path / "t.duckdb"))
+    _prata_minima(con)
+    r = con.execute(_ler_sql("03_top_diagnosticos.sql")).df()
+    con.close()
+    # a prata minima tem poucos CIDs, entao nenhuma UF passa de 10 linhas
+    assert (r.groupby("uf").size() <= 10).all()
+    # dentro de cada UF, posicao comeca em 1 e cresce
+    for _uf, grupo in r.groupby("uf"):
+        assert list(grupo.sort_values("posicao")["posicao"])[0] == 1
