@@ -75,6 +75,18 @@ st.markdown(
         background: #ffffff; border-radius: 12px; border-color: #dbeee4;
       }
 
+      /* rotulos dos seletores (Estado, Metrica...) em negrito verde */
+      div[data-testid="stWidgetLabel"] label,
+      div[data-testid="stWidgetLabel"] p {
+        font-weight: 700 !important; color: #14543f !important;
+      }
+
+      /* linha da fonte: discreta, com o link em verde */
+      .sus-fonte { color: #5a6b66; font-size: 0.9rem; margin: 2px 0 10px; }
+      .sus-fonte a { color: #1a6b52; font-weight: 600; text-decoration: none;
+                     border-bottom: 1px solid #9fd6c6; }
+      .sus-fonte a:hover { border-bottom-color: #1a6b52; }
+
       /* subtitulo de secao: etiqueta verde, com um tracinho antes */
       .sus-sub {
         color: #14543f; font-size: 1.1rem; font-weight: 700;
@@ -95,7 +107,13 @@ def carregar():
 
 def main():
     st.title("🏥 Internações hospitalares do SUS · por estado")
-    st.caption("Fonte: SIH/SUS (DATASUS) · abril/2026 · uma linha = uma internação (AIH).")
+    st.markdown(
+        "<p class='sus-fonte'>Fonte: "
+        "<a href='https://datasus.saude.gov.br/transferencia-de-arquivos/' "
+        "target='_blank'>SIH/SUS (DATASUS)</a> · abril/2026 · "
+        "uma linha = uma internação (AIH).</p>",
+        unsafe_allow_html=True,
+    )
 
     try:
         dados = carregar()
