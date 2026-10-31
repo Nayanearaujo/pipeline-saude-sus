@@ -29,6 +29,7 @@ MARTS = [
     "kpis_gerais", "por_estado", "top_diagnosticos", "perfil_demografico",
     "internacoes_diarias", "top_diagnosticos_brasil",
     "internacoes_diarias_brasil", "perfil_demografico_brasil",
+    "mortalidade_por_cid", "municipios_pareto",
 ]
 
 
@@ -91,6 +92,44 @@ def _regras(con) -> list[tuple[str, str]]:
         ("Nada some sem aviso: prata.internacoes <= bronze.internacoes",
          """SELECT (SELECT count(*) FROM prata.internacoes)
                 <= (SELECT count(*) FROM bronze.internacoes)"""),
+
+        # 2b. Chave unica nos dicionarios: um codigo nao pode ter duas linhas,
+        #     senao o LEFT JOIN da camada ouro multiplicaria internacoes.
+        ("Chave unica: prata.cid10 tem 1 linha por codigo CID",
+         "SELECT count(*) = count(DISTINCT cid) FROM prata.cid10"),
+        ("Chave unica: prata.municipios tem 1 linha por codigo de municipio",
+         "SELECT count(*) = count(DISTINCT cod_municipio) FROM prata.municipios"),
+
+        # 3b. Nomes reais, nao modo neutro: se o dicionario de CID caiu no
+        #     fallback sem internet, as descricoes viram 'CID <codigo>'. A regra
+        #     falha se MAIS da metade das doencas do top nacional estiver nesse
+        #     formato, sinal de que os nomes reais nao foram baixados.
+        ("Nomes reais: top_diagnosticos_brasil nao esta em modo neutro (CID <codigo>)",
+         """SELECT count(*) FILTER (WHERE doenca = 'CID ' || cid) < count(*) / 2
+            FROM ouro.top_diagnosticos_brasil"""),
+
+        # 5b. Dois caminhos concordam, por-UF x nacional: a soma das internacoes
+        #     do perfil por UF bate com o total do perfil nacional.
+        ("Dois caminhos concordam: soma do perfil por UF = perfil nacional",
+         """SELECT (SELECT sum(internacoes) FROM ouro.perfil_demografico)
+                 = (SELECT sum(internacoes) FROM ouro.perfil_demografico_brasil)"""),
+
+        # 5c. Dois caminhos concordam: a serie diaria por UF soma o mesmo que a
+        #     serie nacional (ambas no mesmo recorte de data de entrada).
+        ("Dois caminhos concordam: soma da serie diaria por UF = serie nacional",
+         """SELECT (SELECT sum(internacoes) FROM ouro.internacoes_diarias)
+                 = (SELECT sum(internacoes) FROM ouro.internacoes_diarias_brasil)"""),
+
+        # 4b. Partes somam o todo no mart de mortalidade: obitos <= internacoes
+        #     em todo CID, e a taxa fica no dominio 0..100.
+        ("Dominio: mortalidade_por_cid tem obitos <= internacoes e taxa 0..100",
+         """SELECT bool_and(obitos <= internacoes
+                            AND taxa_mortalidade_pct BETWEEN 0 AND 100)
+            FROM ouro.mortalidade_por_cid"""),
+
+        # 5d. Pareto fecha em 100%: a ultima linha do acumulado chega a 100.
+        ("Pareto: municipios_pareto termina em 100% acumulado",
+         """SELECT round(max(pct_acumulado)) = 100 FROM ouro.municipios_pareto"""),
     ]
     return regras
 
