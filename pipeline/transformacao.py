@@ -132,6 +132,21 @@ FROM bronze.municipios
 def main():
     """Transforma a bronze na prata: tipa, decodifica os códigos do SIH e renomeia."""
     con = conectar()
+
+    # Pre-requisito: a bronze tem que existir. Se faltar alguma tabela (ingestao
+    # nao rodou), para antes de transformar em vez de estourar um erro criptico.
+    existentes = {
+        r[0] for r in con.execute("""
+            SELECT table_name FROM information_schema.tables
+            WHERE table_schema = 'bronze'
+        """).fetchall()
+    }
+    faltando = [t for t in ("internacoes", "cid10", "municipios") if t not in existentes]
+    if faltando:
+        print("ERRO: faltam tabelas em bronze:", ", ".join(faltando))
+        print("Rode antes: uv run python -m pipeline.ingestao")
+        sys.exit(1)
+
     criar_schema(con, "prata")
 
     _tabela_ufs(con)
