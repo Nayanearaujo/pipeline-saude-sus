@@ -25,3 +25,4 @@ htmlcov/
 
 # ferramentas locais do agente (nao fazem parte do projeto)
 .agents/
+.kiro/
