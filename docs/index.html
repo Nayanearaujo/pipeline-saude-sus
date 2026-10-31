@@ -170,23 +170,27 @@
     <div class="h2big">SQL · o grão antes do SELECT</div>
     <div class="etapa">
       <span class="tag">ouro · sql/marts/*.sql</span>
-      <h3>Oito marts escritos em SQL, cada um respondendo uma pergunta</h3>
+      <h3>Dez marts escritos em SQL, cada um respondendo uma pergunta</h3>
       <p>A camada ouro é <strong>SQL puro</strong>: cada arquivo <code>.sql</code>
       declara o grão na primeira linha e vira uma tabela. Uso <code>GROUP BY</code>,
-      agregações (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>),
-      <code>JOIN</code> com o dicionário CID-10, <code>CASE WHEN</code> para as
-      faixas etárias e <code>FILTER (WHERE ...)</code> para a taxa de mortalidade.
+      agregações (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>,
+      <code>MEDIAN</code>), <code>JOIN</code> com os dicionários, <code>CASE WHEN</code>
+      para as faixas etárias, <code>FILTER</code> para a mortalidade e window
+      functions (<code>ROW_NUMBER</code>, <code>RANK</code>, <code>SUM() OVER</code>)
+      com <code>CTE</code> e <code>HAVING</code> nos marts de ranking.
       O Python (<code>marts.py</code>) só executa os arquivos; a regra de negócio
       mora inteira no SQL.</p>
       <table>
         <thead><tr><th>Mart</th><th>Pergunta</th><th>SQL em destaque</th></tr></thead>
         <tbody>
           <tr><td><span class="arq">01_kpis_gerais</span></td><td>os números de topo do painel</td><td>agregações + FILTER</td></tr>
-          <tr><td><span class="arq">02_por_estado</span></td><td>volume, gasto, custo e mortalidade por UF</td><td>GROUP BY, COUNT, AVG</td></tr>
-          <tr><td><span class="arq">03_top_diagnosticos</span></td><td>doenças que mais internam, por UF</td><td>LEFT JOIN com CID-10</td></tr>
+          <tr><td><span class="arq">02_por_estado</span></td><td>volume, gasto, custo e mortalidade por UF</td><td>MEDIAN, SUM() OVER ()</td></tr>
+          <tr><td><span class="arq">03_top_diagnosticos</span></td><td>as 10 doenças que mais internam, por UF</td><td>ROW_NUMBER() OVER (PARTITION BY uf)</td></tr>
           <tr><td><span class="arq">04_perfil_demografico</span></td><td>internações por faixa etária e sexo</td><td>CASE WHEN</td></tr>
-          <tr><td><span class="arq">05_internacoes_diarias</span></td><td>série diária de abril/2026</td><td>GROUP BY por data</td></tr>
-          <tr><td><span class="arq">06·08_*_brasil</span></td><td>versões nacionais consolidadas</td><td>agregação nacional</td></tr>
+          <tr><td><span class="arq">05_internacoes_diarias</span></td><td>série diária do mês de referência</td><td>GROUP BY por data</td></tr>
+          <tr><td><span class="arq">09_mortalidade_por_cid</span></td><td>doenças de maior letalidade (100+ casos)</td><td>CTE + HAVING + RANK()</td></tr>
+          <tr><td><span class="arq">10_municipios_pareto</span></td><td>municípios que concentram 80% do gasto</td><td>SUM() OVER (ORDER BY)</td></tr>
+          <tr><td><span class="arq">06·07·08_*_brasil</span></td><td>versões nacionais consolidadas</td><td>agregação nacional</td></tr>
         </tbody>
       </table>
       <p>Exemplo real: o mart que compara os estados (o coração do painel).</p>
