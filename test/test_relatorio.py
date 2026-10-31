@@ -73,3 +73,15 @@ def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
     um = relatorio.construir_html(dados)
     dois = relatorio.construir_html(dados)
     assert um == dois  # mesma data congelada -> HTML identico
+
+
+def test_main_grava_os_dois_arquivos(tmp_path, monkeypatch):
+    """main() le os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
+    monkeypatch.setattr(relatorio.painel, "ler", lambda: _dados_inventados())
+    monkeypatch.setattr(relatorio, "RAIZ", tmp_path)
+    relatorio.main()
+    raiz_html = tmp_path / "relatorio.html"
+    docs_html = tmp_path / "docs" / "relatorio.html"
+    assert raiz_html.exists()
+    assert docs_html.exists()
+    assert "Internações" in raiz_html.read_text(encoding="utf-8")
