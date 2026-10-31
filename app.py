@@ -89,6 +89,12 @@ st.markdown(
       div[data-baseweb="select"] > div:hover { border-color: #2e9e74 !important; }
       /* caixa que agrupa cada seletor, com um respiro */
       div[data-testid="stSelectbox"] { margin-bottom: 4px; }
+      /* rotulo proprio acima de cada seletor: negrito verde, bolinha verde */
+      .sus-label {
+        font-weight: 700; color: #14543f; font-size: 1rem;
+        margin: 0 0 4px 2px;
+      }
+      .sus-label::first-letter { color: #5bb6a6; }
 
       /* rotulos dos seletores (Estado, Metrica...): negrito verde, um pouco
          maiores, com uma bolinha verde antes para chamar a atencao */
@@ -102,8 +108,21 @@ st.markdown(
         content: "● "; color: #5bb6a6;
       }
 
+      /* cabecalho (banner): faixa branca levemente esverdeada, titulo Poppins */
+      .sus-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f0faf5 100%);
+        border: 1px solid #d3ebe0; border-left: 6px solid #2e9e74;
+        border-radius: 16px; padding: 22px 26px; margin-bottom: 18px;
+        box-shadow: 0 10px 30px -22px rgba(20,84,63,.5);
+      }
+      .sus-title {
+        font-family: 'Poppins', sans-serif; font-weight: 800;
+        font-size: 2.15rem; line-height: 1.15; color: #14543f;
+        letter-spacing: -0.5px;
+      }
+      .sus-title span { color: #2e9e74; font-weight: 700; }
       /* linha da fonte: discreta, com o link do DATASUS bem visivel */
-      .sus-fonte { color: #5a6b66; font-size: 0.92rem; margin: 2px 0 14px; }
+      .sus-fonte { color: #5a6b66; font-size: 0.92rem; margin-top: 8px; }
       .sus-fonte a {
         color: #1a6b52 !important; font-weight: 700;
         text-decoration: underline; text-underline-offset: 3px;
@@ -129,12 +148,21 @@ def carregar():
 
 
 def main():
-    st.title("🏥 Internações hospitalares do SUS · por estado")
+    # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
+    # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
+    # depender dos componentes do Streamlit (que sanitizam parte do CSS).
     st.markdown(
-        "<p class='sus-fonte'>Fonte: "
-        "<a href='https://datasus.saude.gov.br/transferencia-de-arquivos/' "
-        "target='_blank'>SIH/SUS (DATASUS)</a> · abril/2026 · "
-        "uma linha = uma internação (AIH).</p>",
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+        <div class="sus-header">
+          <div class="sus-title">🏥 Internações hospitalares do SUS <span>· por estado</span></div>
+          <div class="sus-fonte">
+            Fonte:
+            <a href="https://datasus.saude.gov.br/transferencia-de-arquivos/" target="_blank">SIH/SUS · DATASUS</a>
+            · abril/2026 · uma linha = uma internação (AIH).
+          </div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
@@ -161,14 +189,22 @@ def main():
 
     col_sel, col_met = st.columns([1, 1])
     with col_sel:
-        escolha = st.selectbox("Estado", ["Brasil"] + ufs, index=0)
+        st.markdown("<div class='sus-label'>● Estado</div>", unsafe_allow_html=True)
+        escolha = st.selectbox(
+            "Estado", ["Brasil"] + ufs, index=0, label_visibility="collapsed"
+        )
     with col_met:
+        st.markdown(
+            "<div class='sus-label'>● Métrica do mapa e ranking</div>",
+            unsafe_allow_html=True,
+        )
         opcoes = ["internacoes", "valor_total", "custo_medio", "dias_medio", "taxa_mortalidade_pct"]
         metrica = st.selectbox(
             "Métrica do mapa e ranking",
             opcoes,
             index=0,
             format_func=painel.rotulo,  # mostra "Internações", guarda "internacoes"
+            label_visibility="collapsed",
         )
 
     uf = None if escolha == "Brasil" else escolha
