@@ -56,11 +56,17 @@ def _municipios_da_api_ibge() -> pd.DataFrame:
 
     Devolve um DataFrame com as colunas codigo (6 digitos), municipio e uf.
     Levanta excecao se a rede falhar ou o formato nao bater (quem chama trata)."""
+    import gzip
     import json
     import urllib.request
 
-    with urllib.request.urlopen(URL_IBGE_API, timeout=30) as resposta:
-        dados = json.loads(resposta.read().decode("utf-8"))
+    # alguns endpoints do IBGE respondem com gzip; pede texto e descomprime se vier.
+    req = urllib.request.Request(URL_IBGE_API, headers={"Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(req, timeout=30) as resposta:
+        bruto = resposta.read()
+        if resposta.headers.get("Content-Encoding") == "gzip" or bruto[:2] == b"\x1f\x8b":
+            bruto = gzip.decompress(bruto)
+    dados = json.loads(bruto.decode("utf-8"))
     if not isinstance(dados, list) or not dados:
         raise ValueError("resposta da API do IBGE vazia ou em formato inesperado")
 
