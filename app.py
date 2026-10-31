@@ -26,6 +26,9 @@ PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 st.markdown(
     """
     <style>
+      /* fonte elegante para o titulo (Poppins) e corpo (Inter) */
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
       /* fundo verde-bebe na pagina inteira (reforca o config.toml;
          cobre os seletores que mudam entre versoes do Streamlit) */
       .stApp,
@@ -36,8 +39,13 @@ st.markdown(
       [data-testid="stHeader"] { background: transparent !important; }
       .block-container { padding-top: 2.4rem; padding-bottom: 2.4rem; max-width: 1280px; }
 
-      /* titulo: verde escuro, peso forte, espacamento de letra justo */
-      h1 { color: #14543f; font-weight: 800; letter-spacing: -0.5px; }
+      /* corpo em Inter; titulo em Poppins, verde escuro e encorpado */
+      html, body, [class*="st-"] { font-family: 'Inter', system-ui, sans-serif; }
+      h1 {
+        font-family: 'Poppins', sans-serif !important;
+        color: #14543f; font-weight: 800; letter-spacing: -0.5px;
+        font-size: 2.3rem;
+      }
       .stCaption, [data-testid="stCaptionContainer"] { color: #5a6b66; }
 
       /* cartoes de metrica: brancos, cantos suaves, sombra leve e borda verde */
@@ -70,22 +78,37 @@ st.markdown(
         box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
       }
 
-      /* seletores (selectbox) brancos e arredondados, combinando com os cartoes */
+      /* seletores (selectbox) em destaque: fundo branco, borda verde mais
+         marcada e sombra, para a area de escolha "saltar" do fundo verde */
       div[data-baseweb="select"] > div {
-        background: #ffffff; border-radius: 12px; border-color: #dbeee4;
+        background: #ffffff; border-radius: 12px;
+        border: 1.5px solid #5bb6a6 !important;
+        box-shadow: 0 6px 18px -12px rgba(20,84,63,.5);
+        min-height: 46px;
       }
+      div[data-baseweb="select"] > div:hover { border-color: #2e9e74 !important; }
+      /* caixa que agrupa cada seletor, com um respiro */
+      div[data-testid="stSelectbox"] { margin-bottom: 4px; }
 
-      /* rotulos dos seletores (Estado, Metrica...) em negrito verde */
+      /* rotulos dos seletores (Estado, Metrica...): negrito verde, um pouco
+         maiores, com uma bolinha verde antes para chamar a atencao */
       div[data-testid="stWidgetLabel"] label,
-      div[data-testid="stWidgetLabel"] p {
+      div[data-testid="stWidgetLabel"] p,
+      label[data-testid="stWidgetLabel"] {
         font-weight: 700 !important; color: #14543f !important;
+        font-size: 0.98rem !important;
+      }
+      div[data-testid="stWidgetLabel"] p::before {
+        content: "● "; color: #5bb6a6;
       }
 
-      /* linha da fonte: discreta, com o link em verde */
-      .sus-fonte { color: #5a6b66; font-size: 0.9rem; margin: 2px 0 10px; }
-      .sus-fonte a { color: #1a6b52; font-weight: 600; text-decoration: none;
-                     border-bottom: 1px solid #9fd6c6; }
-      .sus-fonte a:hover { border-bottom-color: #1a6b52; }
+      /* linha da fonte: discreta, com o link do DATASUS bem visivel */
+      .sus-fonte { color: #5a6b66; font-size: 0.92rem; margin: 2px 0 14px; }
+      .sus-fonte a {
+        color: #1a6b52 !important; font-weight: 700;
+        text-decoration: underline; text-underline-offset: 3px;
+      }
+      .sus-fonte a:hover { color: #2e9e74 !important; }
 
       /* subtitulo de secao: etiqueta verde, com um tracinho antes */
       .sus-sub {
