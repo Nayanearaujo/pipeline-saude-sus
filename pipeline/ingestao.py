@@ -39,11 +39,11 @@ ARQUIVOS = {
     ),
     "cid10.csv": (
         "cid10",
-        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true, encoding='utf-8')",
     ),
     "municipios.csv": (
         "municipios",
-        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true)",
+        "SELECT * FROM read_csv_auto('{caminho}', all_varchar=true, encoding='utf-8')",
     ),
 }
 
