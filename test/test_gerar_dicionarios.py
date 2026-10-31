@@ -5,7 +5,6 @@ Mocka a resposta da API (sem internet) e confere o parse. Testa tambem o
 fallback: quando a API falha, gerar_municipios cai no modo neutro e ainda grava
 o arquivo. Nunca acessa a rede nem data/raw real.
 """
-import io
 import json
 
 import pandas as pd
@@ -18,6 +17,7 @@ class _RespostaFake:
     """Simula o objeto de contexto devolvido por urllib.request.urlopen."""
     def __init__(self, payload: bytes):
         self._payload = payload
+        self.headers = {}  # sem Content-Encoding: resposta em texto puro
 
     def __enter__(self):
         return self
