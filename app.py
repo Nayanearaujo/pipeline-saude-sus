@@ -26,37 +26,116 @@ PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 st.markdown(
     """
     <style>
-      /* fundo verde-saude light na pagina inteira (reforca o config.toml;
+      /* fonte elegante para o titulo (Poppins) e corpo (Inter) */
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+      /* fundo verde-bebe na pagina inteira (reforca o config.toml;
          cobre os seletores que mudam entre versoes do Streamlit) */
       .stApp,
       [data-testid="stAppViewContainer"],
       [data-testid="stMain"],
       .main,
-      section.main { background: #dff0e8 !important; }
+      section.main { background: #eaf7f0 !important; }
       [data-testid="stHeader"] { background: transparent !important; }
-      .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1300px; }
-      /* cartoes de metrica (st.metric): brancos sobre o fundo verde, borda verdinha */
+      .block-container { padding-top: 2.4rem; padding-bottom: 2.4rem; max-width: 1280px; }
+
+      /* corpo em Inter; titulo em Poppins, verde escuro e encorpado */
+      html, body, [class*="st-"] { font-family: 'Inter', system-ui, sans-serif; }
+      h1 {
+        font-family: 'Poppins', sans-serif !important;
+        color: #14543f; font-weight: 800; letter-spacing: -0.5px;
+        font-size: 2.3rem;
+      }
+      .stCaption, [data-testid="stCaptionContainer"] { color: #5a6b66; }
+
+      /* cartoes de metrica: brancos, cantos suaves, sombra leve e borda verde */
       div[data-testid="stMetric"] {
         background: #ffffff;
-        border: 1px solid #cfe3d8;
-        border-left: 4px solid #5bb6a6;
-        border-radius: 14px;
-        padding: 16px 18px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
+        border: 1px solid #dbeee4;
+        border-top: 3px solid #5bb6a6;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
+        transition: box-shadow .2s ease, transform .2s ease;
       }
-      div[data-testid="stMetricLabel"] { color: #6b7b7c; font-size: 0.82rem; }
-      div[data-testid="stMetricValue"] { color: #10171a; font-weight: 700; }
-      /* graficos num cartao branco tambem, com a mesma borda verdinha */
+      div[data-testid="stMetric"]:hover {
+        box-shadow: 0 2px 4px rgba(20,84,63,.06), 0 14px 34px -20px rgba(20,84,63,.5);
+        transform: translateY(-1px);
+      }
+      /* rotulo do cartao em maiusculas discretas: ar executivo */
+      div[data-testid="stMetricLabel"] {
+        color: #6b7b7c; font-size: 0.74rem; font-weight: 600;
+        letter-spacing: 0.06em; text-transform: uppercase;
+      }
+      div[data-testid="stMetricValue"] { color: #14543f; font-weight: 800; }
+
+      /* graficos num cartao branco, mesma linguagem dos cartoes */
       div[data-testid="stPlotlyChart"] {
         background: #ffffff;
-        border: 1px solid #cfe3d8;
-        border-radius: 14px;
-        padding: 8px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
+        border: 1px solid #dbeee4;
+        border-radius: 16px;
+        padding: 10px 12px;
+        box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
       }
-      h1 { color: #1a6b52; }
-      .sus-sub { color: #1a6b52; font-size: 1.05rem; font-weight: 700;
-                 margin: 8px 0 2px; }
+
+      /* seletores (selectbox) em destaque: fundo branco, borda verde mais
+         marcada e sombra, para a area de escolha "saltar" do fundo verde */
+      div[data-baseweb="select"] > div {
+        background: #ffffff; border-radius: 12px;
+        border: 1.5px solid #5bb6a6 !important;
+        box-shadow: 0 6px 18px -12px rgba(20,84,63,.5);
+        min-height: 46px;
+      }
+      div[data-baseweb="select"] > div:hover { border-color: #2e9e74 !important; }
+      /* caixa que agrupa cada seletor, com um respiro */
+      div[data-testid="stSelectbox"] { margin-bottom: 4px; }
+      /* rotulo proprio acima de cada seletor: negrito verde, bolinha verde */
+      .sus-label {
+        font-weight: 700; color: #14543f; font-size: 1rem;
+        margin: 0 0 4px 2px;
+      }
+      .sus-label::first-letter { color: #5bb6a6; }
+
+      /* rotulos dos seletores (Estado, Metrica...): negrito verde, um pouco
+         maiores, com uma bolinha verde antes para chamar a atencao */
+      div[data-testid="stWidgetLabel"] label,
+      div[data-testid="stWidgetLabel"] p,
+      label[data-testid="stWidgetLabel"] {
+        font-weight: 700 !important; color: #14543f !important;
+        font-size: 0.98rem !important;
+      }
+      div[data-testid="stWidgetLabel"] p::before {
+        content: "● "; color: #5bb6a6;
+      }
+
+      /* cabecalho (banner): faixa branca levemente esverdeada, titulo Poppins */
+      .sus-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f0faf5 100%);
+        border: 1px solid #d3ebe0; border-left: 6px solid #2e9e74;
+        border-radius: 16px; padding: 22px 26px; margin-bottom: 18px;
+        box-shadow: 0 10px 30px -22px rgba(20,84,63,.5);
+      }
+      .sus-title {
+        font-family: 'Poppins', sans-serif; font-weight: 800;
+        font-size: 2.15rem; line-height: 1.15; color: #14543f;
+        letter-spacing: -0.5px;
+      }
+      .sus-title span { color: #2e9e74; font-weight: 700; }
+      /* linha da fonte: discreta, com o link do DATASUS bem visivel */
+      .sus-fonte { color: #5a6b66; font-size: 0.92rem; margin-top: 8px; }
+      .sus-fonte a {
+        color: #1a6b52 !important; font-weight: 700;
+        text-decoration: underline; text-underline-offset: 3px;
+      }
+      .sus-fonte a:hover { color: #2e9e74 !important; }
+
+      /* subtitulo de secao: etiqueta verde, com um tracinho antes */
+      .sus-sub {
+        color: #14543f; font-size: 1.1rem; font-weight: 700;
+        margin: 10px 0 6px; padding-left: 12px; border-left: 4px solid #5bb6a6;
+      }
+      /* divisor mais discreto */
+      hr { border-color: #cfe6da !important; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -69,8 +148,23 @@ def carregar():
 
 
 def main():
-    st.title("🏥 Internações hospitalares do SUS · por estado")
-    st.caption("Fonte: SIH/SUS (DATASUS) · abril/2026 · uma linha = uma internação (AIH).")
+    # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
+    # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
+    # depender dos componentes do Streamlit (que sanitizam parte do CSS).
+    st.markdown(
+        """
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+        <div class="sus-header">
+          <div class="sus-title">🏥 Internações hospitalares do SUS <span>· por estado</span></div>
+          <div class="sus-fonte">
+            Fonte:
+            <a href="https://datasus.saude.gov.br/transferencia-de-arquivos/" target="_blank">SIH/SUS · DATASUS</a>
+            · abril/2026 · uma linha = uma internação (AIH).
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     try:
         dados = carregar()
@@ -95,14 +189,22 @@ def main():
 
     col_sel, col_met = st.columns([1, 1])
     with col_sel:
-        escolha = st.selectbox("Estado", ["Brasil"] + ufs, index=0)
+        st.markdown("<div class='sus-label'>● Estado</div>", unsafe_allow_html=True)
+        escolha = st.selectbox(
+            "Estado", ["Brasil"] + ufs, index=0, label_visibility="collapsed"
+        )
     with col_met:
+        st.markdown(
+            "<div class='sus-label'>● Métrica do mapa e ranking</div>",
+            unsafe_allow_html=True,
+        )
         opcoes = ["internacoes", "valor_total", "custo_medio", "dias_medio", "taxa_mortalidade_pct"]
         metrica = st.selectbox(
             "Métrica do mapa e ranking",
             opcoes,
             index=0,
             format_func=painel.rotulo,  # mostra "Internações", guarda "internacoes"
+            label_visibility="collapsed",
         )
 
     uf = None if escolha == "Brasil" else escolha
