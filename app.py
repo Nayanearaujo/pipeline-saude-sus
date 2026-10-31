@@ -26,37 +26,62 @@ PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 st.markdown(
     """
     <style>
-      /* fundo verde-saude light na pagina inteira (reforca o config.toml;
+      /* fundo verde-bebe na pagina inteira (reforca o config.toml;
          cobre os seletores que mudam entre versoes do Streamlit) */
       .stApp,
       [data-testid="stAppViewContainer"],
       [data-testid="stMain"],
       .main,
-      section.main { background: #dff0e8 !important; }
+      section.main { background: #eaf7f0 !important; }
       [data-testid="stHeader"] { background: transparent !important; }
-      .block-container { padding-top: 2rem; padding-bottom: 2rem; max-width: 1300px; }
-      /* cartoes de metrica (st.metric): brancos sobre o fundo verde, borda verdinha */
+      .block-container { padding-top: 2.4rem; padding-bottom: 2.4rem; max-width: 1280px; }
+
+      /* titulo: verde escuro, peso forte, espacamento de letra justo */
+      h1 { color: #14543f; font-weight: 800; letter-spacing: -0.5px; }
+      .stCaption, [data-testid="stCaptionContainer"] { color: #5a6b66; }
+
+      /* cartoes de metrica: brancos, cantos suaves, sombra leve e borda verde */
       div[data-testid="stMetric"] {
         background: #ffffff;
-        border: 1px solid #cfe3d8;
-        border-left: 4px solid #5bb6a6;
-        border-radius: 14px;
-        padding: 16px 18px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
+        border: 1px solid #dbeee4;
+        border-top: 3px solid #5bb6a6;
+        border-radius: 16px;
+        padding: 18px 20px;
+        box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
+        transition: box-shadow .2s ease, transform .2s ease;
       }
-      div[data-testid="stMetricLabel"] { color: #6b7b7c; font-size: 0.82rem; }
-      div[data-testid="stMetricValue"] { color: #10171a; font-weight: 700; }
-      /* graficos num cartao branco tambem, com a mesma borda verdinha */
+      div[data-testid="stMetric"]:hover {
+        box-shadow: 0 2px 4px rgba(20,84,63,.06), 0 14px 34px -20px rgba(20,84,63,.5);
+        transform: translateY(-1px);
+      }
+      /* rotulo do cartao em maiusculas discretas: ar executivo */
+      div[data-testid="stMetricLabel"] {
+        color: #6b7b7c; font-size: 0.74rem; font-weight: 600;
+        letter-spacing: 0.06em; text-transform: uppercase;
+      }
+      div[data-testid="stMetricValue"] { color: #14543f; font-weight: 800; }
+
+      /* graficos num cartao branco, mesma linguagem dos cartoes */
       div[data-testid="stPlotlyChart"] {
         background: #ffffff;
-        border: 1px solid #cfe3d8;
-        border-radius: 14px;
-        padding: 8px;
-        box-shadow: 0 1px 2px rgba(16,23,26,.04), 0 8px 24px -18px rgba(26,107,82,.35);
+        border: 1px solid #dbeee4;
+        border-radius: 16px;
+        padding: 10px 12px;
+        box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
       }
-      h1 { color: #1a6b52; }
-      .sus-sub { color: #1a6b52; font-size: 1.05rem; font-weight: 700;
-                 margin: 8px 0 2px; }
+
+      /* seletores (selectbox) brancos e arredondados, combinando com os cartoes */
+      div[data-baseweb="select"] > div {
+        background: #ffffff; border-radius: 12px; border-color: #dbeee4;
+      }
+
+      /* subtitulo de secao: etiqueta verde, com um tracinho antes */
+      .sus-sub {
+        color: #14543f; font-size: 1.1rem; font-weight: 700;
+        margin: 10px 0 6px; padding-left: 12px; border-left: 4px solid #5bb6a6;
+      }
+      /* divisor mais discreto */
+      hr { border-color: #cfe6da !important; }
     </style>
     """,
     unsafe_allow_html=True,
