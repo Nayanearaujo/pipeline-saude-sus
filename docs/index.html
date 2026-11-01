@@ -83,7 +83,7 @@
       <span class="pill">Python</span>
       <span class="pill">DuckDB</span>
       <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura 97,31%</span>
+      <span class="pill">pytest · cobertura 97,50%</span>
       <span class="pill">CI (GitHub Actions)</span>
       <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
@@ -232,14 +232,14 @@ ORDER BY internacoes DESC, uf;</pre>
       percentual e posição de ranking já vem pronto dos marts em SQL.</p>
     </div>
     <div class="etapa">
-      <span class="tag">testes · test/ (108 testes unitários)</span>
-      <h3>Testes com pytest, cobertura de 97,31%</h3>
-      <p>108 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
+      <span class="tag">testes · test/ (120 testes unitários)</span>
+      <h3>Testes com pytest, cobertura de 97,50%</h3>
+      <p>120 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
       <code>transformacao.py</code> (96%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
       <code>painel.py</code> (99%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,31%</strong>.</p>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,50%</strong>.</p>
     </div>
     <div class="etapa">
       <span class="tag">qualidade · pipeline/qualidade.py (34 regras)</span>
@@ -267,7 +267,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 108 testes (cobertura 97,31%)
+uv run pytest --cov                       # os 120 testes (cobertura 97,50%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e

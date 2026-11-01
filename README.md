@@ -1,7 +1,7 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-97.31%25-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97.50%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
 ![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
@@ -73,7 +73,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,31% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,50% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -265,7 +265,7 @@ número não fechar):
 | `painel.py` / `exportar_painel.py` | formatadores BR, figuras Plotly, fallback DuckDB/CSV e publicação com rollback | **99%** / **98%** |
 | `relatorio.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB) | **98%** |
 | `gerar_dicionarios.py` | consumo da API oficial do IBGE com mock e fallback para modo neutro (3 testes; script de I/O externo, fora da medição de cobertura) | n/a |
-| **TOTAL (108 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,31%** |
+| **TOTAL (120 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,50%** |
 
 ---
 
@@ -288,7 +288,7 @@ pipeline-saude-sus/
 ├── exportar_painel.py   exporta a camada ouro para dados_painel/
 ├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
 ├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
-├── test/                108 testes pytest com dado inventado e mocks de rede
+├── test/                120 testes pytest com dado inventado e mocks de rede
 ├── data/raw/            os arquivos baixados (não versionados)
 └── pyproject.toml
 ```
@@ -350,7 +350,7 @@ A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
 [evidência dos dez CSVs](docs/auditoria-publicacao-atual.json) e
 [consulta de dependências](docs/auditoria-dependencias.json).
 
-- 108 testes passaram; cobertura de 97,31%. O CI exige pelo menos 95%.
+- 120 testes passaram; cobertura de 97,50%. O CI exige pelo menos 95%.
 - Os dez CSVs recebidos no PR passaram em 27 verificações; seus hashes conferem
   com [o manifesto da extração](docs/proveniencia-extracao.json).
 - Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm

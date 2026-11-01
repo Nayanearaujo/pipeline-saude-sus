@@ -268,7 +268,12 @@ def main():
     # mapa + rosca (o circulo classico) lado a lado com o custo por UF
     f1b = st.columns([2, 3])
     with f1b[0]:
-        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
+        metrica_regional = metrica if metrica in {"internacoes", "valor_total"} else "internacoes"
+        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica_regional), width="stretch", config=PLOTLY_CONFIG)
+        if metrica_regional != metrica:
+            st.caption(
+                "Composição regional por internações: médias e taxas não devem ser somadas como partes de um total."
+            )
     with f1b[1]:
         st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch", config=PLOTLY_CONFIG)
 
@@ -294,6 +299,14 @@ def main():
         st.plotly_chart(painel.fig_serie_diaria(serie, rotulo), width="stretch", config=PLOTLY_CONFIG)
 
     st.plotly_chart(painel.fig_perfil(perfil, rotulo), width="stretch", config=PLOTLY_CONFIG)
+    with st.expander("Ver perfil detalhado por sexo e faixa etária"):
+        st.dataframe(
+            perfil[["faixa_etaria", "sexo", "internacoes", "dias_medio"]], hide_index=True, width="stretch",
+            column_config={"faixa_etaria": "Faixa etária", "sexo": "Sexo registrado",
+                           "internacoes": st.column_config.NumberColumn("Internações", format="localized"),
+                           "dias_medio": st.column_config.NumberColumn("Permanência média (dias)", format="%.1f")},
+        )
+    st.caption("Sexo conforme registro da AIH. Barras mostram internações, não pessoas únicas.")
 
     # Marts complementares: os CSVs ainda precisam ser exportados do banco real.
     # A ausencia deles no deploy nao deve derrubar os oito indicadores existentes.
