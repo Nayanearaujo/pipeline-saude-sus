@@ -124,8 +124,8 @@ uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municip
 > processamento pode avançar, mas a qualidade pode bloquear rótulos neutros predominantes. Rode-o com internet
 > antes de publicar, ou os gráficos mostram o código cru no lugar da doença.
 
-> Se abril/2026 ainda não estiver publicado (o SIH tem 2 a 4 meses de atraso),
-> ajuste `ANO`/`MES` no topo de `baixar_dados.py` para o último mês fechado.
+> Para outro recorte, ajuste `ANO`/`MES` em `baixar_dados.py` a um período
+> cuja disponibilidade tenha sido conferida no DATASUS.
 
 ---
 
@@ -320,24 +320,25 @@ indicadores:
 - **Idade em anos, derivada de `COD_IDADE`.** O SIH guarda a idade com uma
   unidade (`COD_IDADE`): a transformação converte 0/1/2/3 (minutos/horas/dias/
   meses) para 0 anos (faixa "< 1 ano") e 5 para a idade + 100. Sem isso, bebês
-  medidos em dias ou meses cairiam em faixas de adulto (ver Achado nº 2).
+  medidos em dias ou meses poderiam cair em faixas etárias superiores (ver Achado nº 2).
 - **Um único mês (abril/2026).** Não há base para falar de sazonalidade ou
   tendência; a série mostra só a variação dentro do mês.
 
 ### O que ficou no dado de propósito
 
-A camada prata não corrige o fato: estas anomalias reais do SIH são mantidas e
-documentadas, não apagadas.
+A camada Prata preserva os registros após tipagem, deduplicação e exclusão de
+valores ausentes. As situações abaixo descrevem o tratamento do código; sua
+frequência precisa ser verificada nos microdados de cada execução.
 
-- **Entradas de meses anteriores.** Cerca de 43% das AIH da competência de abril
-  têm data de entrada em meses anteriores. Ficam na base; só a série diária as
-  recorta (ver Achado nº 1).
+- **Entradas fora do recorte diário.** A diferença entre o consolidado e a série
+  publicada é de 535.167 AIHs. Os microdados são necessários para confirmar
+  em quais datas ocorreram; a transformação não exclui AIHs só pela data de entrada.
 - **Internações com `dias_permanencia` = 0.** Entrada e saída no mesmo dia
   existem no SIH (procedimento de day clinic, óbito no primeiro dia); são dado
   válido, não erro.
-- **Datas de internação muito antigas.** Poucas AIH trazem data de entrada de
-  anos atrás (internações longas ou erro de digitação na origem). Entram na
-  prata; a série diária, por filtrar o mês de referência, as deixa de fora.
+- **Datas de internação antigas.** Se presentes e válidas, permanecem na
+  Prata; a série diária as deixa de fora quando estão fora do mês selecionado.
+  A frequência e a causa dessas datas não foram revalidadas nesta auditoria.
 
 ## Auditoria e pendências de entrega
 
