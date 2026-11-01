@@ -29,6 +29,8 @@ MARTS = [
     "top_diagnosticos_brasil",
     "internacoes_diarias_brasil",
     "perfil_demografico_brasil",
+    "mortalidade_por_cid",
+    "municipios_pareto",
 ]
 
 
