@@ -156,6 +156,26 @@ def _resumo_nulos_internacoes(con) -> str:
     return f"sexo={n_sexo}, idade={n_idade}, uf={n_uf}"
 
 
+def _motivos_exclusao_internacoes(con) -> tuple[int, int]:
+    """Conta AIHs duplicadas e sem valor apos a mesma deduplicacao da prata."""
+    sem_valor, duplicadas = con.execute("""
+        WITH classificadas AS (
+            SELECT
+                NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
+                row_number() OVER (
+                    PARTITION BY CAST(N_AIH AS VARCHAR)
+                    ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+                ) AS posicao
+            FROM bronze.internacoes
+        )
+        SELECT
+            count(*) FILTER (WHERE posicao = 1 AND valor IS NULL),
+            count(*) FILTER (WHERE posicao > 1)
+        FROM classificadas
+    """).fetchone()
+    return sem_valor, duplicadas
+
+
 def main():
     """Transforma a bronze na prata: tipa, decodifica os códigos do SIH e renomeia."""
     con = conectar()
@@ -196,6 +216,10 @@ def main():
         marca = f"(-{saiu:,} removidas)".replace(",", ".") if saiu else "(0 removidas)"
         print(f"  prata.{nome:<14} {destino:>9,} linhas  {marca}".replace(",", "."))
         if nome == "internacoes":
+            sem_valor, duplicadas = _motivos_exclusao_internacoes(con)
+            if sem_valor + duplicadas != saiu:
+                raise ValueError("Exclusoes da bronze nao reconciliam com a prata")
+            print(f"    exclusoes: {sem_valor} sem valor, {duplicadas} AIH duplicadas")
             print(f"    nulos mantidos: {_resumo_nulos_internacoes(con)}")
 
     print(f"  {'total':<14} {total:>9,} linhas".replace(",", "."))
