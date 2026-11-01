@@ -43,20 +43,20 @@ def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     padrao cada grafico ocupa metade (grade de 2 colunas). div_id fixo deixa o
     HTML deterministico: sem ele o Plotly sorteia um id a cada execucao e o
     arquivo muda mesmo com o dado igual."""
-    # a altura vem do CSS (.grafico height:380px); o grafico preenche o card.
-    # autosize + responsive deixam o Plotly acompanhar a largura da coluna da grade.
-    fig.update_layout(autosize=True)
+    # Uma única altura em pixels: o cartão cresce com o conteúdo, sem regras
+    # percentuais que deixavam o canvas ultrapassar o padding e a borda.
+    altura = max(380, fig.layout.height or 380)
+    fig.update_layout(autosize=True, width=None, height=altura)
     html = fig.to_html(
         full_html=False,
         include_plotlyjs="cdn" if incluir_js else False,
         config={"displayModeBar": False, "displaylogo": False, "responsive": True},
-        default_height="100%",
+        default_height=altura,
         default_width="100%",
         div_id=div_id,
     )
     classe = "grafico largo" if largo else "grafico"
-    altura = max(380, fig.layout.height or 380)
-    return f'<div class="{classe}" style="height:{altura}px">{html}</div>'
+    return f'<div class="{classe}">{html}</div>'
 
 
 def construir_html(dados: dict) -> str:
@@ -78,7 +78,12 @@ def construir_html(dados: dict) -> str:
     # o mapa centralizado e sem margem lateral sobrando (o Brasil e estreito e
     # alto; sem isso sobra muito branco dos lados no relatorio).
     mapa = painel.fig_mapa(por_estado, METRICA)
-    mapa.update_layout(margin=dict(l=0, r=0, t=56, b=0))
+    limites = mapa.layout.map.bounds
+    mapa.update_layout(
+        margin=dict(l=15, r=105, t=64, b=20),
+        map_bounds=dict(west=limites.west - 2, east=limites.east + 2,
+                        south=limites.south - 2, north=limites.north + 2),
+    )
 
     # grade de 2 colunas: mapa + ranking no topo; rosca + custo; top diagnosticos
     # emparelhado; serie e perfil ocupam a linha inteira (sao series temporais).
@@ -87,10 +92,16 @@ def construir_html(dados: dict) -> str:
         (painel.fig_ranking_estados(por_estado, METRICA), False),
         (painel.fig_rosca_regiao(por_estado, METRICA), False),
         (painel.fig_custo_medio_uf(por_estado), False),
-        (painel.fig_top_diagnosticos(diag, "Brasil"), False),
-        (painel.fig_perfil(perfil, "Brasil"), False),
+        (painel.fig_top_diagnosticos(diag, "Brasil"), True),
+        (painel.fig_perfil(perfil, "Brasil"), True),
         (painel.fig_serie_diaria(serie, "Brasil"), True),
     ]
+    # Os pares compartilham a altura, evitando vazios abaixo do mapa e da rosca.
+    for esquerda, direita in ((0, 1), (2, 3)):
+        altura = max(blocos[esquerda][0].layout.height or 380,
+                     blocos[direita][0].layout.height or 380)
+        blocos[esquerda][0].update_layout(height=altura)
+        blocos[direita][0].update_layout(height=altura)
     if "mortalidade_por_cid" in dados and "municipios_pareto" in dados:
         blocos.extend([
             (painel.fig_mortalidade_por_cid(dados["mortalidade_por_cid"]), True),
@@ -170,8 +181,8 @@ _PAGINA = """<!doctype html>
   .grade{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}}
   .grafico{{background:var(--surface);border:1px solid var(--line);
     border-radius:14px;padding:8px;box-shadow:var(--shadow);
-    min-width:0;height:380px;}}
-  .grafico .plotly-graph-div{{width:100%!important;height:100%!important;}}
+    min-width:0;overflow:hidden;}}
+  .grafico .plotly-graph-div{{width:100%;}}
   .grafico.largo{{grid-column:1 / -1;}}
   .leitura{{grid-column:1 / -1;margin:0;color:#46575a;font-size:13px;}}
   @media (max-width:900px){{.grade,.notas{{grid-template-columns:1fr;}}}}

@@ -66,7 +66,9 @@ def test_ids_de_grafico_sao_fixos():
     assert 'id="g01"' in html
     assert 'id="g08"' in html
     assert "referência de concentração" in html
-    assert 'height:820px' in html
+    assert '"height":820' in html
+    assert 'height:100%!important' not in html
+    assert 'overflow:hidden' in html
 
 
 def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
