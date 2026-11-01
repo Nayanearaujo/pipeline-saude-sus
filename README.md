@@ -347,26 +347,28 @@ frequência precisa ser verificada nos microdados de cada execução.
 ## Auditoria e pendências de entrega
 
 A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
-[evidência dos CSVs](docs/auditoria-publicacao.json) e
+[evidência dos dez CSVs](docs/auditoria-publicacao-atual.json) e
 [consulta de dependências](docs/auditoria-dependencias.json).
 
 - 108 testes passaram; cobertura de 97,31%. O CI exige pelo menos 95%.
-- Os oito CSVs publicados conferem entre si em quantidade e valor financeiro.
+- Os dez CSVs recebidos no PR passaram em 27 verificações; seus hashes conferem
+  com [o manifesto da extração](docs/proveniencia-extracao.json).
 - Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm
-  testes. Seus CSVs reais já foram exportados no Mac e aguardam envio ao PR.
+  testes e CSVs reais incluídos no PR final, com 1.429 e 5.569 linhas, respectivamente.
 - O reprocessamento local do commit `99d5eb9` passou nas 34 regras: Bronze com
   1.238.763 linhas, Prata com 1.238.234, 529 AIHs duplicadas e 0 sem valor.
   Os dez marts somam 16.400 linhas exportadas. A saída foi fornecida pelo usuário;
-  o total financeiro reproduzível é R$ 2.258.865.118,36. Falta enviar os arquivos
-  gerados e registrar a competência/proveniência da extração.
+  o total financeiro reproduzível é R$ 2.258.865.118,36. Os arquivos e o manifesto
+  foram recebidos e verificados; competência registrada: abril/2026. Não foi
+  confirmado um novo download DATASUS.
 - O mês da série é derivado da data de entrada mais frequente (`mode()`),
   não de metadados de competência nem da maior soma mensal. A interface identifica
   esse período como mês da série, sem inferir a competência dos arquivos.
 - A comparação das regras antiga e nova sobre a mesma Bronze não mostrou
   diferenças de valor, permanência ou desfecho. O banco original recalculado
   chegou ao mesmo total novo, diferindo de sua Prata gravada. O histórico exato
-  dos artefatos antigos não está demonstrado; os CSVs publicados foram preservados
-  até o envio dos novos resultados ao PR.
+  dos artefatos antigos não está demonstrado; os novos agregados foram enviados
+  ao PR e aguardam merge final para substituir a publicação anterior.
 
 Para reproduzir a execução nacional, mantenha `UFS = None` e ajuste `ANO`/`MES`
 em `baixar_dados.py`. Qualquer amostra parcial exige `PERMITIR_PARCIAL=1` e não

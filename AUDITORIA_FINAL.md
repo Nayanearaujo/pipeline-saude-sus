@@ -6,8 +6,12 @@ Este documento acompanha uma proposta de conclusão; não autoriza seu merge.
 ## Resultado
 
 O código passou em 108 testes, com cobertura de 97,31% no escopo configurado
-em `pyproject.toml` e Ruff aprovado. Os oito CSVs já publicados são internamente
-coerentes nas 14 verificações registradas em
+em `pyproject.toml` e Ruff aprovado. Os dez CSVs recebidos no PR são internamente
+coerentes nas 27 verificações registradas em
+[docs/auditoria-publicacao-atual.json](docs/auditoria-publicacao-atual.json).
+Os dez hashes SHA-256 conferem com o manifesto
+[docs/proveniencia-extracao.json](docs/proveniencia-extracao.json).
+A auditoria dos oito CSVs anteriores foi preservada como registro histórico em
 [docs/auditoria-publicacao.json](docs/auditoria-publicacao.json).
 
 A execução real local foi confirmada pela saída de terminal fornecida pelo
@@ -16,33 +20,38 @@ as 34 regras passaram e os dez marts foram exportados. O banco e os arquivos
 brutos permanecem no computador do usuário, sem transferência para o agente.
 Isso não comprova um novo download da fonte DATASUS. A comparação posterior
 identificou três totais financeiros distintos e confirmou a reprodução do
-resultado novo nos dois bancos com a regra atual. Os CSVs gerados localmente
-ainda precisam ser encaminhados ao PR final.
+resultado novo nos dois bancos com a regra atual. Os dez CSVs e o HTML foram
+recebidos no commit `2dfed29` e verificados diretamente pelo agente.
+O merge final e a atualização do deploy de produção não foram realizados.
 
-## Evidências dos dados publicados
+## Evidências dos agregados recebidos no PR final
 
 | Verificação | Resultado |
 |---|---|
 | KPI, 27 UFs e diagnósticos nacionais: quantidade | 1.238.234 AIHs em cada caminho |
-| KPI, UFs e diagnósticos nacionais: valor total | R$ 2.258.889.119,23 em cada caminho, comparado com Decimal |
+| KPI, UFs e diagnósticos nacionais: valor total | R$ 2.258.865.118,36 em cada caminho, comparado com Decimal |
 | Perfil nacional e por UF | 1.238.234 AIHs; grupos de faixa etária/sexo conferem |
 | Série nacional e por UF | 703.067 entradas; contagens e valores conferem por dia |
 | Valor total da série | R$ 964.527.475,26 nos dois caminhos |
 | Período da série publicada | 01/04/2026 a 30/04/2026 |
-| Custo médio nacional | R$ 1.824,28, compatível com valor total / AIHs |
+| Custo médio nacional | R$ 1.824,26, compatível com valor total / AIHs |
 | Chaves auditadas | Sem duplicação em UF, CID nacional, perfil por UF e série por UF |
 | Perfil menor de um ano | 60.839 AIHs no CSV nacional |
-| Marts complementares | Gerados e exportados no Mac; publicação no PR ainda pendente |
+| Marts complementares | Recebidos: 1.429 linhas de mortalidade por CID e 5.569 de Pareto |
 
-Os hashes SHA-256 e as quantidades de linhas dos oito arquivos constam da
-evidência JSON. A concordância entre agregados não comprova a proveniência,
+Os hashes SHA-256 e as quantidades de linhas dos dez arquivos constam da
+nova evidência JSON. O Pareto soma a mesma quantidade e o mesmo valor do KPI,
+tem posições sequenciais e acumulado válido terminando em 100%. Os CIDs de
+mortalidade respeitam o mínimo de 100 AIHs, o domínio de óbitos/taxa e as
+quantidades dos diagnósticos nacionais.
+A concordância entre agregados não comprova a proveniência,
 a integridade dos microdados, os óbitos individuais ou as exclusões históricas.
 O reprocessamento local confirmou 1.238.763 linhas na Bronze e 1.238.234 na
 Prata. As 529 exclusões foram classificadas como AIHs duplicadas; nenhuma
 exclusão ocorreu por ausência de valor. Não foram mantidos nulos em sexo,
 idade ou UF. O novo KPI informado soma R$ 2.258.865.118,36, com custo médio
-de R$ 1.824,26. Os agregados anteriores da tabela acima foram preservados como
-registro da publicação antiga, não como resultado da nova execução.
+de R$ 1.824,26. Os valores da publicação antiga foram preservados na seção
+histórica e na evidência JSON anterior.
 
 ## Evidência de execução real local
 
@@ -58,8 +67,11 @@ Registro estruturado: [docs/evidencia-execucao-local.json](docs/evidencia-execuc
 - Dez CSVs exportados e os dois HTMLs gerados, com 69,0 KB cada.
 
 Os totais financeiros e as diferenças principais foram registrados abaixo.
-Falta registrar competência/hashes/proveniência dos arquivos locais e encaminhar
-os resultados ao PR. A publicação desses resultados e o merge final não foram realizados.
+O manifesto recebido registra competência `2026/04`, hashes dos três arquivos
+brutos e dos dez CSVs, além do commit do processamento. O agente recalculou e
+confirmou os hashes dos dez CSVs recebidos; os hashes dos brutos são evidências
+informadas na origem, pois os microdados não foram transferidos.
+A publicação em produção e o merge final não foram realizados.
 
 ### Reconciliação da diferença financeira
 
@@ -119,7 +131,10 @@ para forçar igualdade aos totais antigos.
    limitações verificáveis. Removidas afirmações de revalidação da fonte ou
    de comparação histórica que não puderam ser repetidas.
 
-Os arquivos em `sql/marts/` e os oito CSVs publicados não foram alterados.
+Os arquivos em `sql/marts/` não foram alterados. Os CSVs do PR foram
+substituídos/adicionados pelos resultados exportados do reprocessamento local.
+As diferenças foram comparadas e documentadas; os artefatos da `main`
+permanecem intactos até o merge final.
 O critério de desempate completo é uma convenção técnica para reprodutibilidade;
 não identifica qual registro empatado é clinicamente mais correto.
 
@@ -167,10 +182,13 @@ O dashboard publicado foi observado com cinco cartões e os gráficos principais
 O keepalive corrigido no PR nº 14 passou no runner e registrou cinco cartões
 renderizados. O CI nº 46 e a publicação Pages passaram após esse merge.
 
-A proposta final também foi testada localmente com AppTest: Brasil, SP e AC,
-cinco cartões, período vindo da série e aviso de CSVs complementares ausentes.
-Isso verifica a execução Python da interface; não substitui uma inspeção visual
-do deploy depois que esta proposta for aprovada e publicada.
+A proposta final foi testada com os dez CSVs recebidos usando AppTest: Brasil,
+SP e AC, cinco cartões, nove gráficos e os dois marts complementares carregados,
+sem aviso de exportação ausente. O HTML recebido confere com sua reconstrução
+a partir dos CSVs, após normalizar apenas o horário do rodapé e a representação
+das datas da série (DATE do banco versus string CSV, ambas no mesmo dia).
+Isso verifica a execução Python e o conteúdo do relatório; não substitui a
+inspeção visual do deploy após aprovação e publicação.
 
 ## Reprodução
 
@@ -207,13 +225,17 @@ uv export --frozen --no-dev --no-hashes --format requirements-txt --output-file 
 uvx pip-audit -r /tmp/sus-requirements.txt --no-deps --disable-pip --format json
 ```
 
-## Pendências antes do encerramento integral
+## Situação para aprovação final
 
-1. Preservar as evidências da comparação financeira acima junto aos agregados
-   que serão enviados. A execução real, a recomputação e as 34 regras já passaram.
-2. Encaminhar os dez CSVs exportados e o HTML local ao PR final; os dois
-   complementares já foram gerados, mas ainda não foram publicados.
-3. Registrar competência/proveniência da extração e confirmar o recorte diário;
-   o mês da série não substitui esse registro.
-4. Após aprovação e merge final, conferir novamente o deploy e o relatório
-   publicados. A revisão desta proposta e o merge final permanecem com o usuário.
+Concluídos: testes e lint, reprocessamento local com 34 regras aprovadas,
+reconciliações financeiras, dez marts recebidos, hashes dos dez CSVs conferidos,
+competência 2026/04 registrada, interface com complementares e relatório conferidos.
+As evidências dos microdados foram fornecidas pelo usuário; não houve novo
+download DATASUS nem auditoria independente desses arquivos pelo agente.
+
+Aguardam a revisão/autorização do usuário para o merge final e, depois,
+a conferência do CI da `main`, do GitHub Pages e do dashboard em produção.
+Permanecem como limitações conhecidas: proveniência histórica incompleta dos
+artefatos antigos, seleção heurística do mês da série nos SQLs preservados e
+ausência de publicação simultaneamente atômica do conjunto de CSVs.
+Nenhuma dessas limitações é apresentada como resolvida.

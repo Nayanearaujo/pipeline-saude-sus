@@ -42,16 +42,16 @@ de saúde brasileiro, cru e sem documentação amigável.
 ## Evidências e limites da entrega
 
 A auditoria de 01/11/2026 está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
-Os CSVs publicados reconciliam 1.238.234 AIHs e R$ 2.258.889.119,23 entre
+Os CSVs recebidos no PR final reconciliam 1.238.234 AIHs e R$ 2.258.865.118,36 entre
 estados, diagnósticos nacionais e KPI; os perfis e a série diária também
 conferem por grupo. A série de abril soma 703.067 entradas, um recorte distinto.
 
 A saída de terminal fornecida pelo usuário confirmou o reprocessamento local
 do PR final: 1.238.763 linhas brutas, 1.238.234 na Prata, 529 AIHs duplicadas
 excluídas e 0 sem valor. As 34 regras passaram e os dez marts foram exportados,
-incluindo os dois complementares. Falta enviar os novos agregados ao PR,
-registrar competência/proveniência e enviar os agregados. A recomputação nos
-dois bancos confirmou o novo total de R$ 2.258.865.118,36. Não houve
+incluindo os dois complementares. Os dez CSVs e o HTML foram recebidos no PR;
+os hashes dos CSVs foram conferidos e a competência 2026/04 consta no manifesto.
+A recomputação nos dois bancos confirmou R$ 2.258.865.118,36. Não houve
 transferência de microdados nem novo download DATASUS confirmado pelo agente.
 
 A correção final trata o valor numericamente no desempate de AIHs e estabiliza

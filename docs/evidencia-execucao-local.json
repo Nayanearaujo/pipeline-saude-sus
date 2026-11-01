@@ -48,7 +48,7 @@
     "custo_medio_novo": "1824.26"
   },
   "novo_download_datasus_confirmado": false,
-  "arquivos_gerados_publicados_no_pr": false,
+  "arquivos_gerados_publicados_no_pr": true,
   "comparacao_mesma_bronze_regras_antiga_nova": {
     "regra_antiga_ref": "1322714",
     "aih_valores_diferentes": 0,
@@ -71,5 +71,16 @@
     "por_estado": 17,
     "top_diagnosticos_brasil": 92
   },
-  "causa_historica_dos_artefatos_antigos": "nao determinada; resultados gravados nao correspondem a recomputacao atual"
+  "causa_historica_dos_artefatos_antigos": "nao determinada; resultados gravados nao correspondem a recomputacao atual",
+  "commit_envio_arquivos": "2dfed2944bdc85d55a0309ddbd2d8821e005e3b8",
+  "hashes_csv_conferidos_pelo_agente": 10,
+  "verificacoes_agregados_recebidos": 27,
+  "competencias_registradas": [
+    [
+      "2026",
+      "04"
+    ]
+  ],
+  "manifesto_proveniencia": "docs/proveniencia-extracao.json",
+  "merge_final_realizado": false
 }
