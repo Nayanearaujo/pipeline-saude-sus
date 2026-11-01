@@ -47,5 +47,5 @@ source = ["."]
 omit = ["test/*", "app.py", "ui.py", "baixar_dados.py", "gerar_dicionarios.py", "executar.py", ".venv/*"]
 
 [tool.coverage.report]
-fail_under = 70
+fail_under = 95
 show_missing = true

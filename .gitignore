@@ -1,5 +1,6 @@
 # dados brutos e banco (nao versionar: sao grandes e reproduziveis)
 data/raw/*.dbc
+data/raw/*.dbf
 data/raw/*.parquet
 data/raw/*.csv
 data/raw/*.csv.gz
@@ -22,3 +23,16 @@ htmlcov/
 # so/editor
 .DS_Store
 .vscode/
+
+# Credenciais locais: nunca publicar tokens, chaves de API ou configuracoes privadas
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.streamlit/secrets.toml
+secrets.toml
+credentials.json
+service-account*.json

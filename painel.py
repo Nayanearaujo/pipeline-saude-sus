@@ -121,6 +121,13 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
     Assim o mesmo painel roda na maquina (banco completo) e no Streamlit Cloud
     (so a camada ouro, leve)."""
     nomes = marts if marts is not None else MARTS
+    if not nomes:
+        return {}
+
+    permitidos = set(MARTS) | {"mortalidade_por_cid", "municipios_pareto"}
+    invalidos = set(nomes) - permitidos
+    if invalidos:
+        raise ValueError(f"Marts não reconhecidos: {', '.join(sorted(invalidos))}")
 
     if Path(banco).exists():
         import duckdb  # importado so aqui: no deploy nao ha banco nem duckdb
@@ -132,10 +139,11 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
 
     # Fallback: CSVs da camada ouro (deploy).
     pasta = Path(__file__).resolve().parent / "dados_painel"
-    if not (pasta / f"{nomes[0]}.csv").exists():
+    ausentes = [nome for nome in nomes if not (pasta / f"{nome}.csv").is_file()]
+    if ausentes:
         raise FileNotFoundError(
-            "Nem o sih.duckdb nem a pasta dados_painel/ foram encontrados. "
-            "Rode o pipeline e depois 'uv run python exportar_painel.py'."
+            "Marts sem CSV exportado: " + ", ".join(ausentes)
+            + ". Rode o pipeline e depois 'uv run python exportar_painel.py'."
         )
     return {nome: pd.read_csv(pasta / f"{nome}.csv") for nome in nomes}
 
