@@ -127,6 +127,33 @@ def _regras(con) -> list[tuple[str, str]]:
                             AND taxa_mortalidade_pct BETWEEN 0 AND 100)
             FROM ouro.mortalidade_por_cid"""),
 
+        # Integridade dos marts complementares: grão, elegibilidade e acumulado.
+        ("Chave unica: mortalidade_por_cid tem 1 linha por CID",
+         "SELECT count(*) = count(DISTINCT cid) FROM ouro.mortalidade_por_cid"),
+
+        ("Elegibilidade: mortalidade_por_cid inclui apenas CID com 100+ AIHs",
+         "SELECT count(*) FILTER (WHERE internacoes < 100) = 0 FROM ouro.mortalidade_por_cid"),
+
+        ("Chave unica: municipios_pareto tem 1 linha por municipio",
+         """SELECT count(*) = count(DISTINCT cod_municipio)
+            FROM ouro.municipios_pareto"""),
+
+        ("Pareto: posicoes sequenciais, percentuais validos e acumulado crescente",
+         """WITH sequencia AS (
+                SELECT posicao, pct_acumulado,
+                       lag(pct_acumulado) OVER (ORDER BY posicao) AS anterior
+                FROM ouro.municipios_pareto
+            )
+            SELECT count(*) = count(DISTINCT posicao)
+               AND min(posicao) = 1
+               AND max(posicao) = count(*)
+               AND count(*) FILTER (
+                   WHERE pct_acumulado IS NULL
+                      OR pct_acumulado NOT BETWEEN 0 AND 100
+                      OR (anterior IS NOT NULL AND pct_acumulado < anterior)
+               ) = 0
+            FROM sequencia"""),
+
         # 5d. Pareto fecha em 100%: a ultima linha do acumulado chega a 100.
         ("Pareto: municipios_pareto termina em 100% acumulado",
          """SELECT round(max(pct_acumulado)) = 100 FROM ouro.municipios_pareto"""),
