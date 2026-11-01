@@ -13,8 +13,8 @@ azul com abas não faz parte desta revisão.
 | Diagnósticos | CID no eixo para distinguir nomes truncados; nome completo, volume, valor e participação no detalhe. |
 | Série diária | Datas legíveis, detalhe unificado e anotação do pico já presente nos dados. |
 | Sexo e faixa etária | Números nas barras quando couberem, permanência média no detalhe e tabela expansível com os dados do mart. |
-| Mortalidade por CID | Nome da doença, internações, óbitos e taxa no detalhe; escala percentual explícita. |
-| Pareto municipal | Curva completa, referência de 80%, detalhe por município e botões para explorar todos ou os primeiros 30. |
+| Mortalidade por CID | Nome do diagnóstico e CID visíveis; volume e óbitos no detalhe; explicação de CID, AIH e taxa abaixo. |
+| Pareto municipal | Curva completa, referência de 80% dentro da área visível, explicação dos eixos e botões para todos ou os primeiros 30. |
 
 Não foram alterados SQLs ou os dez CSVs auditados. Não foram criadas médias,
 taxas ou percentuais novos na interface. A mediana e a permanência por grupo
@@ -26,9 +26,11 @@ para análises geoespaciais. JavaScript e WebGL continuam necessários.
 A dependência Plotly foi alinhada à API de mapas usada, mantendo a versão 7.1.0
 já presente no lockfile e no deploy.
 
-Validação: 120 testes aprovados, cobertura de 97,50%, Ruff aprovado. AppTest
+Validação: 120 testes aprovados, cobertura de 97,54%, Ruff aprovado. AppTest
 com Brasil/SP/AC e as cinco métricas, nove gráficos e tabela demográfica.
 A verificação visual do mapa na prévia do usuário permanece necessária;
 a remoção das dependências remotas não equivale a testar seu navegador.
 O relatório estático foi regenerado com os mesmos CSVs para acompanhar as
 mudanças dos gráficos compartilhados, preservando os valores da auditoria.
+
+Revisão de entrega: o HTML inclui os nove gráficos nacionais e as explicações dos dois complementares. A prévia local das mudanças visuais foi aprovada pelo usuário; a versão do Streamlit público ainda precisa ser confirmada.

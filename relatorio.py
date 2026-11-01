@@ -55,7 +55,8 @@ def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
         div_id=div_id,
     )
     classe = "grafico largo" if largo else "grafico"
-    return f'<div class="{classe}">{html}</div>'
+    altura = max(380, fig.layout.height or 380)
+    return f'<div class="{classe}" style="height:{altura}px">{html}</div>'
 
 
 def construir_html(dados: dict) -> str:
@@ -90,8 +91,23 @@ def construir_html(dados: dict) -> str:
         (painel.fig_perfil(perfil, "Brasil"), False),
         (painel.fig_serie_diaria(serie, "Brasil"), True),
     ]
+    if "mortalidade_por_cid" in dados and "municipios_pareto" in dados:
+        blocos.extend([
+            (painel.fig_mortalidade_por_cid(dados["mortalidade_por_cid"]), True),
+            (painel.fig_municipios_pareto(dados["municipios_pareto"]), True),
+        ])
     graficos = "".join(
         _grafico(f, incluir_js=(i == 0), div_id=f"g{i:02d}", largo=largo)
+        + (
+            '<p class="leitura">CID: Classificação Internacional de Doenças. '
+            'AIH: Autorização de Internação Hospitalar. Taxa: proporção de internações com óbito '
+            'no diagnóstico, entre grupos com pelo menos 100 AIHs; não é mortalidade populacional '
+            'nem comparação ajustada por gravidade.</p>' if i == 7 else
+            '<p class="leitura">Municípios de residência ordenados do maior para o menor valor. '
+            'O eixo horizontal indica a posição; o vertical, o percentual do valor total acumulado '
+            'até aquela posição. A linha de 80% é uma referência de concentração, não uma meta '
+            'de qualidade. Os botões mostram todos os municípios ou os primeiros 30.</p>' if i == 8 else ''
+        )
         for i, (f, largo) in enumerate(blocos)
     )
 
@@ -104,7 +120,7 @@ def construir_html(dados: dict) -> str:
 
 def main():
     """Lê os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
-    dados = painel.ler()
+    dados = painel.ler(marts=[*painel.MARTS, "mortalidade_por_cid", "municipios_pareto"])
     html = construir_html(dados)
 
     destinos = [RAIZ / "relatorio.html", RAIZ / "docs" / "relatorio.html"]
@@ -157,6 +173,7 @@ _PAGINA = """<!doctype html>
     min-width:0;height:380px;}}
   .grafico .plotly-graph-div{{width:100%!important;height:100%!important;}}
   .grafico.largo{{grid-column:1 / -1;}}
+  .leitura{{grid-column:1 / -1;margin:0;color:#46575a;font-size:13px;}}
   @media (max-width:900px){{.grade,.notas{{grid-template-columns:1fr;}}}}
   footer{{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
     font-size:13px;color:var(--ink-3);text-align:center;}}

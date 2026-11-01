@@ -1,7 +1,7 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-97.50%25-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97.54%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
 ![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
@@ -22,6 +22,8 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 - 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
 
 ## Demonstração
+
+O [relatório HTML atualizado](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html) contém nove gráficos, incluindo mortalidade por diagnóstico e concentração municipal, com explicações. As capturas abaixo são registros de uma versão anterior; a publicação atual do Streamlit deve ser conferida no link ao vivo.
 
 Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 
@@ -73,7 +75,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,50% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,54% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -167,12 +169,12 @@ produziu o total financeiro reproduzível de R$ 2.258.865.118,36, detalhado na a
 
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
-transformacao prata.internacoes   1.238.234 linhas (-529 sem valor ou AIH duplicada)
+transformacao prata.internacoes   1.238.234 linhas (-529 AIHs duplicadas; 0 sem valor)
 marts         10 marts, 16.400 linhas na camada ouro
 ```
 
 A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
-1.238.234 (529 saem por não ter valor ou por serem AIH duplicada). O mart `por_estado` conta só as com UF
+1.238.234 (529 AIHs duplicadas excluídas; nenhuma exclusão por ausência de valor). O mart `por_estado` conta só as com UF
 e valor válidos: **SP** lidera com 249.866, seguido de **MG** (135.542), **PR**
 (85.435), **BA** (83.953) e **RJ** (78.503).
 *(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
@@ -206,7 +208,7 @@ Cada mart tem o grão declarado na primeira linha do `.sql`.
 | `perfil_demografico` / `_brasil` | internações por faixa etária e sexo | `CASE WHEN` |
 | `internacoes_diarias` / `_brasil` | série diária ao longo do mês | `GROUP BY` data |
 | `mortalidade_por_cid` | doenças de maior letalidade (100+ internações) | CTE + `HAVING` + `RANK()` |
-| `municipios_pareto` | quantos municípios concentram 80% do gasto | soma acumulada `SUM() OVER (ORDER BY)` |
+| `municipios_pareto` | curva completa do valor acumulado por município; referência de 80% | soma acumulada `SUM() OVER (ORDER BY)` |
 
 ---
 
@@ -265,7 +267,7 @@ número não fechar):
 | `painel.py` / `exportar_painel.py` | formatadores BR, figuras Plotly, fallback DuckDB/CSV e publicação com rollback | **99%** / **98%** |
 | `relatorio.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB) | **98%** |
 | `gerar_dicionarios.py` | consumo da API oficial do IBGE com mock e fallback para modo neutro (3 testes; script de I/O externo, fora da medição de cobertura) | n/a |
-| **TOTAL (120 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,50%** |
+| **TOTAL (120 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,54%** |
 
 ---
 
@@ -350,7 +352,7 @@ A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
 [evidência dos dez CSVs](docs/auditoria-publicacao-atual.json) e
 [consulta de dependências](docs/auditoria-dependencias.json).
 
-- 120 testes passaram; cobertura de 97,50%. O CI exige pelo menos 95%.
+- 120 testes passaram; cobertura de 97,54%. O CI exige pelo menos 95%.
 - Os dez CSVs recebidos no PR passaram em 27 verificações; seus hashes conferem
   com [o manifesto da extração](docs/proveniencia-extracao.json).
 - Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm

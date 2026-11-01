@@ -40,7 +40,8 @@ Levantamento dos **10 indicadores** desenhados na Aula 1 a partir da exploraçã
 
 ## 3. Definições fechadas antes do SQL (Aula 3)
 
-1. **Grão da tabela-fato (`prata.internacoes`):** 1 linha = 1 AIH aprovada (`aih` único garantido por `QUALIFY row_number() OVER (PARTITION BY CAST(N_AIH AS VARCHAR) ORDER BY DT_SAIDA DESC, VAL_TOT DESC) = 1`, descartando registros sem `valor_total`).
+1. **Grão da tabela-fato (`prata.internacoes`):** 1 linha = 1 AIH aprovada (`aih` único). Após a seleção por AIH, registros sem valor financeiro são excluídos; entradas não numéricas interrompem a conversão estrita. A deduplicação prioriza a alta mais recente, depois o maior valor normalizado em `DECIMAL(12,2)`, com desempates estáveis definidos em `pipeline/transformacao.py`. Na execução local validada, foram excluídas 529 AIHs duplicadas e zero linhas por ausência de valor.
+
 2. **Custo médio e mediana:** calculados sobre `valor_total` (`DECIMAL(12,2)`) de todas as AIH válidas da UF ou do país (`AVG(valor_total)` e `MEDIAN(valor_total)`).
 3. **Taxa de mortalidade hospitalar:** `100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*)`, onde `morte = TRUE` corresponde exclusivamente a `MORTE = '1'` no SIH (óbito ocorrido durante a internação).
 4. **Participação percentual (`pct_internacoes`, `pct_valor`, `pct_do_total`) e Pareto (`pct_acumulado`):** calculados sempre nos marts SQL com *window functions* (`SUM(...) OVER ()`), nunca na camada visual (`painel.py` ou `app.py`).

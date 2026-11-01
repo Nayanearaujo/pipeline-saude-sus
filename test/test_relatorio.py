@@ -14,6 +14,14 @@ import relatorio
 def _dados_inventados():
     """Os marts que construir_html le, com poucas linhas e numeros conhecidos."""
     return {
+        "mortalidade_por_cid": pd.DataFrame({
+            "cid": ["A00"], "doenca": ["Diagnóstico de teste"], "internacoes": [200],
+            "obitos": [20], "taxa_mortalidade_pct": [10.0], "posicao": [1],
+        }),
+        "municipios_pareto": pd.DataFrame({
+            "municipio": ["Município de teste"], "uf": ["SP"], "internacoes": [100],
+            "valor_total": [1000.0], "posicao": [1], "pct_acumulado": [100.0],
+        }),
         "kpis_gerais": pd.DataFrame([{
             "internacoes": 100, "valor_total": 2_260_000_000.0,
             "custo_medio": 1824.0, "dias_medio": 4.8, "taxa_mortalidade_pct": 4.1,
@@ -56,6 +64,9 @@ def test_ids_de_grafico_sao_fixos():
     html = relatorio.construir_html(_dados_inventados())
     assert 'id="g00"' in html
     assert 'id="g01"' in html
+    assert 'id="g08"' in html
+    assert "referência de concentração" in html
+    assert 'height:820px' in html
 
 
 def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
@@ -77,7 +88,7 @@ def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
 
 def test_main_grava_os_dois_arquivos(tmp_path, monkeypatch):
     """main() le os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
-    monkeypatch.setattr(relatorio.painel, "ler", lambda: _dados_inventados())
+    monkeypatch.setattr(relatorio.painel, "ler", lambda **kwargs: _dados_inventados())
     monkeypatch.setattr(relatorio, "RAIZ", tmp_path)
     relatorio.main()
     raiz_html = tmp_path / "relatorio.html"
