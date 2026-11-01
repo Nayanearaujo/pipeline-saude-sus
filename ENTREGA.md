@@ -1,6 +1,6 @@
 # Entrega do Desafio Final · Pipeline de Internações do SUS
 
-**Autora:** Nayane Araujo
+**Autora:** Nayane Araújo
 **Dataset:** Internações hospitalares do SUS (SIH/SUS, DATASUS), abril de 2026, Brasil inteiro, 1.238.763 registros brutos.
 
 ## Links
@@ -41,14 +41,15 @@ de saúde brasileiro, cru e sem documentação amigável.
 
 ## Achados (o que o dado revelou ao ser conferido contra a fonte)
 
-1. **Metade das internações "de abril" entrou em outro mês.** O arquivo é por
-   competência (mês de pagamento), não por data de entrada. Por isso a série
-   diária não soma o KPI de internações: são perguntas diferentes, e o painel
-   deixa isso explícito.
-2. **Um em cada vinte bebês estava na faixa etária errada.** A idade no SIH vem
-   com uma unidade (`COD_IDADE`: dias, meses, anos) que, ignorada, jogava recém
-   nascidos para faixas de adulto. Corrigido, a faixa "< 1 ano" foi de 1,4% para
-   4,9%.
+1. **Mais de 4 em cada 10 internações "de abril" entraram em outro mês.** O
+   arquivo é por competência (mês de pagamento), não por data de entrada: das
+   1.238.234 internações da prata, 703.067 (56,8%) entraram em abril e 43,2%
+   antes. Por isso a série diária não soma o KPI de internações: são perguntas
+   diferentes, e o painel deixa isso explícito.
+2. **A unidade da idade mudava o perfil etário.** A idade no SIH vem
+   com uma unidade (`COD_IDADE`: dias, meses, anos) que, ignorada, jogava cerca
+   de 43 mil internações de bebês para faixas de adulto. Corrigido, a faixa
+   "< 1 ano" foi de 1,4% para 4,9% da base (60.839 internações hoje).
 3. **Os nomes das doenças sumiam em silêncio** quando o dicionário era gerado sem
    internet. O JOIN funcionava, mas juntava com rótulo vazio. Com a fonte oficial,
    o Top 10 mostra "Parto espontâneo cefálico", não "CID O800".
@@ -57,7 +58,7 @@ de saúde brasileiro, cru e sem documentação amigável.
 
 ## Conferência de dados como código
 
-Os três primeiros achados acima são armadilhas silenciosas que não lançam exceção em SQL,
+Os quatro achados acima são armadilhas silenciosas que não lançam exceção em SQL,
 só aparecem como número distorcido na ponta, e por isso toda a conferência de grão e domínio
 foi codificada em `pipeline/qualidade.py` e nos 59 testes automatizados.
 

@@ -2,7 +2,7 @@ name: CI · Testes e Qualidade de Código
 
 on:
   push:
-    branches: ["main", "fix/grao-bronze-e-readme"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 

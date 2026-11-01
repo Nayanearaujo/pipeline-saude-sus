@@ -75,7 +75,7 @@
   <div class="banner">
     <h1>🏥 Pipeline de Saúde SUS · do .dbc ao dashboard</h1>
     <p><strong>Desafio Final — Trilha de Engenharia de Dados</strong></p>
-    <p>Autora: Nayane Araujo · dataset: internações hospitalares do SUS (SIH/DATASUS)</p>
+    <p>Autora: Nayane Araújo · dataset: internações hospitalares do SUS (SIH/DATASUS)</p>
     <p>Repositório: <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">github.com/Nayanearaujo/pipeline-saude-sus</a></p>
     <p>Dashboard ao vivo: <a href="https://pipeline-saude-sus.streamlit.app/">pipeline-saude-sus.streamlit.app</a></p>
     <p>Relatório executivo (estático): <a href="relatorio.html">relatorio.html</a></p>
@@ -83,7 +83,7 @@
       <span class="pill">Python</span>
       <span class="pill">DuckDB</span>
       <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura &gt; 90%</span>
+      <span class="pill">pytest · cobertura 96%</span>
       <span class="pill">CI (GitHub Actions)</span>
       <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
@@ -158,10 +158,10 @@
       <code>MORTE</code> para booleano, e derivo a UF e a região a partir do código
       IBGE do município. Uma linha = uma internação (AIH).</p>
       <p><strong>Conferência:</strong> <strong>1.238.234 linhas</strong> na prata
-      (529 sem valor, removidas de propósito). A idade usa <code>COD_IDADE</code>
+      (529 removidas de propósito: sem valor ou AIH duplicada). A idade usa <code>COD_IDADE</code>
       (a unidade do SIH): bebês medidos em dias/meses agora caem em "&lt; 1 ano",
       que subiu de 1,4% para 4,9% da base. No mart por estado, SP lidera com
-      249.866, seguido de MG (135.542) e RJ (78.503).</p>
+      249.866, seguido de MG (135.542), PR (85.435), BA (83.953) e RJ (78.503).</p>
     </div>
   </section>
 
@@ -235,10 +235,10 @@ ORDER BY internacoes DESC, uf;</pre>
       <h3>Testes com pytest, cobertura acima de 96%</h3>
       <p>59 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
-      <code>transformacao.py</code> (97%), <code>marts.py</code> (96%) e os 10 SQLs (incluindo fronteiras de
+      <code>transformacao.py</code> (90%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
       <code>painel.py</code> (98%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>&gt; 96%</strong>.</p>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>96%</strong>.</p>
     </div>
     <div class="etapa">
       <span class="tag">qualidade · pipeline/qualidade.py (26 regras)</span>
@@ -266,7 +266,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 59 testes (cobertura > 96%)
+uv run pytest --cov                       # os 59 testes (cobertura 96%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e
@@ -281,11 +281,11 @@ uv run ruff check .                       # estilo e imports</pre>
     só aparecem como número distorcido na ponta:</p>
     <ul>
       <li><strong>A série diária não somava o total.</strong> O arquivo RD é por
-      competência (mês de pagamento), não por data de entrada: metade das AIH de
+      competência (mês de pagamento), não por data de entrada: mais de 4 em cada 10 AIH de
       abril entrou em meses anteriores. O gráfico deixa explícito que o eixo é
       data de entrada e que, por isso, não soma o KPI.</li>
       <li><strong>A idade dependia da unidade de medida.</strong> O SIH traz
-      <code>COD_IDADE</code> (dias, meses, anos); sem combiná-lo na camada prata, 60.840 bebês medidos em
+      <code>COD_IDADE</code> (dias, meses, anos); sem combiná-lo na camada prata, cerca de 43 mil bebês medidos em
       dias/meses caíam em faixas de adulto. Corrigido, "&lt; 1 ano" foi de 1,4%
       para 4,9%.</li>
       <li><strong>Os nomes de doença exigiam validação de domínio.</strong> Sem internet, o dicionário

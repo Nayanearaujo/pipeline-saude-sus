@@ -1,7 +1,7 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-95%25-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-96%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
 ![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
@@ -11,8 +11,8 @@ Pipeline de dados de ponta a ponta sobre as **internações hospitalares do SUS*
 estado** em Streamlit. Parte dos microdados oficiais e chega a um painel que
 compara os 27 estados em volume, gasto, permanência e mortalidade.
 
-> Recorte: internações de **abril de 2026**, Brasil inteiro, com o **Rio de
-> Janeiro** como foco da análise. Dados públicos do Ministério da Saúde.
+> Recorte: internações de **abril de 2026**, Brasil inteiro, com visão nacional
+> e recorte por estado. Dados públicos do Ministério da Saúde.
 
 ## Links
 
@@ -43,17 +43,18 @@ Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 O que o dado mostrou, e o que só apareceu porque cada número foi conferido
 contra a fonte em vez de aceito como saiu da consulta:
 
-1. **Metade das internações "de abril" entrou em outro mês.** O arquivo RD é por
-   competência (mês de pagamento da AIH). Dos 1.238.763 registros processados
-   (camada bronze), só 703.067 têm data de *entrada* em abril/2026; 343.386
-   entraram em março, 100.989 em fevereiro. Por isso a série diária (por data de
-   entrada) não soma o KPI de internações (por competência): são duas perguntas
-   diferentes, e o painel diz qual é qual.
-2. **Um em cada vinte bebês estava na faixa etária errada.** A idade no SIH vem
-   com `COD_IDADE` (a unidade: dias, meses, anos). Ignorar isso jogava 60.840
-   internações medidas em dias/meses para faixas de adulto. Corrigido, a faixa
-   "< 1 ano" saltou de **1,4% para 4,9%** da base, coerente com o peso da
-   neonatologia no SUS.
+1. **Mais de 4 em cada 10 internações "de abril" entraram em outro mês.** O
+   arquivo RD é por competência (mês de pagamento da AIH). Das 1.238.234
+   internações da prata, só 703.067 (56,8%) têm data de *entrada* em abril/2026;
+   343.386 entraram em março, 100.989 em fevereiro e o restante antes disso
+   (43,2% no total). Por isso a série diária (por data de entrada) não soma o KPI
+   de internações (por competência): são duas perguntas diferentes, e o painel
+   diz qual é qual.
+2. **A unidade da idade mudava o perfil etário.** A idade no SIH vem com
+   `COD_IDADE` (a unidade: dias, meses, anos). Ignorar isso jogava cerca de
+   43 mil internações de bebês, medidas em dias ou meses, para faixas de adulto.
+   Corrigido, a faixa "< 1 ano" saltou de **1,4% para 4,9%** da base (hoje
+   60.839 internações), coerente com o peso da neonatologia no SUS.
 3. **Os nomes das doenças sumiam em silêncio.** O gerador de dicionários, sem
    internet, cai num modo neutro e grava "CID O800" no lugar do nome. O `LEFT
    JOIN` funcionava, mas juntava com rótulo vazio. Rodando com internet, os
@@ -76,7 +77,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura acima de 90% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 96% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -167,12 +168,12 @@ Números reais de uma execução completa do pipeline, para conferência:
 
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
-transformacao prata.internacoes   1.238.234 linhas (-529 sem valor)
+transformacao prata.internacoes   1.238.234 linhas (-529 sem valor ou AIH duplicada)
 marts         10 marts, 16.400 linhas na camada ouro
 ```
 
 A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
-1.238.234 (529 saem por não ter valor). O mart `por_estado` conta só as com UF
+1.238.234 (529 saem por não ter valor ou por serem AIH duplicada). O mart `por_estado` conta só as com UF
 e valor válidos: **SP** lidera com 249.866, seguido de **MG** (135.542), **PR**
 (85.435), **BA** (83.953) e **RJ** (78.503).
 *(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
@@ -259,12 +260,13 @@ número não fechar):
 |---|---|---|
 | `pipeline/db.py` | conexão isolada em `tmp_path`, `criar_schema` idempotente e carga `gravar()` | **100%** |
 | `pipeline/ingestao.py` | leitura em texto (`VARCHAR`), idempotência e falha rápida sem criar banco vazio quando falta arquivo | **97%** |
-| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **97%** |
-| `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **96%** |
+| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **90%** |
+| `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **93%** |
 | `pipeline/qualidade.py` | aprovação em banco íntegro e bloqueio imediato (`SystemExit`) quando a soma das partes não bate com o KPI | **96%** |
 | `painel.py` + `exportar_painel.py` | formatadores BR puros (sem depender de `locale`), figuras Plotly, fallback DuckDB/CSV e exportação da camada ouro | **98%** |
-| `relatorio.py` + `gerar_dicionarios.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB), consumo da API oficial do IBGE com mock e fallback para modo neutro sem internet | **96%** |
-| **TOTAL (59 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **> 96%** |
+| `relatorio.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB) | **98%** |
+| `gerar_dicionarios.py` | consumo da API oficial do IBGE com mock e fallback para modo neutro (3 testes; script de I/O externo, fora da medição de cobertura) | n/a |
+| **TOTAL (59 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **96%** (95,98%) |
 
 ---
 
@@ -332,8 +334,8 @@ indicadores:
 A camada prata não corrige o fato: estas anomalias reais do SIH são mantidas e
 documentadas, não apagadas.
 
-- **Entradas de meses anteriores.** Metade das AIH da competência de abril tem
-  data de entrada em meses anteriores. Ficam na base; só a série diária as
+- **Entradas de meses anteriores.** Cerca de 43% das AIH da competência de abril
+  têm data de entrada em meses anteriores. Ficam na base; só a série diária as
   recorta (ver Achado nº 1).
 - **Internações com `dias_permanencia` = 0.** Entrada e saída no mesmo dia
   existem no SIH (procedimento de day clinic, óbito no primeiro dia); são dado
