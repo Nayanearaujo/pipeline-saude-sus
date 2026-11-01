@@ -46,3 +46,27 @@ def test_sem_banco_encerra(tmp_path, monkeypatch):
     with pytest.raises(SystemExit):
         exportar_painel.main()
     assert not (tmp_path / "dados_painel").exists()
+
+
+def test_mart_ausente_nao_sobrescreve_csvs(tmp_path, monkeypatch):
+    banco, destino = _preparar(tmp_path, monkeypatch)
+    destino.mkdir()
+    anterior = destino / "kpis_gerais.csv"
+    anterior.write_text("versao,anterior\\n1,2\\n", encoding="utf-8")
+    con = duckdb.connect(str(banco))
+    con.execute("DROP TABLE ouro.municipios_pareto")
+    con.close()
+    with pytest.raises(duckdb.Error):
+        exportar_painel.main()
+    assert anterior.read_text(encoding="utf-8") == "versao,anterior\\n1,2\\n"
+    assert not (destino / "por_estado.csv").exists()
+
+
+def test_mart_vazio_nao_publica_csvs(tmp_path, monkeypatch):
+    banco, destino = _preparar(tmp_path, monkeypatch)
+    con = duckdb.connect(str(banco))
+    con.execute("DELETE FROM ouro.municipios_pareto")
+    con.close()
+    with pytest.raises(ValueError, match="Mart vazio"):
+        exportar_painel.main()
+    assert not destino.exists()
