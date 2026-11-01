@@ -64,3 +64,42 @@ def test_falha_ao_escrever_preserva_parquet_anterior(tmp_path, monkeypatch):
         baixar_dados.main()
     assert destino.read_bytes() == b"versao-anterior"
     assert not list(tmp_path.glob(".internacoes-*.parquet"))
+
+
+@pytest.mark.parametrize(
+    ("ano", "mes", "ufs"),
+    [
+        (2026, 0, ["RJ"]),
+        (2026, 13, ["RJ"]),
+        (1999, 4, ["RJ"]),
+        (2026, 4, []),
+        (2026, 4, ["RJ", "RJ"]),
+        (2026, 4, ["XX"]),
+    ],
+)
+def test_configuracao_invalida_bloqueia_download(monkeypatch, ano, mes, ufs):
+    monkeypatch.setattr(baixar_dados, "ANO", ano)
+    monkeypatch.setattr(baixar_dados, "MES", mes)
+    monkeypatch.setattr(baixar_dados, "UFS", ufs)
+
+    def download_proibido(nome):
+        pytest.fail("Download iniciado com configuracao invalida")
+
+    monkeypatch.setattr(baixar_dados, "_baixar_dbc", download_proibido)
+    with pytest.raises(ValueError):
+        baixar_dados.main()
+
+
+def test_dbc_vazio_nao_substitui_parquet(tmp_path, monkeypatch):
+    monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
+    monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
+    monkeypatch.delenv("PERMITIR_PARCIAL", raising=False)
+    monkeypatch.setattr(baixar_dados, "_baixar_dbc", lambda nome: b"arquivo")
+    monkeypatch.setattr(
+        baixar_dados, "_dbc_para_df", lambda conteudo, nome: pd.DataFrame({"N_AIH": []})
+    )
+    destino = tmp_path / "internacoes.parquet"
+    destino.write_bytes(b"versao-anterior")
+    with pytest.raises(SystemExit):
+        baixar_dados.main()
+    assert destino.read_bytes() == b"versao-anterior"
