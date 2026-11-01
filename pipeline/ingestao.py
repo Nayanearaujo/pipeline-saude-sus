@@ -6,13 +6,15 @@ bronze do sih.duckdb. Regra da camada bronze: tudo entra como veio, todas as
 colunas como texto (VARCHAR), campo vazio virando NULL. Nada de tipo nem de
 limpeza aqui, isso e trabalho da transformacao.
 
-Fontes esperadas em data/raw/ (veja README para como baixar com o PySUS):
+Fontes esperadas em data/raw/ (veja README para como gerar com baixar_dados.py
+e gerar_dicionarios.py):
     internacoes.parquet   microdados do SIH-RD (uma linha por internacao/AIH)
     cid10.csv             dicionario CID-10: codigo -> nome da doenca
-    municipios.csv        dicionario IBGE: codigo -> municipio, UF, regiao
+    municipios.csv        dicionario IBGE: codigo -> municipio, UF
 
-Os microdados vem do PySUS ja convertidos de .dbc para parquet. Os dois
-dicionarios sao CSVs pequenos e estaveis. O DuckDB le parquet e csv direto.
+Os microdados vem do DATASUS convertidos de .dbc para parquet (pyreaddbc +
+dbfread). Os dois dicionarios sao CSVs pequenos e estaveis (API do IBGE e
+tabela CID-10 do DATASUS). O DuckDB le parquet e csv direto.
 
 Idempotente: CREATE OR REPLACE TABLE, entao rodar de novo da o mesmo resultado.
 Rodar com:
