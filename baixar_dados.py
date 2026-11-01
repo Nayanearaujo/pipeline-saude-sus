@@ -17,6 +17,7 @@ uma amostra parcial conscientemente, use PERMITIR_PARCIAL=1 no ambiente.
 """
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 ANO = 2026
@@ -125,7 +126,19 @@ def main():
     import pandas as pd
     todos = pd.concat(dfs, ignore_index=True)
     destino = RAW / "internacoes.parquet"
-    todos.to_parquet(destino, index=False)
+    # Publicacao atomica: falha de escrita nao corrompe o Parquet anterior.
+    RAW.mkdir(parents=True, exist_ok=True)
+    temporario = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            prefix=".internacoes-", suffix=".parquet", dir=RAW, delete=False
+        ) as arquivo:
+            temporario = Path(arquivo.name)
+        todos.to_parquet(temporario, index=False)
+        temporario.replace(destino)
+    finally:
+        if temporario is not None:
+            temporario.unlink(missing_ok=True)
     print(f"\n  ok: {destino} ({len(todos):,} linhas)".replace(",", "."))
     print("\nAgora gere os dicionarios:")
     print("  uv run python gerar_dicionarios.py")
