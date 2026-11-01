@@ -5,7 +5,11 @@ Monta um sih.duckdb com um schema ouro minimo (dado inventado), aponta o script
 para la e confere que cada mart vira um CSV em dados_painel/. Nunca toca no
 banco real nem baixa nada.
 """
+import errno
+from pathlib import Path
+
 import duckdb
+import pandas as pd
 import pytest
 
 import exportar_painel
@@ -70,3 +74,27 @@ def test_mart_vazio_nao_publica_csvs(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="Mart vazio"):
         exportar_painel.main()
     assert not destino.exists()
+
+
+@pytest.mark.parametrize("exportacao_anterior", [False, True])
+def test_falta_de_espaco_preserva_csvs_e_limpa_temporarios(tmp_path, monkeypatch, exportacao_anterior):
+    _banco, destino = _preparar(tmp_path, monkeypatch)
+    if exportacao_anterior:
+        exportar_painel.main()
+    anteriores = {p.name: p.read_bytes() for p in destino.glob("*.csv")}
+    original = pd.DataFrame.to_csv
+
+    def falha_no_ultimo_csv(df, caminho, *args, **kwargs):
+        caminho = Path(caminho)
+        assert caminho.parent.parent == destino.parent
+        if caminho.name == "municipios_pareto.csv":
+            caminho.write_text("parcial", encoding="utf-8")
+            raise OSError(errno.ENOSPC, "Sem espaco em disco")
+        return original(df, caminho, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "to_csv", falha_no_ultimo_csv)
+    with pytest.raises(OSError) as erro:
+        exportar_painel.main()
+    assert erro.value.errno == errno.ENOSPC
+    assert {p.name: p.read_bytes() for p in destino.glob("*.csv")} == anteriores
+    assert not list(destino.parent.glob("marts-export-*"))

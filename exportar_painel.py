@@ -44,7 +44,10 @@ def main():
     # Se uma consulta falhar, o diretorio de destino permanece intacto.
     con = duckdb.connect(str(BANCO), read_only=True)
     try:
-        with tempfile.TemporaryDirectory(prefix="marts-export-") as pasta:
+        # Temporarios ao lado do destino: replace exige o mesmo filesystem.
+        DESTINO.parent.mkdir(parents=True, exist_ok=True)
+        con.execute("BEGIN")
+        with tempfile.TemporaryDirectory(prefix="marts-export-", dir=DESTINO.parent) as pasta:
             temporario = Path(pasta)
             total = 0
             for nome in MARTS:
@@ -54,6 +57,7 @@ def main():
                 df.to_csv(temporario / f"{nome}.csv", index=False, encoding="utf-8")
                 total += len(df)
 
+            con.execute("COMMIT")
             DESTINO.mkdir(parents=True, exist_ok=True)
             for nome in MARTS:
                 (temporario / f"{nome}.csv").replace(DESTINO / f"{nome}.csv")
