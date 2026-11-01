@@ -60,3 +60,12 @@ de saúde brasileiro, cru e sem documentação amigável.
 A IA escreveu o encanamento a partir de especificações; o trabalho foi conferir.
 Os três primeiros achados acima são erros que não lançam exceção, só aparecem
 como número errado, e por isso a conferência foi codificada em `qualidade.py`.
+
+---
+
+## Autora
+
+**Nayane Araújo** Pós-Graduanda em Engenharia de Dados
+
+[![GitHub Nayanearaujo](https://img.shields.io/badge/GitHub-Nayanearaujo-181717?style=flat&logo=github)](https://github.com/Nayanearaujo)
+[![LinkedIn Conectar](https://img.shields.io/badge/LinkedIn-Conectar-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/nayane-araujo-548063195/)

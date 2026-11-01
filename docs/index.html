@@ -198,15 +198,19 @@
 SELECT
     uf,
     regiao,
-    COUNT(*)                                                   AS internacoes,
-    ROUND(SUM(valor_total), 2)                                 AS valor_total,
-    ROUND(AVG(valor_total), 2)                                 AS custo_medio,
-    ROUND(AVG(dias_permanencia), 1)                            AS dias_medio,
-    ROUND(100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*), 2) AS taxa_mortalidade_pct
+    COUNT(*)                                                           AS internacoes,
+    ROUND(SUM(valor_total), 2)                                         AS valor_total,
+    ROUND(AVG(valor_total), 2)                                         AS custo_medio,
+    ROUND(MEDIAN(valor_total), 2)                                      AS custo_mediana,
+    ROUND(AVG(dias_permanencia), 1)                                    AS dias_medio,
+    MEDIAN(dias_permanencia)                                           AS dias_mediana,
+    ROUND(100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*), 2)         AS taxa_mortalidade_pct,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2)                 AS pct_internacoes,
+    ROUND(100.0 * SUM(valor_total) / SUM(SUM(valor_total)) OVER (), 2) AS pct_valor
 FROM prata.internacoes
 WHERE uf IS NOT NULL
 GROUP BY uf, regiao
-ORDER BY internacoes DESC;</pre>
+ORDER BY internacoes DESC, uf;</pre>
       <p><strong>Insight real:</strong> o diagnóstico que mais interna no Brasil é o
       <strong>parto único espontâneo</strong> (CID O800, 49.288 internações),
       seguido de pneumonia e infecções, exatamente o perfil do SUS.</p>
@@ -218,27 +222,34 @@ ORDER BY internacoes DESC;</pre>
     <div class="h2big">Dashboard e testes</div>
     <div class="etapa">
       <span class="tag">dashboard · app.py + painel.py</span>
-      <h3>Painel interativo por estado (Streamlit)</h3>
-      <p>Abre na visão Brasil e tem um seletor de estado que recorta tudo. Tem mapa
-      coroplético, ranking de UFs, gráfico de rosca por região, custo médio por
-      estado, top diagnósticos, série diária e perfil por idade e sexo. A tela nunca
-      calcula: todo número sai pronto de um mart.</p>
+      <h3>Painel interativo por estado (Streamlit) e Relatório HTML</h3>
+      <p>Desenhado a partir das <strong>3 perguntas de negócio da Aula 4</strong>:
+      (1) <em>Para quem é?</em> Gestores e auditores do SUS; (2) <em>O que precisa saber em 5 segundos?</em>
+      Os 5 cartões executivos no topo; (3) <em>O que pergunta a seguir?</em> Onde se concentra
+      (mapa coroplético, ranking, rosca por região e custo médio por UF) e o detalhe por estado
+      (top 10 diagnósticos, série diária e perfil demográfico). Zero cálculo na tela: todo
+      percentual e posição de ranking já vem pronto dos marts em SQL.</p>
     </div>
     <div class="etapa">
-      <span class="tag">testes · test/</span>
-      <h3>Testes com pytest, cobertura acima de 90%</h3>
-      <p>Testes unitários com dado inventado (nunca o banco real), cobrindo a
-      ingestão, a transformação, os marts, o painel e as regras de qualidade.
-      Meta do desafio: 70%. Resultado: <strong>acima de 90%</strong>.</p>
+      <span class="tag">testes · test/ (57 testes unitários)</span>
+      <h3>Testes com pytest, cobertura acima de 95%</h3>
+      <p>57 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
+      (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
+      <code>transformacao.py</code> (97%), <code>marts.py</code> e os 10 SQLs (incluindo fronteiras de
+      faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
+      <code>painel.py</code> (98%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>&gt; 95%</strong>.</p>
     </div>
     <div class="etapa">
-      <span class="tag">qualidade · pipeline/qualidade.py</span>
-      <h3>Checagens que travam o build</h3>
-      <p>A conferência que a gente faria na mão virou código: regras SQL que
-      falham o pipeline se um número não fechar. "As partes somam o todo" (o
-      perfil e o por_estado somam o total dos KPIs), "o grão é real"
-      (<code>count = count distinct aih</code>), "dentro do domínio" (idade ≥ 0,
-      mortalidade entre 0 e 100, UF entre as 27 válidas). Roda no CI a cada push.</p>
+      <span class="tag">qualidade · pipeline/qualidade.py (26 regras)</span>
+      <h3>26 checagens SQL que travam o build</h3>
+      <p>A conferência que a gente faria na mão virou código: 26 regras SQL cobrindo as 6
+      famílias da Aula 4 — <em>não vazio</em> (nos 10 marts), <em>chave única</em>
+      (<code>aih</code> na prata, <code>uf</code> no por_estado e códigos nos dicionários
+      <code>cid10</code> e <code>municipios</code>), <em>domínio</em> (idade ≥ 0, mortalidade
+      0..100, 27 siglas de UF e proteção contra dicionário em modo neutro),
+      <em>partes somam o todo</em>, <em>dois caminhos concordam</em> (por UF × nacional) e
+      <em>nada some sem aviso</em>.</p>
     </div>
   </section>
 
@@ -286,8 +297,21 @@ uv run ruff check .                       # estilo e imports</pre>
     virou código em <code>pipeline/qualidade.py</code>.</p>
   </section>
 
+  <section>
+    <h2>08 · Autora</h2>
+    <div class="h2big">Nayane Araújo <span style="font-weight:400;color:var(--ink-2);">Pós-Graduanda em Engenharia de Dados</span></div>
+    <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <a href="https://github.com/Nayanearaujo" target="_blank" rel="noopener">
+        <img src="https://img.shields.io/badge/GitHub-Nayanearaujo-181717?style=flat&logo=github" alt="GitHub Nayanearaujo">
+      </a>
+      <a href="https://www.linkedin.com/in/nayane-araujo-548063195/" target="_blank" rel="noopener">
+        <img src="https://img.shields.io/badge/LinkedIn-Conectar-0A66C2?style=flat&logo=linkedin" alt="LinkedIn Conectar">
+      </a>
+    </p>
+  </section>
+
   <footer>
-    Nayane Araujo · Desafio Final — Trilha de Engenharia de Dados ·
+    Nayane Araújo · Pós-Graduanda em Engenharia de Dados · Desafio Final — Trilha de Engenharia de Dados ·
     dados públicos do SIH/SUS (DATASUS)
   </footer>
 
