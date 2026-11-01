@@ -11,6 +11,7 @@ sobe leve. Rode depois do pipeline, na sua maquina:
 Resultado: dados_painel/<mart>.csv para cada mart. O painel.py le desses CSVs
 se o sih.duckdb nao existir (caso do deploy).
 """
+import shutil
 import sys
 import tempfile
 from pathlib import Path
@@ -59,8 +60,30 @@ def main():
 
             con.execute("COMMIT")
             DESTINO.mkdir(parents=True, exist_ok=True)
+            backups = temporario / "anteriores"
+            backups.mkdir()
             for nome in MARTS:
-                (temporario / f"{nome}.csv").replace(DESTINO / f"{nome}.csv")
+                atual = DESTINO / f"{nome}.csv"
+                if atual.exists():
+                    shutil.copy2(atual, backups / atual.name)
+
+            publicados = []
+            try:
+                for nome in MARTS:
+                    atual = DESTINO / f"{nome}.csv"
+                    (temporario / atual.name).replace(atual)
+                    publicados.append(atual)
+            except OSError:
+                # Reverte a publicacao se a substituicao de qualquer CSV falhar.
+                for atual in reversed(publicados):
+                    copia = backups / atual.name
+                    if copia.exists():
+                        shutil.copy2(copia, atual)
+                    else:
+                        atual.unlink(missing_ok=True)
+                raise
+
+            for nome in MARTS:
                 print(f"  dados_painel/{nome}.csv  publicado")
             print(f"  total {total:,} linhas exportadas".replace(",", "."))
     finally:
