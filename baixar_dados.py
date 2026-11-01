@@ -101,6 +101,13 @@ def main():
 
     ufs = UFS if UFS is not None else TODAS_UFS
     _validar_configuracao(ufs)
+    amostra = set(ufs) != set(TODAS_UFS)
+    if amostra and os.environ.get("PERMITIR_PARCIAL") != "1":
+        print("ERRO: selecao de UFs nao cobre todo o Brasil.")
+        print("Para executar uma amostra, defina PERMITIR_PARCIAL=1.")
+        sys.exit(1)
+    if amostra:
+        print("AVISO: UFs selecionadas representam amostra PARCIAL, nao o Brasil.")
     aa = f"{ANO % 100:02d}"
     mm = f"{MES:02d}"
 

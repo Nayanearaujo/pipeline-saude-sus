@@ -9,6 +9,7 @@ import baixar_dados
 def test_download_incompleto_nao_sobrescreve_parquet(tmp_path, monkeypatch):
     monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
     monkeypatch.setattr(baixar_dados, "UFS", ["RJ", "SP"])
+    monkeypatch.setattr(baixar_dados, "TODAS_UFS", ["RJ", "SP"])
     monkeypatch.delenv("PERMITIR_PARCIAL", raising=False)
     monkeypatch.setattr(
         baixar_dados, "_baixar_dbc",
@@ -45,6 +46,7 @@ def test_download_parcial_exige_opt_in(tmp_path, monkeypatch):
 
 def test_falha_ao_escrever_preserva_parquet_anterior(tmp_path, monkeypatch):
     """Falha de disco durante a escrita nao publica arquivo incompleto."""
+    monkeypatch.setenv("PERMITIR_PARCIAL", "1")
     monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
     monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
     monkeypatch.setattr(baixar_dados, "_baixar_dbc", lambda nome: b"arquivo")
@@ -93,6 +95,7 @@ def test_configuracao_invalida_bloqueia_download(monkeypatch, ano, mes, ufs):
 def test_dbc_vazio_nao_substitui_parquet(tmp_path, monkeypatch):
     monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
     monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
+    monkeypatch.setattr(baixar_dados, "TODAS_UFS", ["RJ"])
     monkeypatch.delenv("PERMITIR_PARCIAL", raising=False)
     monkeypatch.setattr(baixar_dados, "_baixar_dbc", lambda nome: b"arquivo")
     monkeypatch.setattr(
@@ -103,3 +106,30 @@ def test_dbc_vazio_nao_substitui_parquet(tmp_path, monkeypatch):
     with pytest.raises(SystemExit):
         baixar_dados.main()
     assert destino.read_bytes() == b"versao-anterior"
+
+
+def test_subconjunto_completo_exige_opt_in_antes_do_download(tmp_path, monkeypatch):
+    monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
+    monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
+    monkeypatch.delenv("PERMITIR_PARCIAL", raising=False)
+
+    def nao_deve_baixar(nome):
+        pytest.fail("Amostra sem permissao nao pode iniciar download")
+
+    monkeypatch.setattr(baixar_dados, "_baixar_dbc", nao_deve_baixar)
+    with pytest.raises(SystemExit):
+        baixar_dados.main()
+    assert not (tmp_path / "internacoes.parquet").exists()
+
+
+def test_subconjunto_com_opt_in_publica_amostra(tmp_path, monkeypatch):
+    monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
+    monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
+    monkeypatch.setenv("PERMITIR_PARCIAL", "1")
+    monkeypatch.setattr(baixar_dados, "_baixar_dbc", lambda nome: b"arquivo")
+    monkeypatch.setattr(
+        baixar_dados, "_dbc_para_df",
+        lambda conteudo, nome: pd.DataFrame({"N_AIH": ["123"]}),
+    )
+    baixar_dados.main()
+    assert pd.read_parquet(tmp_path / "internacoes.parquet")["UF_ARQUIVO"].tolist() == ["RJ"]
