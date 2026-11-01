@@ -85,3 +85,15 @@ def test_main_grava_os_dois_arquivos(tmp_path, monkeypatch):
     assert raiz_html.exists()
     assert docs_html.exists()
     assert "Internações" in raiz_html.read_text(encoding="utf-8")
+
+
+def test_relatorio_explicita_limites_metodologicos():
+    """A leitura responsável dos indicadores deve estar no HTML publicado."""
+    html = relatorio.construir_html(_dados_inventados())
+    assert "Como interpretar os resultados" in html
+    assert "Competência não é data de entrada" in html
+    assert "AIH não representa paciente único" in html
+    assert "Óbitos hospitalares, não mortalidade populacional" in html
+    assert "Valores pagos, não custos assistenciais" in html
+    assert "Geografia de residência" in html
+    assert "Limites e reprodutibilidade" in html
