@@ -1,9 +1,9 @@
 """Testes de regressao da reconciliacao entre bronze e prata."""
 
 import duckdb
+from test_transformacao import _preparar
 
 from pipeline import transformacao
-from test_transformacao import _preparar
 
 
 def test_exclusoes_por_valor_e_aih_duplicada(tmp_path, monkeypatch):
