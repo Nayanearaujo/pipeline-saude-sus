@@ -48,26 +48,43 @@ st.markdown(
       }
       .stCaption, [data-testid="stCaptionContainer"] { color: #5a6b66; }
 
-      /* cartoes de metrica: brancos, cantos suaves, sombra leve e borda verde */
-      div[data-testid="stMetric"] {
+      /* grade unica de 5 cartoes KPI: nunca corta os numeros em "..." */
+      .sus-kpis {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        margin: 10px 0 6px;
+      }
+      @media (max-width: 1100px) {
+        .sus-kpis { grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); }
+      }
+      .sus-card {
         background: #ffffff;
         border: 1px solid #dbeee4;
         border-top: 3px solid #5bb6a6;
         border-radius: 16px;
-        padding: 18px 20px;
+        padding: 16px 18px;
         box-shadow: 0 1px 2px rgba(20,84,63,.04), 0 10px 30px -22px rgba(20,84,63,.45);
         transition: box-shadow .2s ease, transform .2s ease;
+        min-width: 0;
       }
-      div[data-testid="stMetric"]:hover {
+      .sus-card:hover {
         box-shadow: 0 2px 4px rgba(20,84,63,.06), 0 14px 34px -20px rgba(20,84,63,.5);
         transform: translateY(-1px);
       }
-      /* rotulo do cartao em maiusculas discretas: ar executivo */
-      div[data-testid="stMetricLabel"] {
-        color: #6b7b7c; font-size: 0.74rem; font-weight: 600;
-        letter-spacing: 0.06em; text-transform: uppercase;
+      .sus-card-rot {
+        color: #6b7b7c; font-size: 0.75rem; font-weight: 600;
+        letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px;
       }
-      div[data-testid="stMetricValue"] { color: #14543f; font-weight: 800; }
+      .sus-card-val {
+        color: #14543f; font-weight: 800;
+        font-size: clamp(1.2rem, 1.65vw, 1.55rem);
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .sus-card-sub {
+        color: #6b7b7c; font-size: 0.72rem; margin-top: 3px;
+      }
 
       /* graficos num cartao branco, mesma linguagem dos cartoes */
       div[data-testid="stPlotlyChart"] {
@@ -147,6 +164,15 @@ def carregar():
     return painel.ler()
 
 
+def _card_html(rotulo: str, valor: str, nota: str = "") -> str:
+    """Monta o HTML de um cartao KPI (o valor nunca e cortado em '...')."""
+    sub = f"<div class='sus-card-sub'>{nota}</div>" if nota else ""
+    return (
+        f"<div class='sus-card'><div class='sus-card-rot'>{rotulo}</div>"
+        f"<div class='sus-card-val'>{valor}</div>{sub}</div>"
+    )
+
+
 def main():
     # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
     # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
@@ -219,12 +245,14 @@ def main():
         internacoes, valor, custo = linha["internacoes"], linha["valor_total"], linha["custo_medio"]
         dias, mort = linha["dias_medio"], linha["taxa_mortalidade_pct"]
 
-    c = st.columns(5)
-    c[0].metric("Internações", painel.numero(internacoes))
-    c[1].metric("Gasto total", painel.reais_curto(valor))      # R$ 2,26 bi, cabe no card
-    c[2].metric("Custo médio", painel.reais(custo, 0))          # R$ 1.824, sem centavos
-    c[3].metric("Permanência média", painel.numero(dias, 1) + " dias")
-    c[4].metric("Mortalidade", painel.pct(mort, 2))
+    cartoes_html = "".join([
+        _card_html("Internações", painel.numero(internacoes), "AIH aprovadas no mês"),
+        _card_html("Gasto total", painel.reais_curto(valor), painel.reais(valor, 0)),
+        _card_html("Custo médio", painel.reais(custo, 0), "valor médio por AIH"),
+        _card_html("Permanência média", painel.numero(dias, 1) + " dias", "média por internação"),
+        _card_html("Mortalidade", painel.pct(mort, 2), "óbitos hospitalares"),
+    ])
+    st.markdown(f"<div class='sus-kpis'>{cartoes_html}</div>", unsafe_allow_html=True)
 
     st.divider()
 
