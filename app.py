@@ -294,6 +294,30 @@ def main():
 
     st.plotly_chart(painel.fig_perfil(perfil, rotulo), width="stretch", config=PLOTLY_CONFIG)
 
+    # Marts complementares: os CSVs ainda precisam ser exportados do banco real.
+    # A ausencia deles no deploy nao deve derrubar os oito indicadores existentes.
+    try:
+        complementares = painel.ler(
+            marts=["mortalidade_por_cid", "municipios_pareto"]
+        )
+    except (FileNotFoundError, OSError) as erro:
+        logging.info("Marts complementares ainda nao exportados: %s", erro)
+        st.info("Indicadores complementares aguardam exportação dos CSVs da camada ouro.")
+    else:
+        st.markdown('<div class="sus-sub">Análises complementares · Brasil</div>', unsafe_allow_html=True)
+        st.caption("Mortalidade hospitalar entre AIHs por CID; gasto por município de residência.")
+        cols = st.columns(2)
+        with cols[0]:
+            st.plotly_chart(
+                painel.fig_mortalidade_por_cid(complementares["mortalidade_por_cid"]),
+                width="stretch", config=PLOTLY_CONFIG,
+            )
+        with cols[1]:
+            st.plotly_chart(
+                painel.fig_municipios_pareto(complementares["municipios_pareto"]),
+                width="stretch", config=PLOTLY_CONFIG,
+            )
+
     st.divider()
     col_rodape, col_btn = st.columns([5, 1])
     with col_rodape:
