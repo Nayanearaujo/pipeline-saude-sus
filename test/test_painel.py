@@ -200,3 +200,64 @@ def test_periodo_serie_com_multiplos_meses_e_vazio():
     serie = pd.DataFrame({"dia": ["2027-02-01", "2026-12-31", None]})
     assert painel.periodo_serie(serie) == "dezembro/2026, fevereiro/2027"
     assert painel.periodo_serie(pd.DataFrame({"dia": []})) == "não informado"
+
+
+def test_mapa_embute_as_27_ufs_sem_url_remota_de_geometria():
+    df = pd.DataFrame({"uf": ["SP"], "regiao": ["Sudeste"], "internacoes": [20]})
+    fig = painel.fig_mapa(df)
+    assert fig.data[0].type == "choroplethmap"
+    geojson = fig.data[0].geojson
+    assert isinstance(geojson, dict)
+    assert len(geojson["features"]) == 27
+    assert len({f["properties"]["sigla"] for f in geojson["features"]}) == 27
+    assert "SP" in {f["properties"]["sigla"] for f in geojson["features"]}
+    assert fig.layout.map.style == "white-bg"
+    assert "raw.githubusercontent.com" not in fig.to_json()
+
+
+@pytest.mark.parametrize("metrica,valor,unidade", [
+    ("valor_total", 1234.56, "R$"), ("taxa_mortalidade_pct", 4.27, "%"),
+])
+def test_mapa_preserva_casas_decimais_e_unidade(metrica, valor, unidade):
+    df = pd.DataFrame({"uf": ["SP"], "regiao": ["Sudeste"], metrica: [valor]})
+    fig = painel.fig_mapa(df, metrica)
+    assert list(fig.data[0].z) == [valor]
+    assert ":,.2f" in fig.data[0].hovertemplate
+    assert unidade in fig.data[0].hovertemplate
+
+
+@pytest.mark.parametrize("metrica", ["custo_medio", "dias_medio", "taxa_mortalidade_pct"])
+def test_rosca_nao_apresenta_soma_de_medias_ou_taxas_como_composicao(metrica):
+    df = pd.DataFrame({"regiao": ["Sul"], metrica: [4.0]})
+    with pytest.raises(ValueError, match="aditiva"):
+        painel.fig_rosca_regiao(df, metrica)
+
+
+@pytest.mark.parametrize("metrica,valor,unidade", [
+    ("valor_total", 1234.56, "R$"), ("custo_medio", 1234.56, "R$"),
+    ("dias_medio", 4.8, "dias"), ("taxa_mortalidade_pct", 4.27, "%"),
+])
+def test_ranking_preserva_valor_e_formata_a_unidade(metrica, valor, unidade):
+    df = pd.DataFrame({"uf": ["SP"], metrica: [valor]})
+    fig = painel.fig_ranking_estados(df, metrica)
+    assert list(fig.data[0].x) == [valor]
+    assert unidade in fig.data[0].hovertemplate
+
+
+def test_valor_por_uf_mostra_mediana_pronta_do_mart():
+    df = pd.DataFrame({"uf": ["SP", "RJ"], "custo_medio": [2000.0, 1000.0],
+                       "custo_mediana": [700.0, 600.0]})
+    fig = painel.fig_custo_medio_uf(df)
+    assert list(fig.data[0].x) == [2000.0, 1000.0]
+    assert list(fig.data[1].x) == [700.0, 600.0]
+    assert fig.data[1].name == "Mediana"
+
+
+def test_perfil_sexo_inclui_permanencia_sem_agregar_novos_indicadores():
+    df = pd.DataFrame({"faixa_etaria": ["30-49", "30-49"], "sexo": ["Feminino", "Masculino"],
+                       "internacoes": [100, 80], "dias_medio": [3.6, 4.2]})
+    fig = painel.fig_perfil(df, "Brasil")
+    assert list(fig.data[0].y) == [100]
+    assert list(fig.data[1].y) == [80]
+    assert fig.data[0].customdata[0][0] == 3.6
+    assert "Permanência média" in fig.data[0].hovertemplate

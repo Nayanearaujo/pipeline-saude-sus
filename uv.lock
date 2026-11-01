@@ -953,7 +953,7 @@ requires-dist = [
     { name = "dbfread", specifier = ">=2.0" },
     { name = "duckdb", specifier = ">=1.0" },
     { name = "pandas", specifier = ">=2.0" },
-    { name = "plotly", specifier = ">=5.18" },
+    { name = "plotly", specifier = ">=7.1" },
     { name = "pyarrow", specifier = ">=14.0" },
     { name = "pyreaddbc", specifier = ">=1.0" },
     { name = "streamlit", specifier = ">=1.30" },

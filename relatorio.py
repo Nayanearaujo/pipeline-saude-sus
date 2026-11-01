@@ -77,7 +77,6 @@ def construir_html(dados: dict) -> str:
     # o mapa centralizado e sem margem lateral sobrando (o Brasil e estreito e
     # alto; sem isso sobra muito branco dos lados no relatorio).
     mapa = painel.fig_mapa(por_estado, METRICA)
-    mapa.update_geos(fitbounds="locations", visible=False)
     mapa.update_layout(margin=dict(l=0, r=0, t=56, b=0))
 
     # grade de 2 colunas: mapa + ranking no topo; rosca + custo; top diagnosticos

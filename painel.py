@@ -19,6 +19,8 @@ Spec (fonte da verdade; o codigo e consequencia dela):
 """
 from __future__ import annotations
 
+import json
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -32,11 +34,14 @@ import plotly.graph_objects as go
 # o Streamlit e iniciado de outra pasta (nao depende do diretorio atual).
 BANCO = str(Path(__file__).resolve().parent / "sih.duckdb")
 
-# GeoJSON dos estados do Brasil (sigla da UF em properties.sigla), usado no mapa.
-GEOJSON_UF = (
-    "https://raw.githubusercontent.com/codeforgermany/click_that_hood/"
-    "main/public/data/brazil-states.geojson"
-)
+# Geometria local: evita buscar limites estaduais na rede ao abrir o mapa.
+GEOJSON_UF = Path(__file__).resolve().parent / "assets" / "brasil-ufs.geojson"
+
+
+@lru_cache(maxsize=1)
+def _geometria_ufs() -> dict:
+    return json.loads(GEOJSON_UF.read_text(encoding="utf-8"))
+
 
 MARTS = [
     "kpis_gerais",
@@ -241,56 +246,54 @@ def _barh(df: pd.DataFrame, x: str, y: str, titulo: str,
 
 
 def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
-    """Mapa coropletico do Brasil por UF. O 'salta aos olhos' do painel.
-
-    Hover em portugues (UF, regiao e a metrica formatada); a escala de cor e o
-    titulo acompanham a metrica escolhida."""
-    fig = px.choropleth(
-        por_estado,
-        geojson=GEOJSON_UF,
-        locations="uf",
-        featureidkey="properties.sigla",
-        color=metrica,
-        color_continuous_scale=ESCALA,
-        scope="south america",
+    """Mapa com limites embutidos e fundo sem tiles externos ou token."""
+    geojson = _geometria_ufs()
+    fig = px.choropleth_map(
+        por_estado, geojson=geojson, locations="uf", featureidkey="properties.sigla",
+        color=metrica, color_continuous_scale=ESCALA, map_style="white-bg",
         custom_data=["uf", "regiao", metrica],
     )
-    fig.update_geos(fitbounds="locations", visible=False)
-    # hover: "SP · Sudeste" em negrito, e a metrica formatada em padrao BR
+    dinheiro = metrica in {"valor_total", "custo_medio"}
+    casas = 0 if metrica == "internacoes" else (1 if metrica == "dias_medio" else 2)
+    prefixo = "R$ " if dinheiro else ""
+    sufixo = "%" if metrica == "taxa_mortalidade_pct" else (" dias" if metrica == "dias_medio" else "")
     fig.update_traces(
-        marker_line_color="white", marker_line_width=0.6,
-        hovertemplate=(
-            "<b>%{customdata[0]}</b> · %{customdata[1]}<br>"
-            f"{rotulo(metrica)}: " + "%{customdata[2]:,.0f}<extra></extra>"
-        ),
+        marker_line_color="white", marker_line_width=0.8,
+        hovertemplate=("<b>%{customdata[0]}</b> · %{customdata[1]}<br>"
+                       + rotulo(metrica) + ": " + prefixo
+                       + "%{customdata[2]:,." + str(casas) + "f}" + sufixo + "<extra></extra>"),
     )
-    # titulo que responde: quem lidera na metrica e com que participacao.
-    # pct_internacoes (do mart) so vale para a metrica internacoes.
     ordenado = por_estado.sort_values(metrica, ascending=False)
-    pct_col = "pct_internacoes" if metrica == "internacoes" else None
-    resposta = lidera(ordenado, "uf", metrica, pct_col)
-    titulo = f"{rotulo(metrica)} por estado<br><sub>{resposta}</sub>"
-    fig = _layout(fig, titulo)
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
+    resposta = lidera(ordenado, "uf", metrica, "pct_internacoes" if metrica == "internacoes" else None)
+    fig = _layout(fig, f"{rotulo(metrica)} por estado<br><sub>{resposta}</sub>")
+    oeste, sul, leste, norte = geojson["bbox"]
     fig.update_layout(
-        coloraxis_colorbar_title_text=rotulo(metrica),
-        separators=",.",
-        geo=dict(bgcolor="rgba(0,0,0,0)"),
+        height=560, margin=dict(l=0, r=0, t=64, b=10),
+        map=dict(bounds=dict(west=oeste, east=leste, south=sul, north=norte)),
+        coloraxis_colorbar=dict(title=rotulo(metrica), thickness=12, len=0.7,
+                               tickprefix=prefixo, ticksuffix=sufixo, tickformat=f",.{casas}f"),
     )
     return fig
 
 
 def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
     """Grafico de rosca (donut) com a participacao de cada regiao na metrica."""
+    if metrica not in {"internacoes", "valor_total"}:
+        raise ValueError("Composicao regional exige uma metrica aditiva: internacoes ou valor_total")
     fig = px.pie(
-        por_estado, names="regiao", values=metrica, hole=0.55,
+        por_estado, names="regiao", values=metrica, hole=0.6,
         color="regiao", color_discrete_map=COR_REGIAO,
     )
     fig.update_traces(textposition="inside", textinfo="percent+label",
                       marker=dict(line=dict(color="white", width=2)))
     fig = _layout(fig, f"Participação por região · {rotulo(metrica).lower()}")
-    fig.update_layout(showlegend=True)
+    fig.update_traces(
+        hovertemplate="<b>%{label}</b><br>" + ("R$ " if metrica == "valor_total" else "")
+                      + "%{value:,." + ("2" if metrica == "valor_total" else "0")
+                      + "f}<br>%{percent}<extra></extra>",
+    )
+    fig.update_layout(height=470, showlegend=True,
+                      legend=dict(orientation="h", x=0.5, xanchor="center", y=-0.08))
     return fig
 
 
@@ -299,8 +302,17 @@ def fig_ranking_estados(por_estado: pd.DataFrame, metrica: str = "internacoes") 
     df = por_estado.sort_values(metrica, ascending=False)
     pct_col = "pct_internacoes" if metrica == "internacoes" else None
     resposta = lidera(df, "uf", metrica, pct_col)
-    return _barh(df, x=metrica, y="uf",
-                 titulo=f"Ranking de estados · {rotulo(metrica).lower()}<br><sub>{resposta}</sub>")
+    fig = _barh(df, x=metrica, y="uf",
+                titulo=f"Ranking de estados · {rotulo(metrica).lower()}<br><sub>{resposta}</sub>")
+    fig.update_layout(height=max(430, 22 * len(df) + 100))
+    if metrica in {"valor_total", "custo_medio"}:
+        fig.update_traces(text=[reais_curto(v) for v in df[metrica]], texttemplate="%{text}",
+                          hovertemplate="<b>%{y}</b><br>R$ %{x:,.2f}<extra></extra>")
+    elif metrica == "taxa_mortalidade_pct":
+        fig.update_traces(texttemplate="%{x:,.2f}%", hovertemplate="%{y}: %{x:,.2f}%<extra></extra>")
+    elif metrica == "dias_medio":
+        fig.update_traces(texttemplate="%{x:,.1f} dias", hovertemplate="%{y}: %{x:,.1f} dias<extra></extra>")
+    return fig
 
 
 def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
@@ -313,8 +325,19 @@ def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
         alto, baixo = df.iloc[0], df.iloc[-1]
         resposta = (f"{alto['uf']} ({reais(alto['custo_medio'], 0)}) no topo, "
                     f"{baixo['uf']} ({reais(baixo['custo_medio'], 0)}) na base")
-    return _barh(df, x="custo_medio", y="uf",
-                 titulo=f"Custo médio por internação · por UF<br><sub>{resposta}</sub>")
+    fig = _barh(df, x="custo_medio", y="uf",
+                titulo=f"Valor médio registrado por AIH · por UF<br><sub>{resposta}</sub>")
+    fig.update_traces(name="Média", showlegend=True, texttemplate="R$ %{x:,.0f}",
+                      hovertemplate="<b>%{y}</b><br>Média: R$ %{x:,.2f}<extra></extra>")
+    if "custo_mediana" in df.columns:
+        fig.add_trace(go.Scatter(
+            x=df["custo_mediana"], y=df["uf"], mode="markers", name="Mediana",
+            marker=dict(symbol="diamond", size=8, color="#245f68"),
+            hovertemplate="<b>%{y}</b><br>Mediana: R$ %{x:,.2f}<extra></extra>",
+        ))
+    fig.update_layout(height=max(430, 22 * len(df) + 100),
+                      legend=dict(orientation="h", y=-0.08, x=0))
+    return fig
 
 
 # As tres funcoes de detalhe recebem o DataFrame ja no escopo certo: o app
@@ -332,6 +355,7 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
     top["rotulo"] = top["doenca"].str.slice(0, 32).where(
         top["doenca"].str.len() <= 32, top["doenca"].str.slice(0, 32) + "…"
     )
+    top["rotulo"] = top["cid"].fillna("Sem CID").astype(str) + " · " + top["rotulo"]
     # titulo que responde: a doenca que mais interna no escopo e sua participacao
     resposta = lidera(top, "doenca", "internacoes", "pct_do_total")
     fig = _barh(
@@ -340,11 +364,11 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
     )
     # hover rico: nome completo (codigo CID), internacoes e valor pago.
     fig.update_traces(
-        customdata=top[["doenca", "cid", "valor_total"]].to_numpy(),
+        customdata=top[["doenca", "cid", "valor_total", "pct_do_total"]].to_numpy(),
         hovertemplate=(
             "<b>%{customdata[0]}</b> (%{customdata[1]})<br>"
             "%{x:,.0f} internações<br>"
-            "R$ %{customdata[2]:,.2f}<extra></extra>"
+            "R$ %{customdata[2]:,.2f}<br>%{customdata[3]:,.2f}% do total do recorte<extra></extra>"
         ),
     )
     return fig
@@ -368,7 +392,13 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
         pico = serie.sort_values("internacoes", ascending=False).iloc[0]
         dia_br = str(pico["dia"])[8:10] + "/" + str(pico["dia"])[5:7]
         resposta = f"pico em {dia_br}: {numero(pico['internacoes'])} entradas"
-    fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações")
+        fig.add_annotation(x=pico["dia"], y=pico["internacoes"], text=f"Pico · {dia_br}",
+                           showarrow=True, arrowhead=2, ax=0, ay=-32,
+                           bgcolor="white", bordercolor=COR, font=dict(size=11))
+        fig.update_yaxes(range=[0, float(pico["internacoes"]) * 1.18 or 1])
+    fig.update_layout(xaxis_title="dia (data de entrada)", yaxis_title="internações", hovermode="x unified")
+    fig.update_xaxes(tickformat="%d/%m", hoverformat="%d/%m/%Y")
+    fig.update_yaxes(rangemode="tozero")
     return _layout(fig, f"Internações por dia de entrada · {rotulo}<br><sub>{resposta}</sub>")
 
 
@@ -377,10 +407,19 @@ def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
     ordem = ["< 1 ano", "1-14", "15-29", "30-49", "50-64", "65+", "nao informado"]
     fig = px.bar(
         df, x="faixa_etaria", y="internacoes", color="sexo", barmode="group",
-        category_orders={"faixa_etaria": ordem},
-        color_discrete_map=COR_SEXO,
+        category_orders={"faixa_etaria": ordem, "sexo": ["Feminino", "Masculino", "nao informado"]},
+        color_discrete_map=COR_SEXO, text="internacoes",
+        custom_data=["dias_medio"] if "dias_medio" in df.columns else None,
     )
-    fig.update_layout(xaxis_title="faixa etária", yaxis_title="internações")
+    detalhe = "<br>Permanência média: %{customdata[0]:,.1f} dias" if "dias_medio" in df.columns else ""
+    fig.update_traces(texttemplate="%{y:,.0f}", textposition="auto", textangle=0, cliponaxis=False,
+                      hovertemplate="<b>%{fullData.name}</b> · %{x}<br>%{y:,.0f} internações"
+                                    + detalhe + "<extra></extra>")
+    fig.update_layout(xaxis_title="faixa etária", yaxis_title="internações",
+                      height=470, bargap=0.22, bargroupgap=0.08,
+                      legend=dict(title=None, orientation="h", y=-0.18, x=0),
+                      uniformtext_minsize=11, uniformtext_mode="hide")
+    fig.update_yaxes(rangemode="tozero")
     return _layout(fig, f"Perfil por faixa etária e sexo · {rotulo}")
 
 
@@ -392,14 +431,39 @@ def fig_mortalidade_por_cid(df: pd.DataFrame) -> go.Figure:
         titulo="Mortalidade hospitalar por CID · mínimo de 100 AIHs",
         hovertemplate="%{y}: %{x:,.2f}%<extra></extra>",
     )
-    fig.update_traces(texttemplate="%{x:,.2f}%")
+    fig.update_traces(
+        texttemplate="%{x:,.2f}%", customdata=top[["doenca", "internacoes", "obitos"]].to_numpy(),
+        hovertemplate="<b>%{y} · %{customdata[0]}</b><br>%{customdata[1]:,.0f} internações"
+                      "<br>%{customdata[2]:,.0f} óbitos<br>Taxa: %{x:,.2f}%<extra></extra>",
+    )
+    fig.update_xaxes(range=[0, 100])
     return fig
 
 
 def fig_municipios_pareto(df: pd.DataFrame) -> go.Figure:
     """Mostra o percentual acumulado dos municípios, já calculado no mart."""
-    ordem = df.sort_values("posicao").head(30)
-    fig = px.line(ordem, x="posicao", y="pct_acumulado", markers=True)
-    fig.update_traces(line_color=COR, marker_color=COR)
+    ordem = df.sort_values("posicao")
+    fig = px.line(ordem, x="posicao", y="pct_acumulado", markers=False)
+    fig.update_traces(
+        line_color=COR, marker_color=COR,
+        customdata=ordem[["municipio", "uf", "internacoes", "valor_total"]].to_numpy(),
+        hovertemplate="<b>%{customdata[0]} · %{customdata[1]}</b><br>Posição: %{x}"
+                      "<br>%{customdata[2]:,.0f} internações<br>R$ %{customdata[3]:,.2f}"
+                      "<br>Acumulado: %{y:,.2f}%<extra></extra>",
+    )
+    fig.add_hline(y=80, line_dash="dot", line_color="#b08c4f", annotation_text="Referência de 80%")
     fig.update_layout(xaxis_title="Municípios no ranking", yaxis_title="Gasto acumulado (%)")
-    return _layout(fig, "Concentração do gasto por município de residência · 30 primeiros")
+    fig.update_yaxes(range=[0, 100])
+    fig = _layout(
+        fig, "Concentração do valor por município de residência<br><sub>Curva completa · referência de 80%</sub>",
+    )
+    fig.update_layout(
+        margin=dict(l=10, r=10, t=75, b=100),
+        updatemenus=[dict(type="buttons", direction="left", x=0, y=-0.22,
+                         bgcolor="#f3fbf7", bordercolor="#dbeee4", font=dict(size=11),
+                         buttons=[dict(label="Todos os municípios", method="relayout",
+                                       args=[{"xaxis.autorange": True}]),
+                                  dict(label="Primeiros 30", method="relayout",
+                                       args=[{"xaxis.range": [0.5, 30.5], "xaxis.autorange": False}])])],
+    )
+    return fig
