@@ -180,50 +180,57 @@ def main():
     """Transforma a bronze na prata: tipa, decodifica os códigos do SIH e renomeia."""
     con = conectar()
 
-    # Pre-requisito: a bronze tem que existir. Se faltar alguma tabela (ingestao
-    # nao rodou), para antes de transformar em vez de estourar um erro criptico.
-    existentes = {
-        r[0] for r in con.execute("""
-            SELECT table_name FROM information_schema.tables
-            WHERE table_schema = 'bronze'
-        """).fetchall()
-    }
-    faltando = [t for t in ("internacoes", "cid10", "municipios") if t not in existentes]
-    if faltando:
-        print("ERRO: faltam tabelas em bronze:", ", ".join(faltando))
-        print("Rode antes: uv run python -m pipeline.ingestao")
-        sys.exit(1)
+    try:
+        con.execute("BEGIN")
+        # Pre-requisito: a bronze tem que existir. Se faltar alguma tabela (ingestao
+        # nao rodou), para antes de transformar em vez de estourar um erro criptico.
+        existentes = {
+            r[0] for r in con.execute("""
+                SELECT table_name FROM information_schema.tables
+                WHERE table_schema = 'bronze'
+            """).fetchall()
+        }
+        faltando = [t for t in ("internacoes", "cid10", "municipios") if t not in existentes]
+        if faltando:
+            print("ERRO: faltam tabelas em bronze:", ", ".join(faltando))
+            print("Rode antes: uv run python -m pipeline.ingestao")
+            sys.exit(1)
 
-    criar_schema(con, "prata")
+        criar_schema(con, "prata")
 
-    _tabela_ufs(con)
+        _tabela_ufs(con)
 
-    etapas = [
-        ("internacoes", SQL_INTERNACOES),
-        ("cid10", SQL_CID),
-        ("municipios", SQL_MUNICIPIOS),
-    ]
+        etapas = [
+            ("internacoes", SQL_INTERNACOES),
+            ("cid10", SQL_CID),
+            ("municipios", SQL_MUNICIPIOS),
+        ]
 
-    total = 0
-    for nome, sql in etapas:
-        origem = con.execute(
-            f"SELECT count(*) FROM bronze.{nome}"
-        ).fetchone()[0]
-        con.execute(sql)
-        destino = con.execute(f"SELECT count(*) FROM prata.{nome}").fetchone()[0]
-        total += destino
-        saiu = origem - destino
-        marca = f"(-{saiu:,} removidas)".replace(",", ".") if saiu else "(0 removidas)"
-        print(f"  prata.{nome:<14} {destino:>9,} linhas  {marca}".replace(",", "."))
-        if nome == "internacoes":
-            sem_valor, duplicadas = _motivos_exclusao_internacoes(con)
-            if sem_valor + duplicadas != saiu:
-                raise ValueError("Exclusoes da bronze nao reconciliam com a prata")
-            print(f"    exclusoes: {sem_valor} sem valor, {duplicadas} AIH duplicadas")
-            print(f"    nulos mantidos: {_resumo_nulos_internacoes(con)}")
+        total = 0
+        for nome, sql in etapas:
+            origem = con.execute(
+                f"SELECT count(*) FROM bronze.{nome}"
+            ).fetchone()[0]
+            con.execute(sql)
+            destino = con.execute(f"SELECT count(*) FROM prata.{nome}").fetchone()[0]
+            total += destino
+            saiu = origem - destino
+            marca = f"(-{saiu:,} removidas)".replace(",", ".") if saiu else "(0 removidas)"
+            print(f"  prata.{nome:<14} {destino:>9,} linhas  {marca}".replace(",", "."))
+            if nome == "internacoes":
+                sem_valor, duplicadas = _motivos_exclusao_internacoes(con)
+                if sem_valor + duplicadas != saiu:
+                    raise ValueError("Exclusoes da bronze nao reconciliam com a prata")
+                print(f"    exclusoes: {sem_valor} sem valor, {duplicadas} AIH duplicadas")
+                print(f"    nulos mantidos: {_resumo_nulos_internacoes(con)}")
 
-    print(f"  {'total':<14} {total:>9,} linhas".replace(",", "."))
-    con.close()
+        print(f"  {'total':<14} {total:>9,} linhas".replace(",", "."))
+        con.execute("COMMIT")
+    except Exception:
+        con.execute("ROLLBACK")
+        raise
+    finally:
+        con.close()
 
 
 if __name__ == "__main__":
