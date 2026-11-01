@@ -257,14 +257,14 @@ número não fechar):
 
 | Módulo testado | Escopo dos testes unitários | Cobertura |
 |---|---|---|
-| `pipeline/db.py` | conexão isolada em `tmp_path` e criação de schemas | **100%** |
+| `pipeline/db.py` | conexão isolada em `tmp_path`, `criar_schema` idempotente e carga `gravar()` | **100%** |
 | `pipeline/ingestao.py` | leitura em texto (`VARCHAR`), idempotência e falha rápida sem criar banco vazio quando falta arquivo | **97%** |
-| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup por AIH e checagem da camada bronze | **97%** |
-| `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK`, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **90%+** |
+| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **97%** |
+| `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **96%** |
 | `pipeline/qualidade.py` | aprovação em banco íntegro e bloqueio imediato (`SystemExit`) quando a soma das partes não bate com o KPI | **96%** |
 | `painel.py` + `exportar_painel.py` | formatadores BR puros (sem depender de `locale`), figuras Plotly, fallback DuckDB/CSV e exportação da camada ouro | **98%** |
-| `relatorio.py` + `gerar_dicionarios.py` | geração determinística do HTML (`div_id` fixo), consumo da API oficial do IBGE com mock e fallback para modo neutro sem internet | **95%+** |
-| **TOTAL (57 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **> 95%** |
+| `relatorio.py` + `gerar_dicionarios.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB), consumo da API oficial do IBGE com mock e fallback para modo neutro sem internet | **96%** |
+| **TOTAL (59 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **> 96%** |
 
 ---
 
@@ -274,6 +274,9 @@ número não fechar):
 pipeline-saude-sus/
 ├── pipeline/            db.py, ingestao.py, transformacao.py, marts.py, qualidade.py
 ├── executar.py          roda bronze -> prata -> ouro -> qualidade numa tacada
+├── ui.py                abre o DuckDB UI local (http://localhost:4213) sobre o sih.duckdb
+├── indicadores.md       10 indicadores, as 3 pilhas da Aula 2 e definicoes de grao
+├── design/rascunho.png  wireframe 1440x1024 em grade de 12 colunas (Aula 4)
 ├── .github/workflows/   ci.yml (pytest + ruff) e keepalive.yml (acorda o Streamlit)
 ├── sql/marts/           10 marts .sql, grão declarado no topo de cada arquivo
 ├── painel.py            lê os marts, formata e desenha (zero cálculo na tela)
@@ -284,21 +287,22 @@ pipeline-saude-sus/
 ├── exportar_painel.py   exporta a camada ouro para dados_painel/
 ├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
 ├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
-├── test/                57 testes pytest com dado inventado e mocks de rede
+├── test/                59 testes pytest com dado inventado e mocks de rede
 ├── data/raw/            os arquivos baixados (não versionados)
 └── pyproject.toml
 ```
 
 ---
 
-## Decisões de dado e o papel da IA
+## Decisões de engenharia e controle de grão
 
 As decisões de transformação (o que é descartado, como cada código é
-decodificado, por que o valor é `DECIMAL` e o CEP/município é texto) estão nos
-comentários de `transformacao.py` e no topo de cada `.sql`. A IA foi usada para
-escrever o encanamento a partir das specs; o erro típico dela em SQL não estoura
-(acerta a sintaxe, erra o grão), então cada mart declara o grão e foi conferido
-contando linhas antes e depois.
+decodificado, por que o valor é `DECIMAL(12,2)` e o código IBGE é texto) estão
+documentadas em `indicadores.md`, nos comentários de `transformacao.py` e no
+topo de cada `.sql`. Como em SQL um `JOIN` mal especificado não gera erro de
+sintaxe — apenas multiplica linhas silenciosamente —, cada mart declara
+explicitamente o seu grão e é validado pelas 26 regras de `pipeline/qualidade.py`
+contando linhas e somas antes e depois.
 
 ## Limitações e notas de dado
 

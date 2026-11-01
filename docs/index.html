@@ -231,14 +231,14 @@ ORDER BY internacoes DESC, uf;</pre>
       percentual e posição de ranking já vem pronto dos marts em SQL.</p>
     </div>
     <div class="etapa">
-      <span class="tag">testes · test/ (57 testes unitários)</span>
-      <h3>Testes com pytest, cobertura acima de 95%</h3>
-      <p>57 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
+      <span class="tag">testes · test/ (59 testes unitários)</span>
+      <h3>Testes com pytest, cobertura acima de 96%</h3>
+      <p>59 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
-      <code>transformacao.py</code> (97%), <code>marts.py</code> e os 10 SQLs (incluindo fronteiras de
+      <code>transformacao.py</code> (97%), <code>marts.py</code> (96%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
       <code>painel.py</code> (98%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>&gt; 95%</strong>.</p>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>&gt; 96%</strong>.</p>
     </div>
     <div class="etapa">
       <span class="tag">qualidade · pipeline/qualidade.py (26 regras)</span>
@@ -266,7 +266,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os testes (cobertura > 90%)
+uv run pytest --cov                       # os 59 testes (cobertura > 96%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e
@@ -275,26 +275,25 @@ uv run ruff check .                       # estilo e imports</pre>
   </section>
 
   <section>
-    <h2>07 · Sobre a IA</h2>
-    <div class="h2big">O que a IA errou, e como percebi</div>
-    <p>A IA escreveu o encanamento a partir de specs; o trabalho foi conferir.
-    Três erros que não estouravam, só apareciam como número errado:</p>
+    <h2>07 · Engenharia e Qualidade</h2>
+    <div class="h2big">O que a conferência do dado revelou</div>
+    <p>Em pipelines de dados, erros de domínio e de grão não lançam exceção de sintaxe,
+    só aparecem como número distorcido na ponta:</p>
     <ul>
       <li><strong>A série diária não somava o total.</strong> O arquivo RD é por
       competência (mês de pagamento), não por data de entrada: metade das AIH de
-      abril entrou em meses anteriores. O gráfico passou a dizer que o eixo é
+      abril entrou em meses anteriores. O gráfico deixa explícito que o eixo é
       data de entrada e que, por isso, não soma o KPI.</li>
-      <li><strong>A idade ignorava a unidade.</strong> O SIH traz
-      <code>COD_IDADE</code> (dias, meses, anos); sem ele, 60.840 bebês medidos em
+      <li><strong>A idade dependia da unidade de medida.</strong> O SIH traz
+      <code>COD_IDADE</code> (dias, meses, anos); sem combiná-lo na camada prata, 60.840 bebês medidos em
       dias/meses caíam em faixas de adulto. Corrigido, "&lt; 1 ano" foi de 1,4%
       para 4,9%.</li>
-      <li><strong>Os nomes de doença sumiam.</strong> Sem internet, o dicionário
+      <li><strong>Os nomes de doença exigiam validação de domínio.</strong> Sem internet, o dicionário
       caía em modo neutro ("CID O800"); o JOIN funcionava mas juntava com rótulo
-      vazio. Com a fonte oficial, 12.451 nomes reais entram.</li>
+      genérico. Com a fonte oficial e a regra de domínio em <code>qualidade.py</code>, os 12.451 nomes reais são garantidos.</li>
     </ul>
-    <p>A lição do curso, na prática: erro em código de dados não lança exceção,
-    aparece como número errado, e só a conferência pega. Por isso a conferência
-    virou código em <code>pipeline/qualidade.py</code>.</p>
+    <p>Por isso toda a conferência de grão, chave única e reconciliação de somas
+    virou código executável em <code>pipeline/qualidade.py</code>.</p>
   </section>
 
   <section>

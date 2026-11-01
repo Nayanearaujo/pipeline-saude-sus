@@ -24,7 +24,7 @@ de saúde brasileiro, cru e sem documentação amigável.
 | Dataset diferente do das aulas | SIH/SUS (DATASUS), 1,2 milhão de internações |
 | Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 10 SQL (ouro) |
 | Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença), × `ufs` (sigla e região) e × `municipios` (nome da cidade) |
-| Testes com cobertura mínima de 70% | 57 testes, cobertura de 95% |
+| Testes com cobertura mínima de 70% | 59 testes, cobertura de 96% |
 | Repositório com todo o código e README | Sim, com README de instalação e execução |
 | Histórico de commits passo a passo | Commits pequenos e temáticos, em português (Conventional Commits) |
 | Dashboard (opcional) | Streamlit interativo por estado, com deploy no Streamlit Cloud |
@@ -34,10 +34,10 @@ de saúde brasileiro, cru e sem documentação amigável.
 - **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 26 regras
   que falham o pipeline se um número não fechar (as partes somam o todo, o grão é
   real, valores dentro do domínio, consistência por UF x nacional).
-- **CI no GitHub Actions**: roda testes e lint (ruff) a cada push.
+- **CI e Keep-Alive no GitHub Actions**: roda testes e lint (ruff) a cada push e mantém o app do Streamlit Cloud acordado via Chromium headless.
 - **Relatório HTML estático** publicado no GitHub Pages.
 - **Comando único** (`executar.py`) roda tudo: bronze, prata, ouro e qualidade.
-- **CAST estrito** na transformação e **API oficial do IBGE** com fallback.
+- **CAST estrito** na transformação, **API oficial do IBGE** com fallback e **DuckDB UI** (`ui.py`).
 
 ## Achados (o que o dado revelou ao ser conferido contra a fonte)
 
@@ -52,14 +52,14 @@ de saúde brasileiro, cru e sem documentação amigável.
 3. **Os nomes das doenças sumiam em silêncio** quando o dicionário era gerado sem
    internet. O JOIN funcionava, mas juntava com rótulo vazio. Com a fonte oficial,
    o Top 10 mostra "Parto espontâneo cefálico", não "CID O800".
-4. **O grão foi protegido contra colapso silencioso**: dedup por AIH, travada por
+4. **O grão foi protegido contra colapso silencioso**: dedup determinística por AIH, travada por
    regra de qualidade.
 
-## Papel da IA
+## Conferência de dados como código
 
-A IA escreveu o encanamento a partir de especificações; o trabalho foi conferir.
-Os três primeiros achados acima são erros que não lançam exceção, só aparecem
-como número errado, e por isso a conferência foi codificada em `qualidade.py`.
+Os três primeiros achados acima são armadilhas silenciosas que não lançam exceção em SQL,
+só aparecem como número distorcido na ponta, e por isso toda a conferência de grão e domínio
+foi codificada em `pipeline/qualidade.py` e nos 59 testes automatizados.
 
 ---
 
