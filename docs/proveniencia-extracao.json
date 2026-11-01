@@ -1,0 +1,36 @@
+{
+  "gerado_utc": "2026-11-01T20:02:28.477354+00:00",
+  "commit_processamento": "99d5eb92ba37db87484d91205e70b1f9a685834c",
+  "novo_download_datasus_confirmado": false,
+  "arquivos_entrada_sha256": {
+    "internacoes.parquet": "60a9922ed2e8534f21b5d429c740aef92a61ed5c8892d4b3f30290e435c47cd9",
+    "cid10.csv": "bfbb24024a3e002c36d29fdbe854e532be1b98cc3c0a6acf6ef8d8427ef7dbde",
+    "municipios.csv": "baa616b8f607655588a587c953d8a87512b6eeefd683675086f4be9384bbbf81"
+  },
+  "csvs_sha256": {
+    "internacoes_diarias.csv": "589a1072bd4d9229efc0a8773ac4e10b8324846e885ca47f6f15d2157f6eb333",
+    "internacoes_diarias_brasil.csv": "9335067d2acbafaed1b62604d2e64c69e3dabb12346d6201af4e381a506dbccb",
+    "kpis_gerais.csv": "158a97988300b88e315d439806e38b77137b6c51aa260a660c9805442a4450dd",
+    "mortalidade_por_cid.csv": "5c218f633a96ce38ba46aea12b41cd24897015743b745ff9a8c1606a20e4dc83",
+    "municipios_pareto.csv": "34aeb48e86acff5a931b80cfe871cd031a3aca9140ba6286a6e5f9d992ae7285",
+    "perfil_demografico.csv": "0780afca8809049f209839ff81be35d4e356fcf940d3793fb3dc84b5218e101a",
+    "perfil_demografico_brasil.csv": "51537303f7bc019066b6d9b4662d99bcb0f5262c28a198bffd059ae8621d5eb3",
+    "por_estado.csv": "4fb3d0bd5ac242cbe27f9c49a426a0908585ecb01f597a95e517cdedca017e03",
+    "top_diagnosticos.csv": "21e22322ebcc33727573e12f2b7c9286b5311248fbbdd7090ab148fa99ba80e0",
+    "top_diagnosticos_brasil.csv": "d0ce26e8001266725135fd9be301a0bdd72571044b833d19140a052e40c4ba95"
+  },
+  "kpi": {
+    "internacoes": 1238234,
+    "ufs": 27,
+    "valor_total": "2258865118.36",
+    "custo_medio": 1824.26,
+    "dias_medio": 4.8,
+    "taxa_mortalidade_pct": 4.1
+  },
+  "competencias": [
+    [
+      "2026",
+      "04"
+    ]
+  ]
+}
