@@ -40,7 +40,11 @@ st.markdown(
       .block-container { padding-top: 2.4rem; padding-bottom: 2.4rem; max-width: 1280px; }
 
       /* corpo em Inter; titulo em Poppins, verde escuro e encorpado */
-      html, body, [class*="st-"] { font-family: 'Inter', system-ui, sans-serif; }
+      /* Preserva a fonte dos icones e controles nativos do Streamlit.
+         Seletores genericos por classe quebram as ligaturas dos icones. */
+      .sus-header, .sus-kpis, .sus-sub, .sus-label {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
       h1 {
         font-family: 'Poppins', sans-serif !important;
         color: #14543f; font-weight: 800; letter-spacing: -0.5px;
