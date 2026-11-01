@@ -19,8 +19,8 @@ def _banco_coerente(banco):
     con.execute("CREATE TABLE bronze.internacoes AS SELECT * FROM range(3)")
     con.execute("""
         CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
-            ('a1','RJ',40), ('a2','SP',0), ('a3','SP',102)
-        ) AS t(aih, uf, idade)
+            ('a1','RJ',40,100.0,3), ('a2','SP',0,200.0,0), ('a3','SP',102,300.0,5)
+        ) AS t(aih, uf, idade, valor_total, dias_permanencia)
     """)
     # dicionarios com chave unica (regras de unicidade)
     con.execute("CREATE TABLE prata.cid10 AS SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)")
@@ -92,6 +92,26 @@ def test_qualidade_rejeita_marts_complementares_invalidos(
     tmp_path, monkeypatch, tabela, sql
 ):
     """Quebras reais de elegibilidade, ordem e chave precisam bloquear o build."""
+    banco = tmp_path / "sih.duckdb"
+    _banco_coerente(banco)
+    con = duckdb.connect(str(banco))
+    con.execute(sql)
+    con.close()
+    monkeypatch.setattr(db, "BANCO", banco)
+    with pytest.raises(SystemExit):
+        qualidade.main()
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        "UPDATE prata.internacoes SET valor_total = -1 WHERE aih = 'a1'",
+        "UPDATE prata.internacoes SET valor_total = NULL WHERE aih = 'a2'",
+        "UPDATE prata.internacoes SET dias_permanencia = -1 WHERE aih = 'a3'",
+    ],
+)
+def test_qualidade_rejeita_valores_financeiros_e_permanencia_invalidos(tmp_path, monkeypatch, sql):
+    """Valores negativos, pagamentos nulos e permanencias negativas nao passam."""
     banco = tmp_path / "sih.duckdb"
     _banco_coerente(banco)
     con = duckdb.connect(str(banco))
