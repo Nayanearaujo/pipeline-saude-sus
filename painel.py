@@ -365,3 +365,24 @@ def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
     )
     fig.update_layout(xaxis_title="faixa etária", yaxis_title="internações")
     return _layout(fig, f"Perfil por faixa etária e sexo · {rotulo}")
+
+
+def fig_mortalidade_por_cid(df: pd.DataFrame) -> go.Figure:
+    """Exibe as maiores taxas hospitalares entre CID com 100 ou mais AIHs."""
+    top = df.sort_values("posicao").head(10).copy()
+    fig = _barh(
+        top, x="taxa_mortalidade_pct", y="cid",
+        titulo="Mortalidade hospitalar por CID · mínimo de 100 AIHs",
+        hovertemplate="%{y}: %{x:,.2f}%<extra></extra>",
+    )
+    fig.update_traces(texttemplate="%{x:,.2f}%")
+    return fig
+
+
+def fig_municipios_pareto(df: pd.DataFrame) -> go.Figure:
+    """Mostra o percentual acumulado dos municípios, já calculado no mart."""
+    ordem = df.sort_values("posicao").head(30)
+    fig = px.line(ordem, x="posicao", y="pct_acumulado", markers=True)
+    fig.update_traces(line_color=COR, marker_color=COR)
+    fig.update_layout(xaxis_title="Municípios no ranking", yaxis_title="Gasto acumulado (%)")
+    return _layout(fig, "Concentração do gasto por município de residência · 30 primeiros")
