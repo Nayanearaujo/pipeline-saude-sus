@@ -24,14 +24,14 @@ de saúde brasileiro, cru e sem documentação amigável.
 | Dataset diferente do das aulas | SIH/SUS (DATASUS), 1,2 milhão de internações |
 | Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 10 SQL (ouro) |
 | Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença), × `ufs` (sigla e região) e × `municipios` (nome da cidade) |
-| Testes com cobertura mínima de 70% | 59 testes, cobertura de 96% |
+| Testes com cobertura mínima de 70% | 108 testes, cobertura de 97,31% |
 | Repositório com todo o código e README | Sim, com README de instalação e execução |
 | Histórico de commits passo a passo | Commits pequenos e temáticos, em português (Conventional Commits) |
 | Dashboard (opcional) | Streamlit interativo por estado, com deploy no Streamlit Cloud |
 
 ## Além do pedido
 
-- **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 26 regras
+- **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 34 regras
   que falham o pipeline se um número não fechar (as partes somam o todo, o grão é
   real, valores dentro do domínio, consistência por UF x nacional).
 - **CI e Keep-Alive no GitHub Actions**: roda testes e lint (ruff) a cada push e mantém o app do Streamlit Cloud acordado via Chromium headless.
@@ -39,28 +39,22 @@ de saúde brasileiro, cru e sem documentação amigável.
 - **Comando único** (`executar.py`) roda tudo: bronze, prata, ouro e qualidade.
 - **CAST estrito** na transformação, **API oficial do IBGE** com fallback e **DuckDB UI** (`ui.py`).
 
-## Achados (o que o dado revelou ao ser conferido contra a fonte)
+## Evidências e limites da entrega
 
-1. **Mais de 4 em cada 10 internações "de abril" entraram em outro mês.** O
-   arquivo é por competência (mês de pagamento), não por data de entrada: das
-   1.238.234 internações da prata, 703.067 (56,8%) entraram em abril e 43,2%
-   antes. Por isso a série diária não soma o KPI de internações: são perguntas
-   diferentes, e o painel deixa isso explícito.
-2. **A unidade da idade mudava o perfil etário.** A idade no SIH vem
-   com uma unidade (`COD_IDADE`: dias, meses, anos) que, ignorada, jogava cerca
-   de 43 mil internações de bebês para faixas de adulto. Corrigido, a faixa
-   "< 1 ano" foi de 1,4% para 4,9% da base (60.839 internações hoje).
-3. **Os nomes das doenças sumiam em silêncio** quando o dicionário era gerado sem
-   internet. O JOIN funcionava, mas juntava com rótulo vazio. Com a fonte oficial,
-   o Top 10 mostra "Parto espontâneo cefálico", não "CID O800".
-4. **O grão foi protegido contra colapso silencioso**: dedup determinística por AIH, travada por
-   regra de qualidade.
+A auditoria de 01/11/2026 está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
+Os CSVs publicados reconciliam 1.238.234 AIHs e R$ 2.258.889.119,23 entre
+estados, diagnósticos nacionais e KPI; os perfis e a série diária também
+conferem por grupo. A série de abril soma 703.067 entradas, um recorte distinto.
 
-## Conferência de dados como código
+A contagem de 1.238.763 registros brutos citada no início é histórica: não foi
+revalidada contra arquivos DATASUS nesta auditoria. O banco e os microdados não
+estão disponíveis neste ambiente. Falta reexecutar o pipeline real e exportar
+os dois marts complementares; não foram fabricados CSVs para preencher essa lacuna.
 
-Os quatro achados acima são armadilhas silenciosas que não lançam exceção em SQL,
-só aparecem como número distorcido na ponta, e por isso toda a conferência de grão e domínio
-foi codificada em `pipeline/qualidade.py` e nos 59 testes automatizados.
+A correção final trata o valor numericamente no desempate de AIHs e estabiliza
+empates completos. O impacto nos resultados históricos requer reprocessamento.
+O mês exibido na série vem dos dados, sem ser apresentado como prova da
+competência de processamento. Os SQLs dos dez marts foram preservados.
 
 ---
 

@@ -1,7 +1,7 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-96%25-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97.31%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
 ![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
@@ -40,30 +40,24 @@ Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 
 ## Achados
 
-O que o dado mostrou, e o que só apareceu porque cada número foi conferido
-contra a fonte em vez de aceito como saiu da consulta:
+Os CSVs agregados publicados permitem conferir os totais abaixo. A auditoria de
+01/11/2026 verificou sua consistência interna; não reexecutou os arquivos brutos
+do DATASUS. Evidências e pendências estão em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
 
-1. **Mais de 4 em cada 10 internações "de abril" entraram em outro mês.** O
-   arquivo RD é por competência (mês de pagamento da AIH). Das 1.238.234
-   internações da prata, só 703.067 (56,8%) têm data de *entrada* em abril/2026;
-   343.386 entraram em março, 100.989 em fevereiro e o restante antes disso
-   (43,2% no total). Por isso a série diária (por data de entrada) não soma o KPI
-   de internações (por competência): são duas perguntas diferentes, e o painel
-   diz qual é qual.
-2. **A unidade da idade mudava o perfil etário.** A idade no SIH vem com
-   `COD_IDADE` (a unidade: dias, meses, anos). Ignorar isso jogava cerca de
-   43 mil internações de bebês, medidas em dias ou meses, para faixas de adulto.
-   Corrigido, a faixa "< 1 ano" saltou de **1,4% para 4,9%** da base (hoje
-   60.839 internações), coerente com o peso da neonatologia no SUS.
-3. **Os nomes das doenças sumiam em silêncio.** O gerador de dicionários, sem
-   internet, cai num modo neutro e grava "CID O800" no lugar do nome. O `LEFT
-   JOIN` funcionava, mas juntava com rótulo vazio. Rodando com internet, os
-   12.451 nomes reais do DATASUS entram, e o Top 10 mostra "Parto espontâneo
-   cefálico", não o código cru.
-4. **O grão foi protegido contra colapso silencioso.** Um `SELECT DISTINCT` da
-   linha inteira juntaria duas AIH distintas de campos iguais numa só. Trocado
-   por dedup explícita por AIH e travado por regra de qualidade:
-   `count(*) = count(DISTINCT aih)` (1.238.234 = 1.238.234).
+1. **Série diária e consolidado têm recortes diferentes.** Os CSVs consolidados
+   registram 1.238.234 AIHs; a série de entradas entre 01/04 e 30/04/2026 soma
+   703.067. A diferença não comprova, sozinha, quando cada uma das outras AIHs
+   começou: essa distribuição exige os microdados.
+2. **Idade depende da unidade.** A transformação combina `IDADE` e `COD_IDADE`.
+   O perfil publicado contém 60.839 AIHs na faixa "< 1 ano". A auditoria não
+   repetiu uma comparação histórica antes/depois da correção.
+3. **Dicionários precisam de validação.** A API de municípios é do IBGE; o CID-10
+   é obtido de um espelho público. Falhas de rede podem gerar rótulos neutros.
+   A regra de qualidade bloqueia predominância de `CID <codigo>`, mas não
+   garante que todo código possua descrição.
+4. **Grão e desempate explícitos.** A Prata mantém uma linha por AIH, escolhida
+   por data de saída, valor numérico e campos de desempate estáveis. O efeito
+   dessa correção sobre os totais históricos depende de reprocessamento.
 
 ---
 
@@ -77,7 +71,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 96% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,31% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -112,7 +106,7 @@ Os microdados do SIH vêm em `.dbc` (formato legado do DATASUS). Dois scripts
 geram tudo em `data/raw/` (precisam de internet; a pasta não vai para o Git):
 
 ```bash
-uv sync
+uv sync --frozen
 uv run python baixar_dados.py        # baixa os .dbc do DATASUS direto (HTTPS,
                                       # converte com pyreaddbc) -> internacoes.parquet
 uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municipios.csv
@@ -125,9 +119,9 @@ uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municip
 - **`municipios.csv`** — `codigo,municipio,uf` (código IBGE → município, UF).
   Fonte: IBGE.
 
-> `gerar_dicionarios.py` baixa as tabelas oficiais. Sem internet ele cai num
-> **modo neutro** (nome = `CID <codigo>` / `Municipio <codigo>`), que mantém o
-> pipeline rodando mas deixa os rótulos sem o nome real. Rode-o com internet
+> `gerar_dicionarios.py` consulta o IBGE e espelhos públicos de dicionários. Sem internet ele cai num
+> **modo neutro** (nome = `CID <codigo>` / `Municipio <codigo>`). O
+> processamento pode avançar, mas a qualidade pode bloquear rótulos neutros predominantes. Rode-o com internet
 > antes de publicar, ou os gráficos mostram o código cru no lugar da doença.
 
 > Se abril/2026 ainda não estiver publicado (o SIH tem 2 a 4 meses de atraso),
@@ -158,13 +152,14 @@ uv run streamlit run app.py               # abre em localhost:8501
 uv run python relatorio.py
 
 # testes e lint
-uv run pytest --cov                        # unitários, dado inventado, cobertura >= 70%
+uv run pytest --cov                        # unitários, dado inventado, cobertura >= 95% no CI
 uv run ruff check .                        # estilo e imports
 ```
 
 ### Resultado de uma execução (abril/2026, Brasil)
 
-Números reais de uma execução completa do pipeline, para conferência:
+Registro histórico da execução original. Os agregados abaixo foram conferidos nos CSVs;
+a quantidade bruta e as exclusões ainda exigem reexecução para confirmação:
 
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
@@ -253,20 +248,20 @@ Abre com a **visão Brasil** e tem um **seletor de estado** que recorta tudo:
 
 O projeto separa **testes unitários de código** (`test/`, com `pytest` e dados
 inventados em `tmp_path`) das **regras de qualidade de dados** (`pipeline/qualidade.py`,
-26 asserções SQL que rodam sobre o banco real e travam o pipeline se algum
+34 asserções SQL que rodam sobre o banco real e travam o pipeline se algum
 número não fechar):
 
 | Módulo testado | Escopo dos testes unitários | Cobertura |
 |---|---|---|
 | `pipeline/db.py` | conexão isolada em `tmp_path`, `criar_schema` idempotente e carga `gravar()` | **100%** |
 | `pipeline/ingestao.py` | leitura em texto (`VARCHAR`), idempotência e falha rápida sem criar banco vazio quando falta arquivo | **97%** |
-| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **90%** |
+| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **96%** |
 | `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **93%** |
 | `pipeline/qualidade.py` | aprovação em banco íntegro e bloqueio imediato (`SystemExit`) quando a soma das partes não bate com o KPI | **96%** |
-| `painel.py` + `exportar_painel.py` | formatadores BR puros (sem depender de `locale`), figuras Plotly, fallback DuckDB/CSV e exportação da camada ouro | **98%** |
+| `painel.py` / `exportar_painel.py` | formatadores BR, figuras Plotly, fallback DuckDB/CSV e publicação com rollback | **99%** / **98%** |
 | `relatorio.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB) | **98%** |
 | `gerar_dicionarios.py` | consumo da API oficial do IBGE com mock e fallback para modo neutro (3 testes; script de I/O externo, fora da medição de cobertura) | n/a |
-| **TOTAL (59 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **96%** (95,98%) |
+| **TOTAL (108 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,31%** |
 
 ---
 
@@ -289,7 +284,7 @@ pipeline-saude-sus/
 ├── exportar_painel.py   exporta a camada ouro para dados_painel/
 ├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
 ├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
-├── test/                59 testes pytest com dado inventado e mocks de rede
+├── test/                108 testes pytest com dado inventado e mocks de rede
 ├── data/raw/            os arquivos baixados (não versionados)
 └── pyproject.toml
 ```
@@ -303,7 +298,7 @@ decodificado, por que o valor é `DECIMAL(12,2)` e o código IBGE é texto) est�
 documentadas em `indicadores.md`, nos comentários de `transformacao.py` e no
 topo de cada `.sql`. Como em SQL um `JOIN` mal especificado não gera erro de
 sintaxe — apenas multiplica linhas silenciosamente —, cada mart declara
-explicitamente o seu grão e é validado pelas 26 regras de `pipeline/qualidade.py`
+explicitamente o seu grão e é validado pelas 34 regras de `pipeline/qualidade.py`
 contando linhas e somas antes e depois.
 
 ## Limitações e notas de dado
@@ -343,6 +338,28 @@ documentadas, não apagadas.
 - **Datas de internação muito antigas.** Poucas AIH trazem data de entrada de
   anos atrás (internações longas ou erro de digitação na origem). Entram na
   prata; a série diária, por filtrar o mês de referência, as deixa de fora.
+
+## Auditoria e pendências de entrega
+
+A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
+[evidência dos CSVs](docs/auditoria-publicacao.json) e
+[consulta de dependências](docs/auditoria-dependencias.json).
+
+- 108 testes passaram; cobertura de 97,31%. O CI exige pelo menos 95%.
+- Os oito CSVs publicados conferem entre si em quantidade e valor financeiro.
+- Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm
+  testes, mas seus CSVs reais ainda não estão publicados. O painel avisa quando faltam.
+- Não há banco ou microdados neste ambiente. Falta executar download,
+  dicionários, pipeline, qualidade e exportação sobre os dados reais.
+- O mês da série é derivado da data de entrada mais frequente (`mode()`),
+  não de metadados de competência nem da maior soma mensal. A interface identifica
+  esse período como mês da série, sem inferir a competência dos arquivos.
+- A deduplicação corrigida pode mudar a seleção de registros em um novo
+  processamento; os CSVs publicados foram preservados.
+
+Para reproduzir a execução nacional, mantenha `UFS = None` e ajuste `ANO`/`MES`
+em `baixar_dados.py`. Qualquer amostra parcial exige `PERMITIR_PARCIAL=1` e não
+pode ser apresentada como Brasil inteiro. Não versione arquivos brutos ou credenciais.
 
 ## Fonte dos dados
 

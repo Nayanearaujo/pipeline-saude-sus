@@ -83,7 +83,7 @@
       <span class="pill">Python</span>
       <span class="pill">DuckDB</span>
       <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura 96%</span>
+      <span class="pill">pytest · cobertura 97,31%</span>
       <span class="pill">CI (GitHub Actions)</span>
       <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
@@ -136,6 +136,7 @@
     <div class="h2big">Ingestão · do arquivo para a tabela</div>
     <div class="etapa">
       <span class="tag">bronze · pipeline/ingestao.py</span>
+      <p>Contagens desta seção: registro da execução original, não reprocessado nesta auditoria.</p>
       <h3>Ler os .dbc do SIH sem mudar nada</h3>
       <p>Baixo os arquivos do DATASUS (27 UFs), converto de <code>.dbc</code> para
       um parquet único e gravo no schema <code>bronze</code> com todas as colunas
@@ -231,19 +232,19 @@ ORDER BY internacoes DESC, uf;</pre>
       percentual e posição de ranking já vem pronto dos marts em SQL.</p>
     </div>
     <div class="etapa">
-      <span class="tag">testes · test/ (59 testes unitários)</span>
-      <h3>Testes com pytest, cobertura acima de 96%</h3>
-      <p>59 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
+      <span class="tag">testes · test/ (108 testes unitários)</span>
+      <h3>Testes com pytest, cobertura de 97,31%</h3>
+      <p>108 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
-      <code>transformacao.py</code> (90%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
+      <code>transformacao.py</code> (96%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
-      <code>painel.py</code> (98%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>96%</strong>.</p>
+      <code>painel.py</code> (99%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,31%</strong>.</p>
     </div>
     <div class="etapa">
-      <span class="tag">qualidade · pipeline/qualidade.py (26 regras)</span>
-      <h3>26 checagens SQL que travam o build</h3>
-      <p>A conferência que a gente faria na mão virou código: 26 regras SQL cobrindo as 6
+      <span class="tag">qualidade · pipeline/qualidade.py (34 regras)</span>
+      <h3>34 checagens SQL que travam o build</h3>
+      <p>A conferência que a gente faria na mão virou código: 34 regras SQL cobrindo as 6
       famílias da Aula 4 — <em>não vazio</em> (nos 10 marts), <em>chave única</em>
       (<code>aih</code> na prata, <code>uf</code> no por_estado e códigos nos dicionários
       <code>cid10</code> e <code>municipios</code>), <em>domínio</em> (idade ≥ 0, mortalidade
@@ -258,7 +259,7 @@ ORDER BY internacoes DESC, uf;</pre>
     <div class="h2big">Do zero ao dashboard</div>
     <pre>git clone https://github.com/Nayanearaujo/pipeline-saude-sus.git
 cd pipeline-saude-sus
-uv sync
+uv sync --frozen
 
 uv run python baixar_dados.py            # baixa o SIH-RD de abril/2026
 uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
@@ -266,7 +267,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 59 testes (cobertura 96%)
+uv run pytest --cov                       # os 108 testes (cobertura 97,31%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e
@@ -280,20 +281,27 @@ uv run ruff check .                       # estilo e imports</pre>
     <p>Em pipelines de dados, erros de domínio e de grão não lançam exceção de sintaxe,
     só aparecem como número distorcido na ponta:</p>
     <ul>
-      <li><strong>A série diária não somava o total.</strong> O arquivo RD é por
-      competência (mês de pagamento), não por data de entrada: mais de 4 em cada 10 AIH de
-      abril entrou em meses anteriores. O gráfico deixa explícito que o eixo é
-      data de entrada e que, por isso, não soma o KPI.</li>
-      <li><strong>A idade dependia da unidade de medida.</strong> O SIH traz
-      <code>COD_IDADE</code> (dias, meses, anos); sem combiná-lo na camada prata, cerca de 43 mil bebês medidos em
-      dias/meses caíam em faixas de adulto. Corrigido, "&lt; 1 ano" foi de 1,4%
-      para 4,9%.</li>
-      <li><strong>Os nomes de doença exigiam validação de domínio.</strong> Sem internet, o dicionário
-      caía em modo neutro ("CID O800"); o JOIN funcionava mas juntava com rótulo
-      genérico. Com a fonte oficial e a regra de domínio em <code>qualidade.py</code>, os 12.451 nomes reais são garantidos.</li>
+      <li><strong>Recortes diferentes.</strong> Os CSVs consolidados contêm
+      1.238.234 AIHs; a série de entradas em abril/2026 soma 703.067. Essa diferença
+      não comprova a distribuição das outras datas sem consultar os microdados.</li>
+      <li><strong>Idade e unidade.</strong> A Prata combina <code>IDADE</code> e
+      <code>COD_IDADE</code>. O perfil publicado contém 60.839 AIHs menores de um ano;
+      comparações históricas antes/depois não foram reexecutadas na auditoria.</li>
+      <li><strong>Descrições e proveniência.</strong> O IBGE é consultado para municípios;
+      o CID-10 vem de um espelho público. A qualidade bloqueia predominância de nomes
+      neutros, sem garantir descrição para todo código.</li>
     </ul>
     <p>Por isso toda a conferência de grão, chave única e reconciliação de somas
     virou código executável em <code>pipeline/qualidade.py</code>.</p>
+  </section>
+
+  <section>
+    <h2>Auditoria final · 01/11/2026</h2>
+    <p>Os oito CSVs agregados conferem entre si. O banco e os arquivos brutos não
+    foram reprocessados nesta auditoria. Os CSVs de mortalidade por CID e Pareto
+    municipal ainda dependem de exportação real. A correção de desempate por valor
+    numérico também requer reprocessamento para avaliar seu efeito nos resultados.</p>
+    <p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/AUDITORIA_FINAL.md">Evidências, verificações e pendências</a>.</p>
   </section>
 
   <section>
