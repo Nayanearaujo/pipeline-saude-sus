@@ -50,11 +50,14 @@ A saída de terminal fornecida pelo usuário confirmou o reprocessamento local
 do PR final: 1.238.763 linhas brutas, 1.238.234 na Prata, 529 AIHs duplicadas
 excluídas e 0 sem valor. As 34 regras passaram e os dez marts foram exportados,
 incluindo os dois complementares. Falta enviar os novos agregados ao PR,
-comparar os KPIs financeiros e registrar competência/proveniência. Não houve
+registrar competência/proveniência e enviar os agregados. A recomputação nos
+dois bancos confirmou o novo total de R$ 2.258.865.118,36. Não houve
 transferência de microdados nem novo download DATASUS confirmado pelo agente.
 
 A correção final trata o valor numericamente no desempate de AIHs e estabiliza
-empates completos. O impacto financeiro precisa ser comparado à publicação anterior; o reprocessamento local manteve a quantidade total.
+empates completos. A comparação das regras antiga e nova não mostrou efeito financeiro nesses
+dados. A Prata antiga e o CSV antigo não correspondem à recomputação atual;
+a auditoria registra os três totais e a limitação de proveniência histórica.
 O mês exibido na série vem dos dados, sem ser apresentado como prova da
 competência de processamento. Os SQLs dos dez marts foram preservados.
 

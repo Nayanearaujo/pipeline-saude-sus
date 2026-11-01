@@ -14,9 +14,10 @@ A execução real local foi confirmada pela saída de terminal fornecida pelo
 usuário em 01/11/2026, sobre o commit `99d5eb9`: as quatro etapas terminaram,
 as 34 regras passaram e os dez marts foram exportados. O banco e os arquivos
 brutos permanecem no computador do usuário, sem transferência para o agente.
-Isso não comprova um novo download da fonte DATASUS nem substitui a comparação
-dos novos agregados com os arquivos publicados. Os CSVs gerados localmente ainda
-precisam ser encaminhados ao PR final.
+Isso não comprova um novo download da fonte DATASUS. A comparação posterior
+identificou três totais financeiros distintos e confirmou a reprodução do
+resultado novo nos dois bancos com a regra atual. Os CSVs gerados localmente
+ainda precisam ser encaminhados ao PR final.
 
 ## Evidências dos dados publicados
 
@@ -39,7 +40,9 @@ a integridade dos microdados, os óbitos individuais ou as exclusões histórica
 O reprocessamento local confirmou 1.238.763 linhas na Bronze e 1.238.234 na
 Prata. As 529 exclusões foram classificadas como AIHs duplicadas; nenhuma
 exclusão ocorreu por ausência de valor. Não foram mantidos nulos em sexo,
-idade ou UF. A saída recebida ainda não inclui os valores financeiros do KPI.
+idade ou UF. O novo KPI informado soma R$ 2.258.865.118,36, com custo médio
+de R$ 1.824,26. Os agregados anteriores da tabela acima foram preservados como
+registro da publicação antiga, não como resultado da nova execução.
 
 ## Evidência de execução real local
 
@@ -54,9 +57,44 @@ Registro estruturado: [docs/evidencia-execucao-local.json](docs/evidencia-execuc
 - Qualidade: 34 regras aprovadas, incluindo reconciliações Bronze/Prata/KPI.
 - Dez CSVs exportados e os dois HTMLs gerados, com 69,0 KB cada.
 
-Os totais financeiros, a competência dos registros, os hashes dos arquivos
-locais e a diferença entre CSVs antigos e novos ainda precisam ser registrados.
-A publicação desses resultados e o merge final não foram realizados.
+Os totais financeiros e as diferenças principais foram registrados abaixo.
+Falta registrar competência/hashes/proveniência dos arquivos locais e encaminhar
+os resultados ao PR. A publicação desses resultados e o merge final não foram realizados.
+
+### Reconciliação da diferença financeira
+
+| Referência | Valor total |
+|---|---:|
+| CSV antigo do projeto original | R$ 2.258.889.119,23 |
+| Prata e KPI gravados no banco original | R$ 2.258.865.695,19 |
+| Prata e KPI gravados no banco da revisão | R$ 2.258.865.118,36 |
+| Banco original recalculado com a regra atual, em memória | R$ 2.258.865.118,36 |
+| Banco da revisão recalculado com a regra atual, em memória | R$ 2.258.865.118,36 |
+
+A quantidade permanece em 1.238.234 AIHs em todas as recomputações. O CSV
+antigo difere do novo em R$ 24.000,87; o banco original gravado difere do novo
+em R$ 576,83. Nenhum registro financeiro exclusivo foi encontrado entre as
+Bronzes comparadas nos campos N_AIH, DT_SAIDA e VAL_TOT normalizados. Isso não
+é uma comparação integral de todas as colunas dos arquivos de origem.
+
+A transformação antiga (commit `1322714`), aplicada à Bronze da revisão,
+também produziu o mesmo total novo: a comparação por AIH informou zero
+diferenças em valor, permanência e desfecho. Portanto, a mudança financeira
+observada frente aos artefatos antigos **não foi reproduzida como efeito da
+correção do PR nº 15 nesses dados**. A Prata antiga gravada não corresponde à
+recomputação atual da própria Bronze; o CSV antigo também não corresponde ao
+KPI gravado no banco original. Sem histórico de execução/proveniência,
+não é possível afirmar qual versão, seleção ou extração gerou cada artefato.
+
+Na comparação dos CSVs por chave foram informadas quatro linhas de perfil
+por UF com permanência média diferente, 17 linhas de UFs com algum campo
+diferente e 92 diagnósticos nacionais com valor diferente, sem chaves
+adicionadas/removidas nessas tabelas. As séries diárias, o perfil nacional e
+o top de diagnósticos por UF permaneceram idênticos byte a byte.
+
+O resultado de referência proposto é o novo, reproduzível nas duas Bronzes
+financeiramente comparadas e aprovado nas 34 regras. Não houve ajuste manual
+para forçar igualdade aos totais antigos.
 
 ## Correções preparadas para revisão
 
@@ -171,8 +209,8 @@ uvx pip-audit -r /tmp/sus-requirements.txt --no-deps --disable-pip --format json
 
 ## Pendências antes do encerramento integral
 
-1. Comparar os novos KPIs/CSVs com a publicação anterior e registrar o efeito
-   financeiro do desempate. A execução real e as 34 regras já passaram localmente.
+1. Preservar as evidências da comparação financeira acima junto aos agregados
+   que serão enviados. A execução real, a recomputação e as 34 regras já passaram.
 2. Encaminhar os dez CSVs exportados e o HTML local ao PR final; os dois
    complementares já foram gerados, mas ainda não foram publicados.
 3. Registrar competência/proveniência da extração e confirmar o recorte diário;

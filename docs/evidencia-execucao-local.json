@@ -39,7 +39,37 @@
   "linhas_exportadas": 16400,
   "htmls_gerados": 2,
   "tamanho_html_kb_reportado": "69,0",
-  "valores_financeiros_na_saida": null,
+  "valores_financeiros_na_saida": {
+    "csv_antigo": "2258889119.23",
+    "banco_original_gravado": "2258865695.19",
+    "banco_revisao_gravado": "2258865118.36",
+    "banco_original_recalculado_regra_atual": "2258865118.36",
+    "banco_revisao_recalculado_regra_atual": "2258865118.36",
+    "custo_medio_novo": "1824.26"
+  },
   "novo_download_datasus_confirmado": false,
-  "arquivos_gerados_publicados_no_pr": false
+  "arquivos_gerados_publicados_no_pr": false,
+  "comparacao_mesma_bronze_regras_antiga_nova": {
+    "regra_antiga_ref": "1322714",
+    "aih_valores_diferentes": 0,
+    "diferenca_financeira": "0.00",
+    "permanencias_diferentes": 0,
+    "desfechos_diferentes": 0
+  },
+  "comparacao_entradas_financeiras_bronze": {
+    "campos": [
+      "N_AIH",
+      "DT_SAIDA",
+      "VAL_TOT_normalizado_DECIMAL"
+    ],
+    "linhas_exclusivas_original": 0,
+    "linhas_exclusivas_revisao": 0,
+    "comparacao_integral_dos_microdados": false
+  },
+  "divergencias_csv_por_chave": {
+    "perfil_demografico": 4,
+    "por_estado": 17,
+    "top_diagnosticos_brasil": 92
+  },
+  "causa_historica_dos_artefatos_antigos": "nao determinada; resultados gravados nao correspondem a recomputacao atual"
 }

@@ -57,8 +57,9 @@ usuário confirmou a reexecução local dos arquivos existentes e 34 regras apro
    garante que todo código possua descrição.
 4. **Grão e desempate explícitos.** A Prata mantém uma linha por AIH, escolhida
    por data de saída, valor numérico e campos de desempate estáveis. O efeito
-   dessa correção sobre os valores publicados ainda precisa ser comparado aos
-   novos CSVs: o reprocessamento local passou e manteve a quantidade de AIHs.
+   dessa correção foi conferido por recomputação: as regras antiga e nova
+   produziram o mesmo total nesses dados. Os artefatos antigos não correspondiam
+   à recomputação atual; o novo total reproduzível é R$ 2.258.865.118,36.
 
 ---
 
@@ -161,7 +162,8 @@ uv run ruff check .                        # estilo e imports
 
 As quantidades foram confirmadas no reprocessamento local do PR final: as
 529 exclusões são AIHs duplicadas, sem exclusões por ausência de valor.
-Os valores financeiros novos ainda precisam ser comparados à publicação anterior:
+O bloco abaixo preserva as contagens da execução original; a nova execução
+produziu o total financeiro reproduzível de R$ 2.258.865.118,36, detalhado na auditoria:
 
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
@@ -355,13 +357,16 @@ A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
 - O reprocessamento local do commit `99d5eb9` passou nas 34 regras: Bronze com
   1.238.763 linhas, Prata com 1.238.234, 529 AIHs duplicadas e 0 sem valor.
   Os dez marts somam 16.400 linhas exportadas. A saída foi fornecida pelo usuário;
-  falta registrar os novos valores financeiros e a proveniência da extração.
+  o total financeiro reproduzível é R$ 2.258.865.118,36. Falta enviar os arquivos
+  gerados e registrar a competência/proveniência da extração.
 - O mês da série é derivado da data de entrada mais frequente (`mode()`),
   não de metadados de competência nem da maior soma mensal. A interface identifica
   esse período como mês da série, sem inferir a competência dos arquivos.
-- A deduplicação corrigida pode mudar a seleção de registros. O reprocessamento
-  local manteve a quantidade total; os valores novos ainda precisam ser comparados.
-  Os CSVs publicados foram preservados.
+- A comparação das regras antiga e nova sobre a mesma Bronze não mostrou
+  diferenças de valor, permanência ou desfecho. O banco original recalculado
+  chegou ao mesmo total novo, diferindo de sua Prata gravada. O histórico exato
+  dos artefatos antigos não está demonstrado; os CSVs publicados foram preservados
+  até o envio dos novos resultados ao PR.
 
 Para reproduzir a execução nacional, mantenha `UFS = None` e ajuste `ANO`/`MES`
 em `baixar_dados.py`. Qualquer amostra parcial exige `PERMITIR_PARCIAL=1` e não
