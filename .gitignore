@@ -1,5 +1,6 @@
 # dados brutos e banco (nao versionar: sao grandes e reproduziveis)
 data/raw/*.dbc
+data/raw/*.dbf
 data/raw/*.parquet
 data/raw/*.csv
 data/raw/*.csv.gz
