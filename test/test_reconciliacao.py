@@ -3,7 +3,7 @@
 import duckdb
 
 from pipeline import transformacao
-from test.test_transformacao import _preparar
+from test_transformacao import _preparar
 
 
 def test_exclusoes_por_valor_e_aih_duplicada(tmp_path, monkeypatch):
