@@ -83,7 +83,7 @@
       <span class="pill">Python</span>
       <span class="pill">DuckDB</span>
       <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura 97,50%</span>
+      <span class="pill">pytest · cobertura 97,54%</span>
       <span class="pill">CI (GitHub Actions)</span>
       <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
@@ -159,7 +159,7 @@
       <code>MORTE</code> para booleano, e derivo a UF e a região a partir do código
       IBGE do município. Uma linha = uma internação (AIH).</p>
       <p><strong>Conferência:</strong> <strong>1.238.234 linhas</strong> na prata
-      (529 removidas de propósito: sem valor ou AIH duplicada). A idade usa <code>COD_IDADE</code>
+      (529 AIHs duplicadas excluídas; nenhuma exclusão por ausência de valor). A idade usa <code>COD_IDADE</code>
       (a unidade do SIH): bebês medidos em dias/meses agora caem em "&lt; 1 ano",
       que subiu de 1,4% para 4,9% da base. No mart por estado, SP lidera com
       249.866, seguido de MG (135.542), PR (85.435), BA (83.953) e RJ (78.503).</p>
@@ -190,7 +190,7 @@
           <tr><td><span class="arq">04_perfil_demografico</span></td><td>internações por faixa etária e sexo</td><td>CASE WHEN</td></tr>
           <tr><td><span class="arq">05_internacoes_diarias</span></td><td>série diária do mês de referência</td><td>GROUP BY por data</td></tr>
           <tr><td><span class="arq">09_mortalidade_por_cid</span></td><td>doenças de maior letalidade (100+ casos)</td><td>CTE + HAVING + RANK()</td></tr>
-          <tr><td><span class="arq">10_municipios_pareto</span></td><td>municípios que concentram 80% do gasto</td><td>SUM() OVER (ORDER BY)</td></tr>
+          <tr><td><span class="arq">10_municipios_pareto</span></td><td>curva completa do valor acumulado por município; referência de 80%</td><td>SUM() OVER (ORDER BY)</td></tr>
           <tr><td><span class="arq">06·07·08_*_brasil</span></td><td>versões nacionais consolidadas</td><td>agregação nacional</td></tr>
         </tbody>
       </table>
@@ -233,13 +233,13 @@ ORDER BY internacoes DESC, uf;</pre>
     </div>
     <div class="etapa">
       <span class="tag">testes · test/ (120 testes unitários)</span>
-      <h3>Testes com pytest, cobertura de 97,50%</h3>
+      <h3>Testes com pytest, cobertura de 97,54%</h3>
       <p>120 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
       <code>transformacao.py</code> (96%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
       <code>painel.py</code> (99%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,50%</strong>.</p>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,54%</strong>.</p>
     </div>
     <div class="etapa">
       <span class="tag">qualidade · pipeline/qualidade.py (34 regras)</span>
@@ -267,7 +267,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 120 testes (cobertura 97,50%)
+uv run pytest --cov                       # os 120 testes (cobertura 97,54%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e

@@ -24,7 +24,7 @@ de saúde brasileiro, cru e sem documentação amigável.
 | Dataset diferente do das aulas | SIH/SUS (DATASUS), 1,2 milhão de internações |
 | Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 10 SQL (ouro) |
 | Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença), × `ufs` (sigla e região) e × `municipios` (nome da cidade) |
-| Testes com cobertura mínima de 70% | 120 testes, cobertura de 97,50% |
+| Testes com cobertura mínima de 70% | 120 testes, cobertura de 97,54% |
 | Repositório com todo o código e README | Sim, com README de instalação e execução |
 | Histórico de commits passo a passo | Commits pequenos e temáticos, em português (Conventional Commits) |
 | Dashboard (opcional) | Streamlit interativo por estado, com deploy no Streamlit Cloud |
