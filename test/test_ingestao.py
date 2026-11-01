@@ -60,3 +60,32 @@ def test_arquivo_faltando_encerra(tmp_path, monkeypatch):
     (tmp_path / "raw" / "cid10.csv").unlink()
     with pytest.raises(SystemExit):
         ingestao.main()
+
+
+def test_erro_na_terceira_fonte_preserva_bronze_anterior(tmp_path, monkeypatch):
+    """Nao publica internacoes novas se o ultimo CSV estiver invalido."""
+    _montar_raw(tmp_path, monkeypatch)
+    ingestao.main()
+    raw = tmp_path / "raw"
+    pd.DataFrame({
+        "N_AIH": ["nova"], "MUNIC_RES": ["330455"],
+        "VAL_TOT": [999.0], "IDADE": [20],
+    }).to_parquet(raw / "internacoes.parquet")
+    (raw / "municipios.csv").write_text("", encoding="utf-8")
+    with pytest.raises(Exception):
+        ingestao.main()
+    con = duckdb.connect(str(tmp_path / "sih.duckdb"))
+    assert con.execute("SELECT N_AIH FROM bronze.internacoes").fetchall() == [("a1",), ("a2",)]
+    con.close()
+
+
+def test_fonte_vazia_nao_publica_bronze(tmp_path, monkeypatch):
+    _montar_raw(tmp_path, monkeypatch)
+    pd.DataFrame({
+        "N_AIH": pd.Series(dtype="str"),
+        "MUNIC_RES": pd.Series(dtype="str"),
+        "VAL_TOT": pd.Series(dtype="float"),
+        "IDADE": pd.Series(dtype="int"),
+    }).to_parquet(tmp_path / "raw" / "internacoes.parquet")
+    with pytest.raises(ValueError, match="Fonte vazia"):
+        ingestao.main()

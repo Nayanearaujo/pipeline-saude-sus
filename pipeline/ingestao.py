@@ -65,24 +65,33 @@ def main():
         sys.exit(1)
 
     con = conectar()
-    criar_schema(con, "bronze")
+    try:
+        # As tres fontes formam uma unica unidade de publicacao: erro em qualquer
+        # leitura preserva integralmente a versao anterior da bronze.
+        con.execute("BEGIN")
+        criar_schema(con, "bronze")
 
-    total = 0
-    for arquivo, (tabela, leitor) in ARQUIVOS.items():
-        caminho = (RAW / arquivo).as_posix()
-        # os microdados entram como texto: o leitor de parquet ja aplica
-        # CAST(COLUMNS(*) AS VARCHAR), o de CSV usa all_varchar=true.
-        sql_fonte = leitor.format(caminho=caminho)
-        con.execute(f"""
-            CREATE OR REPLACE TABLE bronze.{tabela} AS
-            SELECT * FROM ({sql_fonte})
-        """)
-        n = con.execute(f"SELECT count(*) FROM bronze.{tabela}").fetchone()[0]
-        total += n
-        print(f"  bronze.{tabela:<14} {n:>9,} registros".replace(",", "."))
+        total = 0
+        for arquivo, (tabela, leitor) in ARQUIVOS.items():
+            caminho = (RAW / arquivo).as_posix().replace("'", "''")
+            sql_fonte = leitor.format(caminho=caminho)
+            con.execute(f"""
+                CREATE OR REPLACE TABLE bronze.{tabela} AS
+                SELECT * FROM ({sql_fonte})
+            """)
+            n = con.execute(f"SELECT count(*) FROM bronze.{tabela}").fetchone()[0]
+            if n == 0:
+                raise ValueError(f"Fonte vazia: {arquivo}")
+            total += n
+            print(f"  bronze.{tabela:<14} {n:>9,} registros".replace(",", "."))
 
-    print(f"  {'total':<14} {total:>9,} registros".replace(",", "."))
-    con.close()
+        con.execute("COMMIT")
+        print(f"  {'total':<14} {total:>9,} registros".replace(",", "."))
+    except Exception:
+        con.execute("ROLLBACK")
+        raise
+    finally:
+        con.close()
 
 
 if __name__ == "__main__":
