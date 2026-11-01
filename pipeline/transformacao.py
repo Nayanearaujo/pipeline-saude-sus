@@ -61,7 +61,7 @@ CREATE OR REPLACE TABLE prata.internacoes AS
 WITH base AS (
     -- Grao: 1 linha = 1 AIH. Dedup explicita por aih (QUALIFY), nao DISTINCT da
     -- linha inteira: duas AIH distintas com todos os campos iguais nao podem
-    -- colapsar numa so. Fica a primeira ocorrencia de cada aih.
+    -- colapsar numa so. Desempate deterministico pela data de saida e valor.
     SELECT
         CAST(N_AIH AS VARCHAR)                             AS aih,
         substr(CAST(MUNIC_RES AS VARCHAR), 1, 6)           AS cod_municipio,
@@ -69,10 +69,8 @@ WITH base AS (
         CAST(DIAG_PRINC AS VARCHAR)                        AS cid_principal,
         CAST(PROC_REA AS VARCHAR)                          AS cod_procedimento,
         -- CAST estrito, nao TRY_CAST: campo vazio vira NULL de proposito
-        -- (NULLIF do TRIM), mas lixo que nao converte ESTOURA o pipeline em vez
-        -- de virar NULL calado. O diagnostico_cast.py provou que hoje nao ha
-        -- valor sujo nestas colunas; se um dia houver, a transformacao falha e
-        -- avisa, como manda a aula.
+        -- (NULLIF do TRIM), mas texto sujo que nao converte estoura o pipeline
+        -- em vez de virar NULL silencioso.
         CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2))  AS valor_total,
         CAST(NULLIF(TRIM(CAST(DIAS_PERM AS VARCHAR)), '') AS INTEGER)      AS dias_permanencia,
         -- idade em ANOS, combinando IDADE com COD_IDADE (a unidade no SIH):
@@ -94,7 +92,10 @@ WITH base AS (
         strptime(NULLIF(TRIM(CAST(DT_INTER AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_internacao,
         strptime(NULLIF(TRIM(CAST(DT_SAIDA AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_saida
     FROM bronze.internacoes
-    QUALIFY row_number() OVER (PARTITION BY CAST(N_AIH AS VARCHAR) ORDER BY 1) = 1
+    QUALIFY row_number() OVER (
+        PARTITION BY CAST(N_AIH AS VARCHAR)
+        ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+    ) = 1
 )
 SELECT
     b.aih,
@@ -115,23 +116,44 @@ LEFT JOIN prata.ufs u ON u.cod_uf = b.cod_uf
 WHERE b.valor_total IS NOT NULL
 """
 
-# Dicionarios: tipados e renomeados, sem agregar.
+# Dicionarios: tipados, renomeados e deduplicados pela chave primaria para que
+# o LEFT JOIN nos marts ouro nunca multiplique linhas da tabela-fato.
 SQL_CID = """
 CREATE OR REPLACE TABLE prata.cid10 AS
-SELECT DISTINCT
-    CAST(codigo AS VARCHAR)   AS cid,
+SELECT
+    CAST(codigo AS VARCHAR)    AS cid,
     CAST(descricao AS VARCHAR) AS doenca
 FROM bronze.cid10
+QUALIFY row_number() OVER (
+    PARTITION BY CAST(codigo AS VARCHAR)
+    ORDER BY CAST(descricao AS VARCHAR)
+) = 1
 """
 
 SQL_MUNICIPIOS = """
 CREATE OR REPLACE TABLE prata.municipios AS
-SELECT DISTINCT
+SELECT
     substr(CAST(codigo AS VARCHAR), 1, 6) AS cod_municipio,
     CAST(municipio AS VARCHAR)            AS municipio,
     CAST(uf AS VARCHAR)                   AS uf
 FROM bronze.municipios
+QUALIFY row_number() OVER (
+    PARTITION BY substr(CAST(codigo AS VARCHAR), 1, 6)
+    ORDER BY CAST(municipio AS VARCHAR)
+) = 1
 """
+
+
+def _resumo_nulos_internacoes(con) -> str:
+    """Conta nulos legitimos mantidos em prata.internacoes para exibir no log."""
+    n_sexo, n_idade, n_uf = con.execute("""
+        SELECT
+            count(*) FILTER (WHERE sexo IS NULL),
+            count(*) FILTER (WHERE idade IS NULL),
+            count(*) FILTER (WHERE uf IS NULL)
+        FROM prata.internacoes
+    """).fetchone()
+    return f"sexo={n_sexo}, idade={n_idade}, uf={n_uf}"
 
 
 def main():
@@ -173,6 +195,8 @@ def main():
         saiu = origem - destino
         marca = f"(-{saiu:,} removidas)".replace(",", ".") if saiu else "(0 removidas)"
         print(f"  prata.{nome:<14} {destino:>9,} linhas  {marca}".replace(",", "."))
+        if nome == "internacoes":
+            print(f"    nulos mantidos: {_resumo_nulos_internacoes(con)}")
 
     print(f"  {'total':<14} {total:>9,} linhas".replace(",", "."))
     con.close()
