@@ -65,6 +65,9 @@ def test_ids_de_grafico_sao_fixos():
     assert 'id="g00"' in html
     assert 'id="g01"' in html
     assert 'id="g08"' in html
+    assert '<svg id="g00"' in html
+    assert "Mapa completo das 27 UFs" in html
+    assert 'class="mapa-relatorio"' in html
     assert "referência de concentração" in html
     assert '"height":820' in html
     assert 'height:100%!important' not in html

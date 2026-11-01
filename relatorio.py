@@ -36,6 +36,82 @@ def _card(rotulo: str, valor: str, nota: str = "") -> str:
     )
 
 
+def _mapa_svg(fig, div_id: str, incluir_js: bool) -> str:
+    """Mapa vetorial do relatório: enquadra toda a geometria sem câmera/WebGL."""
+    from html import escape
+    from math import log, pi, radians, tan
+
+    from plotly.colors import sample_colorscale
+    from plotly.offline import get_plotlyjs_version
+
+    trace = fig.data[0]
+    valores = dict(zip(trace.locations, trace.z, strict=True))
+    escala = [list(par) for par in fig.layout.coloraxis.colorscale]
+    minimo, maximo = min(valores.values()), max(valores.values())
+    altura = fig.layout.height or 694
+
+    def projetar(ponto):
+        longitude, latitude = ponto[:2]
+        return radians(longitude), -log(tan(pi / 4 + radians(latitude) / 2))
+
+    formas = []
+    pontos = []
+    for feature in trace.geojson["features"]:
+        geometria = feature["geometry"]
+        poligonos = geometria["coordinates"]
+        if geometria["type"] == "Polygon":
+            poligonos = [poligonos]
+        aneis = [[projetar(p) for p in anel] for poligono in poligonos for anel in poligono]
+        formas.append((feature["properties"]["sigla"], aneis))
+        pontos.extend(p for anel in aneis for p in anel)
+    xs, ys = zip(*pontos, strict=True)
+    oeste, leste, norte, sul = min(xs), max(xs), min(ys), max(ys)
+    largura_util, altura_util = 370, altura - 145
+    escala_xy = min(largura_util / (leste - oeste), altura_util / (sul - norte))
+    desloc_x = 18 + (largura_util - (leste - oeste) * escala_xy) / 2
+    desloc_y = 95 + (altura_util - (sul - norte) * escala_xy) / 2
+    paths = []
+    for uf, aneis in formas:
+        valor = valores.get(uf)
+        cor = "#edf2f0"
+        detalhe = "sem dados"
+        if valor is not None:
+            fracao = (valor - minimo) / (maximo - minimo) if maximo != minimo else 0.5
+            cor = sample_colorscale(escala, [fracao])[0]
+            detalhe = painel.numero(valor) + " internações"
+        d = " ".join(
+            "M" + " L".join(f"{desloc_x + (x - oeste) * escala_xy:.2f},"
+                            f"{desloc_y + (y - norte) * escala_xy:.2f}" for x, y in anel) + " Z"
+            for anel in aneis
+        )
+        paths.append(f'<path d="{d}" fill="{cor}" stroke="white" stroke-width="0.7" '
+                     f'fill-rule="evenodd"><title>{escape(uf)}: {detalhe}</title></path>')
+    stops = "".join(f'<stop offset="{p * 100}%" stop-color="{cor}"/>' for p, cor in escala)
+    topo, base = 180, altura - 115
+    ticks = "".join(
+        f'<text x="440" y="{base - (base - topo) * i / 4:.1f}" dominant-baseline="middle">'
+        f'{painel.numero(minimo + (maximo - minimo) * i / 4)}</text>' for i in range(5)
+    )
+    titulo, _, subtitulo = fig.layout.title.text.partition("<br>")
+    subtitulo = subtitulo.replace("<sub>", "").replace("</sub>", "")
+    script = (f'<script src="https://cdn.plot.ly/plotly-{get_plotlyjs_version()}.min.js" '
+              'charset="utf-8"></script>') if incluir_js else ""
+    return (
+        f'<div class="grafico">{script}<svg id="{div_id}" class="mapa-relatorio" '
+        f'viewBox="0 0 520 {altura}" role="img" aria-labelledby="{div_id}-titulo" '
+        f'style="display:block;width:100%;height:{altura}px" preserveAspectRatio="xMidYMid meet">'
+        f'<title id="{div_id}-titulo">Mapa completo das 27 UFs: internações por estado de residência</title>'
+        f'<defs><linearGradient id="{div_id}-escala" x1="0" y1="1" x2="0" y2="0">{stops}'
+        '</linearGradient></defs><g font-family="Arial,sans-serif" fill="#39474a" font-size="12">'
+        f'<text x="12" y="26" font-size="16" fill="#10171a">{escape(titulo)}</text>'
+        f'<text x="12" y="48" font-size="11">{escape(subtitulo)}</text>'
+        + "".join(paths)
+        + f'<text x="418" y="{topo - 15}" font-size="13">Internações</text>'
+        f'<rect x="420" y="{topo}" width="12" height="{base - topo}" fill="url(#{div_id}-escala)"/>'
+        + ticks + '</g></svg></div>'
+    )
+
+
 def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     """Converte uma figura Plotly em um bloco HTML (card branco).
 
@@ -43,6 +119,8 @@ def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     padrao cada grafico ocupa metade (grade de 2 colunas). div_id fixo deixa o
     HTML deterministico: sem ele o Plotly sorteia um id a cada execucao e o
     arquivo muda mesmo com o dado igual."""
+    if fig.data and fig.data[0].type == "choroplethmap":
+        return _mapa_svg(fig, div_id, incluir_js)
     # Uma única altura em pixels: o cartão cresce com o conteúdo, sem regras
     # percentuais que deixavam o canvas ultrapassar o padding e a borda.
     altura = max(380, fig.layout.height or 380)
