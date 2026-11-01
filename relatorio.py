@@ -142,13 +142,20 @@ _PAGINA = """<!doctype html>
   .kpi .rot{{font-size:12px;color:var(--ink-3);}}
   .kpi .val{{font-size:23px;font-weight:700;margin-top:4px;}}
   .kpi .nota{{font-size:11.5px;color:var(--ink-3);margin-top:2px;}}
+  .secao{{margin:30px 0 15px;}}
+  .secao h2{{font-size:21px;letter-spacing:-.02em;margin:0 0 6px;}}
+  .secao p{{margin:0;color:#526364;font-size:14px;}}
+  .notas{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px;}}
+  .nota-card{{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;}}
+  .nota-card h3{{font-size:15px;margin:0 0 8px;}}
+  .nota-card p{{font-size:13px;color:#46575a;margin:0;}}
   .grade{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}}
   .grafico{{background:var(--surface);border:1px solid var(--line);
     border-radius:14px;padding:8px;box-shadow:var(--shadow);
     min-width:0;height:380px;}}
   .grafico .plotly-graph-div{{width:100%!important;height:100%!important;}}
   .grafico.largo{{grid-column:1 / -1;}}
-  @media (max-width:900px){{.grade{{grid-template-columns:1fr;}}}}
+  @media (max-width:900px){{.grade,.notas{{grid-template-columns:1fr;}}}}
   footer{{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
     font-size:13px;color:var(--ink-3);text-align:center;}}
 </style>
@@ -163,7 +170,23 @@ _PAGINA = """<!doctype html>
        <a href="https://pipeline-saude-sus.streamlit.app/">dashboard interativo</a></p>
   </div>
   <div class="kpis">{cards}</div>
+  <section class="secao" aria-labelledby="leitura">
+    <h2 id="leitura">O retrato das internações</h2>
+    <p>Distribuição territorial, perfil das AIHs, diagnósticos e evolução das admissões. Explore os gráficos para investigar padrões, sem confundir associação com causalidade.</p>
+  </section>
   <div class="grade">{graficos}</div>
+  <section class="secao" aria-labelledby="metodologia">
+    <h2 id="metodologia">Como interpretar os resultados</h2>
+    <p>Transparência metodológica é parte do resultado. Estes indicadores têm denominadores, períodos e unidades de análise específicos.</p>
+  </section>
+  <div class="notas">
+    <article class="nota-card"><h3>Competência não é data de entrada</h3><p>Os indicadores consolidados são da competência abril/2026. A série diária filtra a data de internação em abril/2026; portanto, seus totais não precisam coincidir com os indicadores por competência.</p></article>
+    <article class="nota-card"><h3>AIH não representa paciente único</h3><p>Uma autorização de internação hospitalar (AIH) é o registro analisado. Não interprete a contagem como número de pessoas distintas ou prevalência populacional.</p></article>
+    <article class="nota-card"><h3>Valores pagos, não custos assistenciais</h3><p>O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico integral da assistência.</p></article>
+    <article class="nota-card"><h3>Óbitos hospitalares, não mortalidade populacional</h3><p>A taxa hospitalar usa óbitos registrados nas AIHs como numerador e internações como denominador. Não mede o risco de morte na população geral.</p></article>
+    <article class="nota-card"><h3>Geografia de residência</h3><p>A distribuição por UF e município se refere à residência registrada, não necessariamente ao local de atendimento. Comparações entre regiões não são taxas ajustadas por população.</p></article>
+    <article class="nota-card"><h3>Limites e reprodutibilidade</h3><p>Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e as verificações de qualidade no repositório para rastrear as regras de cálculo.</p></article>
+  </div>
   <footer>
     Nayane Araújo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
