@@ -98,3 +98,27 @@ def test_falta_de_espaco_preserva_csvs_e_limpa_temporarios(tmp_path, monkeypatch
     assert erro.value.errno == errno.ENOSPC
     assert {p.name: p.read_bytes() for p in destino.glob("*.csv")} == anteriores
     assert not list(destino.parent.glob("marts-export-*"))
+
+
+@pytest.mark.parametrize("anterior", [False, True])
+def test_falha_no_replace_reverte_todos_os_csvs(tmp_path, monkeypatch, anterior):
+    _banco, destino = _preparar(tmp_path, monkeypatch)
+    if anterior:
+        exportar_painel.main()
+    anteriores = {p.name: p.read_bytes() for p in destino.glob("*.csv")}
+    original = Path.replace
+    chamadas = 0
+
+    def falha_na_publicacao(self, target):
+        nonlocal chamadas
+        if Path(target).parent == destino:
+            chamadas += 1
+            if chamadas == 5:
+                raise OSError(errno.EIO, "Falha simulada ao publicar")
+        return original(self, target)
+
+    monkeypatch.setattr(Path, "replace", falha_na_publicacao)
+    with pytest.raises(OSError, match="Falha simulada"):
+        exportar_painel.main()
+    assert {p.name: p.read_bytes() for p in destino.glob("*.csv")} == anteriores
+    assert not list(destino.parent.glob("marts-export-*"))
