@@ -95,6 +95,7 @@ def test_configuracao_invalida_bloqueia_download(monkeypatch, ano, mes, ufs):
 def test_dbc_vazio_nao_substitui_parquet(tmp_path, monkeypatch):
     monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
     monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])
+    monkeypatch.setattr(baixar_dados, "TODAS_UFS", ["RJ"])
     monkeypatch.delenv("PERMITIR_PARCIAL", raising=False)
     monkeypatch.setattr(baixar_dados, "_baixar_dbc", lambda nome: b"arquivo")
     monkeypatch.setattr(
