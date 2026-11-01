@@ -5,6 +5,7 @@ Monta um schema bronze minimo com dado inventado (poucas AIH, cada uma testando
 uma regra) e roda a transformacao. O valor esperado sai da entrada.
 """
 import duckdb
+import pytest
 
 from pipeline import db, transformacao
 
@@ -132,3 +133,40 @@ def test_dicionarios_tipados_e_renomeados(tmp_path, monkeypatch):
     assert cid_cols == ["cid", "doenca"]
     assert mun_cols == ["cod_municipio", "municipio", "uf"]
     assert n_cid == 2
+
+
+@pytest.mark.parametrize("prata_existente", [False, True])
+def test_falha_no_ultimo_dicionario_reverte_toda_prata(tmp_path, monkeypatch, prata_existente):
+    banco = _preparar(tmp_path, monkeypatch)
+    tabelas = ("ufs", "internacoes", "cid10", "municipios")
+    if prata_existente:
+        transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        anterior = {
+            nome: con.execute(f"SELECT * FROM prata.{nome} ORDER BY ALL").fetchall()
+            for nome in tabelas
+        } if prata_existente else {}
+        con.execute("UPDATE bronze.internacoes SET VAL_TOT = '999.00'")
+        con.execute("UPDATE bronze.cid10 SET descricao = 'Nova descricao'")
+        con.execute("ALTER TABLE bronze.municipios DROP COLUMN municipio")
+    with pytest.raises(duckdb.BinderException):
+        transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        if prata_existente:
+            for nome in tabelas:
+                assert con.execute(f"SELECT * FROM prata.{nome} ORDER BY ALL").fetchall() == anterior[nome]
+        else:
+            assert con.execute(
+                "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'prata'"
+            ).fetchone()[0] == 0
+
+
+def test_bronze_ausente_fecha_conexao(tmp_path, monkeypatch):
+    banco = tmp_path / "sih.duckdb"
+    monkeypatch.setattr(db, "BANCO", banco)
+    con = duckdb.connect(str(banco))
+    monkeypatch.setattr(transformacao, "conectar", lambda: con)
+    with pytest.raises(SystemExit):
+        transformacao.main()
+    with pytest.raises(duckdb.ConnectionException):
+        con.execute("SELECT 1")
