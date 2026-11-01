@@ -57,6 +57,17 @@ def _regras(con) -> list[tuple[str, str]]:
         ("Dominio: taxa_mortalidade_pct entre 0 e 100 em por_estado",
          "SELECT bool_and(taxa_mortalidade_pct BETWEEN 0 AND 100) FROM ouro.por_estado"),
 
+        # Integridade financeira: pagamentos e permanencia nao podem ser negativos.
+        ("Dominio: valor_total da prata e nao negativo e nao nulo",
+         """SELECT count(*) FILTER (
+                WHERE valor_total IS NULL OR valor_total < 0
+            ) = 0 FROM prata.internacoes"""),
+
+        ("Dominio: dias_permanencia da prata e nao negativo",
+         """SELECT count(*) FILTER (
+                WHERE dias_permanencia < 0
+            ) = 0 FROM prata.internacoes"""),
+
         # 3. Dominio: nenhuma idade negativa na prata (COD_IDADE bem aplicado).
         ("Dominio: nenhuma idade negativa em prata.internacoes",
          "SELECT count(*) FILTER (WHERE idade < 0) = 0 FROM prata.internacoes"),
