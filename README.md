@@ -41,8 +41,8 @@ Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 ## Achados
 
 Os CSVs agregados publicados permitem conferir os totais abaixo. A auditoria de
-01/11/2026 verificou sua consistência interna; não reexecutou os arquivos brutos
-do DATASUS. Evidências e pendências estão em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
+01/11/2026 verificou sua consistência interna. Depois, a saída de terminal do
+usuário confirmou a reexecução local dos arquivos existentes e 34 regras aprovadas. Evidências e pendências estão em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
 
 1. **Série diária e consolidado têm recortes diferentes.** Os CSVs consolidados
    registram 1.238.234 AIHs; a série de entradas entre 01/04 e 30/04/2026 soma
@@ -57,7 +57,8 @@ do DATASUS. Evidências e pendências estão em [AUDITORIA_FINAL.md](AUDITORIA_F
    garante que todo código possua descrição.
 4. **Grão e desempate explícitos.** A Prata mantém uma linha por AIH, escolhida
    por data de saída, valor numérico e campos de desempate estáveis. O efeito
-   dessa correção sobre os totais históricos depende de reprocessamento.
+   dessa correção sobre os valores publicados ainda precisa ser comparado aos
+   novos CSVs: o reprocessamento local passou e manteve a quantidade de AIHs.
 
 ---
 
@@ -158,8 +159,9 @@ uv run ruff check .                        # estilo e imports
 
 ### Resultado de uma execução (abril/2026, Brasil)
 
-Registro histórico da execução original. Os agregados abaixo foram conferidos nos CSVs;
-a quantidade bruta e as exclusões ainda exigem reexecução para confirmação:
+As quantidades foram confirmadas no reprocessamento local do PR final: as
+529 exclusões são AIHs duplicadas, sem exclusões por ausência de valor.
+Os valores financeiros novos ainda precisam ser comparados à publicação anterior:
 
 ```
 ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
@@ -349,14 +351,17 @@ A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
 - 108 testes passaram; cobertura de 97,31%. O CI exige pelo menos 95%.
 - Os oito CSVs publicados conferem entre si em quantidade e valor financeiro.
 - Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm
-  testes, mas seus CSVs reais ainda não estão publicados. O painel avisa quando faltam.
-- Não há banco ou microdados neste ambiente. Falta executar download,
-  dicionários, pipeline, qualidade e exportação sobre os dados reais.
+  testes. Seus CSVs reais já foram exportados no Mac e aguardam envio ao PR.
+- O reprocessamento local do commit `99d5eb9` passou nas 34 regras: Bronze com
+  1.238.763 linhas, Prata com 1.238.234, 529 AIHs duplicadas e 0 sem valor.
+  Os dez marts somam 16.400 linhas exportadas. A saída foi fornecida pelo usuário;
+  falta registrar os novos valores financeiros e a proveniência da extração.
 - O mês da série é derivado da data de entrada mais frequente (`mode()`),
   não de metadados de competência nem da maior soma mensal. A interface identifica
   esse período como mês da série, sem inferir a competência dos arquivos.
-- A deduplicação corrigida pode mudar a seleção de registros em um novo
-  processamento; os CSVs publicados foram preservados.
+- A deduplicação corrigida pode mudar a seleção de registros. O reprocessamento
+  local manteve a quantidade total; os valores novos ainda precisam ser comparados.
+  Os CSVs publicados foram preservados.
 
 Para reproduzir a execução nacional, mantenha `UFS = None` e ajuste `ANO`/`MES`
 em `baixar_dados.py`. Qualquer amostra parcial exige `PERMITIR_PARCIAL=1` e não

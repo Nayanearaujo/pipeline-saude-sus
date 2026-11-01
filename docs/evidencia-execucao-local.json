@@ -1,0 +1,45 @@
+{
+  "fonte": "saida de terminal fornecida pelo usuario",
+  "execucao_remota_pelo_agente": false,
+  "commit_executado": "99d5eb92ba37db87484d91205e70b1f9a685834c",
+  "plataforma": "macOS / Python 3.11.4",
+  "bronze": {
+    "internacoes": 1238763,
+    "cid10": 12451,
+    "municipios": 5571
+  },
+  "prata": {
+    "internacoes": 1238234,
+    "cid10": 12451,
+    "municipios": 5571
+  },
+  "exclusoes": {
+    "sem_valor": 0,
+    "aih_duplicadas": 529
+  },
+  "nulos_mantidos": {
+    "sexo": 0,
+    "idade": 0,
+    "uf": 0
+  },
+  "marts_linhas": {
+    "kpis_gerais": 1,
+    "por_estado": 27,
+    "top_diagnosticos": 270,
+    "perfil_demografico": 324,
+    "internacoes_diarias": 810,
+    "top_diagnosticos_brasil": 7928,
+    "internacoes_diarias_brasil": 30,
+    "perfil_demografico_brasil": 12,
+    "mortalidade_por_cid": 1429,
+    "municipios_pareto": 5569
+  },
+  "regras_qualidade_aprovadas": 34,
+  "csvs_exportados": 10,
+  "linhas_exportadas": 16400,
+  "htmls_gerados": 2,
+  "tamanho_html_kb_reportado": "69,0",
+  "valores_financeiros_na_saida": null,
+  "novo_download_datasus_confirmado": false,
+  "arquivos_gerados_publicados_no_pr": false
+}

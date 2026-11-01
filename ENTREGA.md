@@ -46,13 +46,15 @@ Os CSVs publicados reconciliam 1.238.234 AIHs e R$ 2.258.889.119,23 entre
 estados, diagnósticos nacionais e KPI; os perfis e a série diária também
 conferem por grupo. A série de abril soma 703.067 entradas, um recorte distinto.
 
-A contagem de 1.238.763 registros brutos citada no início é histórica: não foi
-revalidada contra arquivos DATASUS nesta auditoria. O banco e os microdados não
-estão disponíveis neste ambiente. Falta reexecutar o pipeline real e exportar
-os dois marts complementares; não foram fabricados CSVs para preencher essa lacuna.
+A saída de terminal fornecida pelo usuário confirmou o reprocessamento local
+do PR final: 1.238.763 linhas brutas, 1.238.234 na Prata, 529 AIHs duplicadas
+excluídas e 0 sem valor. As 34 regras passaram e os dez marts foram exportados,
+incluindo os dois complementares. Falta enviar os novos agregados ao PR,
+comparar os KPIs financeiros e registrar competência/proveniência. Não houve
+transferência de microdados nem novo download DATASUS confirmado pelo agente.
 
 A correção final trata o valor numericamente no desempate de AIHs e estabiliza
-empates completos. O impacto nos resultados históricos requer reprocessamento.
+empates completos. O impacto financeiro precisa ser comparado à publicação anterior; o reprocessamento local manteve a quantidade total.
 O mês exibido na série vem dos dados, sem ser apresentado como prova da
 competência de processamento. Os SQLs dos dez marts foram preservados.
 

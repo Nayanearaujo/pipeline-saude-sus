@@ -10,10 +10,13 @@ em `pyproject.toml` e Ruff aprovado. Os oito CSVs já publicados são internamen
 coerentes nas 14 verificações registradas em
 [docs/auditoria-publicacao.json](docs/auditoria-publicacao.json).
 
-A entrega **ainda não equivale a uma revalidação completa da fonte DATASUS**.
-Não estão disponíveis neste ambiente `sih.duckdb` nem o Parquet bruto. Não foram
-baixados microdados nesta auditoria, alterados os oito CSVs existentes ou
-fabricados os dois CSVs complementares ausentes.
+A execução real local foi confirmada pela saída de terminal fornecida pelo
+usuário em 01/11/2026, sobre o commit `99d5eb9`: as quatro etapas terminaram,
+as 34 regras passaram e os dez marts foram exportados. O banco e os arquivos
+brutos permanecem no computador do usuário, sem transferência para o agente.
+Isso não comprova um novo download da fonte DATASUS nem substitui a comparação
+dos novos agregados com os arquivos publicados. Os CSVs gerados localmente ainda
+precisam ser encaminhados ao PR final.
 
 ## Evidências dos dados publicados
 
@@ -28,13 +31,32 @@ fabricados os dois CSVs complementares ausentes.
 | Custo médio nacional | R$ 1.824,28, compatível com valor total / AIHs |
 | Chaves auditadas | Sem duplicação em UF, CID nacional, perfil por UF e série por UF |
 | Perfil menor de um ano | 60.839 AIHs no CSV nacional |
-| Marts complementares | SQL e testes existentes; CSVs reais ausentes |
+| Marts complementares | Gerados e exportados no Mac; publicação no PR ainda pendente |
 
 Os hashes SHA-256 e as quantidades de linhas dos oito arquivos constam da
 evidência JSON. A concordância entre agregados não comprova a proveniência,
 a integridade dos microdados, os óbitos individuais ou as exclusões históricas.
-Os 1.238.763 registros brutos e as 529 exclusões citados na documentação são
-registros históricos, não uma execução reproduzida nesta auditoria.
+O reprocessamento local confirmou 1.238.763 linhas na Bronze e 1.238.234 na
+Prata. As 529 exclusões foram classificadas como AIHs duplicadas; nenhuma
+exclusão ocorreu por ausência de valor. Não foram mantidos nulos em sexo,
+idade ou UF. A saída recebida ainda não inclui os valores financeiros do KPI.
+
+## Evidência de execução real local
+
+Fonte: saída de terminal fornecida pelo usuário, não execução remota pelo agente.
+Registro estruturado: [docs/evidencia-execucao-local.json](docs/evidencia-execucao-local.json).
+
+- Commit executado: `99d5eb9`; macOS, Python 3.11.4.
+- Bronze: 1.238.763 internações, 12.451 CIDs e 5.571 municípios.
+- Prata: 1.238.234 internações; 0 sem valor e 529 AIHs duplicadas excluídas.
+- Ouro: dez marts, com 16.400 linhas no conjunto.
+- Mortalidade por CID: 1.429 linhas; Pareto municipal: 5.569 linhas.
+- Qualidade: 34 regras aprovadas, incluindo reconciliações Bronze/Prata/KPI.
+- Dez CSVs exportados e os dois HTMLs gerados, com 69,0 KB cada.
+
+Os totais financeiros, a competência dos registros, os hashes dos arquivos
+locais e a diferença entre CSVs antigos e novos ainda precisam ser registrados.
+A publicação desses resultados e o merge final não foram realizados.
 
 ## Correções preparadas para revisão
 
@@ -149,9 +171,10 @@ uvx pip-audit -r /tmp/sus-requirements.txt --no-deps --disable-pip --format json
 
 ## Pendências antes do encerramento integral
 
-1. Reexecutar o pipeline com os arquivos reais e verificar as 34 regras,
-   incluindo as exclusões da Bronze e os resultados do desempate corrigido.
-2. Exportar os CSVs reais `mortalidade_por_cid` e `municipios_pareto`.
+1. Comparar os novos KPIs/CSVs com a publicação anterior e registrar o efeito
+   financeiro do desempate. A execução real e as 34 regras já passaram localmente.
+2. Encaminhar os dez CSVs exportados e o HTML local ao PR final; os dois
+   complementares já foram gerados, mas ainda não foram publicados.
 3. Registrar competência/proveniência da extração e confirmar o recorte diário;
    o mês da série não substitui esse registro.
 4. Após aprovação e merge final, conferir novamente o deploy e o relatório
