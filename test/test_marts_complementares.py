@@ -1,6 +1,7 @@
 """Testes dos graficos complementares com valores sinteticos."""
 
 import pandas as pd
+import pytest
 
 import painel
 
@@ -27,3 +28,25 @@ def test_pareto_usa_percentuais_prontos_do_mart():
     fig = painel.fig_municipios_pareto(df)
     assert list(fig.data[0].x) == [1, 2]
     assert list(fig.data[0].y) == [40.0, 55.0]
+
+
+def test_ler_lista_vazia_nao_abre_banco(tmp_path):
+    assert painel.ler(marts=[], banco=str(tmp_path / "inexistente.duckdb")) == {}
+
+
+def test_ler_rejeita_nome_de_mart_invalido(tmp_path):
+    with pytest.raises(ValueError, match="Marts não reconhecidos"):
+        painel.ler(
+            marts=["kpis_gerais; DROP TABLE ouro.kpis_gerais"],
+            banco=str(tmp_path / "inexistente.duckdb"),
+        )
+
+
+def test_ler_informa_csv_complementar_ausente(tmp_path, monkeypatch):
+    # Força o caminho CSV e usa o diretório padrão do painel, sem modificar arquivos.
+    monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
+    with pytest.raises(FileNotFoundError, match="mortalidade_por_cid"):
+        painel.ler(
+            marts=["mortalidade_por_cid", "municipios_pareto"],
+            banco=str(tmp_path / "inexistente.duckdb"),
+        )
