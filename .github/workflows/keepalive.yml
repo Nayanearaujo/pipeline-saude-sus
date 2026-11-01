@@ -5,6 +5,11 @@ on:
     # Roda a cada 6 horas para manter o app acordado no Streamlit Community Cloud
     - cron: "0 */6 * * *"
   workflow_dispatch:
+  pull_request:
+    paths: [".github/workflows/keepalive.yml"]
+
+permissions:
+  contents: read
 
 jobs:
   wake-up:
@@ -16,8 +21,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Instalar Playwright (Chromium)
-        run: npx playwright install --with-deps chromium
+      - name: Instalar Playwright e Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.64.1
+          npx playwright install --with-deps chromium
 
       - name: Visitar o dashboard e acordar se estiver hibernando
         run: |
@@ -25,19 +32,34 @@ jobs:
           const { chromium } = require("playwright");
           (async () => {
             const browser = await chromium.launch();
-            const page = await browser.newPage();
-            await page.goto("https://pipeline-saude-sus.streamlit.app/", {
-              waitUntil: "networkidle",
-              timeout: 90000
-            });
-            const wakeBtn = page.locator("button:has-text(\"Yes, get this app back up\")");
-            if (await wakeBtn.count() > 0) {
-              console.log("App estava hibernando. Clicando para acordar...");
-              await wakeBtn.click();
-              await page.waitForTimeout(25000);
-            } else {
-              console.log("Dashboard Streamlit ja esta acordado e respondendo.");
+            try {
+              const page = await browser.newPage();
+              await page.goto("https://pipeline-saude-sus.streamlit.app/", {
+                waitUntil: "domcontentloaded",
+                timeout: 90000
+              });
+              const wakeBtn = page.getByRole("button", { name: "Yes, get this app back up" });
+              const app = page.frameLocator("iframe[title=streamlitApp]");
+              // O shell pode carregar antes do botao de hibernacao ou do iframe.
+              await Promise.race([
+                wakeBtn.waitFor({ state: "visible", timeout: 90000 }),
+                app.locator(".sus-card").first().waitFor({ state: "visible", timeout: 90000 })
+              ]);
+              if (await wakeBtn.isVisible()) {
+                console.log("App hibernando. Solicitando inicializacao...");
+                await wakeBtn.click();
+              }
+              await app.locator(".sus-card").nth(4).waitFor({ state: "visible", timeout: 120000 });
+              const total = await app.locator(".sus-card").count();
+              if (total !== 5 || await app.locator("[data-testid=stException]").count() > 0) {
+                throw new Error("Dashboard nao apresentou cinco cartoes sem excecoes.");
+              }
+              console.log("Dashboard verificado: cinco cartoes renderizados.");
+            } finally {
+              await browser.close();
             }
-            await browser.close();
-          })();
+          })().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
           '
