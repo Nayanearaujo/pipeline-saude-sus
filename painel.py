@@ -21,7 +21,9 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
+from html import escape
 from pathlib import Path
+from textwrap import wrap
 
 import pandas as pd
 import plotly.express as px
@@ -436,6 +438,14 @@ def fig_mortalidade_por_cid(df: pd.DataFrame) -> go.Figure:
         hovertemplate="<b>%{y} · %{customdata[0]}</b><br>%{customdata[1]:,.0f} internações"
                       "<br>%{customdata[2]:,.0f} óbitos<br>Taxa: %{x:,.2f}%<extra></extra>",
     )
+    rotulos = [
+        "<br>".join(escape(linha) for linha in wrap(str(nome), width=38))
+        + f"<br><b>{escape(str(cid))}</b>"
+        for cid, nome in zip(top["cid"], top["doenca"], strict=True)
+    ]
+    fig.update_yaxes(tickmode="array", tickvals=top["cid"].tolist(), ticktext=rotulos,
+                     automargin=True)
+    fig.update_layout(height=820, margin=dict(l=280, r=80, t=70, b=20))
     fig.update_xaxes(range=[0, 100])
     return fig
 
@@ -451,9 +461,11 @@ def fig_municipios_pareto(df: pd.DataFrame) -> go.Figure:
                       "<br>%{customdata[2]:,.0f} internações<br>R$ %{customdata[3]:,.2f}"
                       "<br>Acumulado: %{y:,.2f}%<extra></extra>",
     )
-    fig.add_hline(y=80, line_dash="dot", line_color="#b08c4f", annotation_text="Referência de 80%")
-    fig.update_layout(xaxis_title="Municípios no ranking", yaxis_title="Gasto acumulado (%)")
-    fig.update_yaxes(range=[0, 100])
+    fig.add_hline(y=80, line_dash="dot", line_color="#b08c4f", annotation_text="80% do valor total",
+                  annotation_position="top left", annotation_font_size=11)
+    fig.update_layout(xaxis_title="Posição dos municípios · do maior para o menor valor",
+                      yaxis_title="Valor acumulado (%)")
+    fig.update_yaxes(range=[0, 100], ticksuffix="%")
     fig = _layout(
         fig, "Concentração do valor por município de residência<br><sub>Curva completa · referência de 80%</sub>",
     )

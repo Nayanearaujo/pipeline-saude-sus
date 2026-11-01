@@ -324,17 +324,29 @@ def main():
     else:
         st.markdown('<div class="sus-sub">Análises complementares · Brasil</div>', unsafe_allow_html=True)
         st.caption("Mortalidade hospitalar entre AIHs por CID; gasto por município de residência.")
-        cols = st.columns(2)
-        with cols[0]:
-            st.plotly_chart(
-                painel.fig_mortalidade_por_cid(complementares["mortalidade_por_cid"]),
-                width="stretch", config=PLOTLY_CONFIG,
-            )
-        with cols[1]:
-            st.plotly_chart(
-                painel.fig_municipios_pareto(complementares["municipios_pareto"]),
-                width="stretch", config=PLOTLY_CONFIG,
-            )
+        st.plotly_chart(
+            painel.fig_mortalidade_por_cid(complementares["mortalidade_por_cid"]),
+            width="stretch", config=PLOTLY_CONFIG,
+        )
+        st.caption(
+            "CID: Classificação Internacional de Doenças. AIH: Autorização de Internação Hospitalar. "
+            "As barras mostram a proporção de internações com óbito em cada diagnóstico, "
+            "considerando apenas grupos com pelo menos 100 AIHs. "
+            "Não representa a mortalidade da população nem uma comparação ajustada por gravidade. "
+            "Passe o mouse para ver internações e óbitos."
+        )
+        st.plotly_chart(
+            painel.fig_municipios_pareto(complementares["municipios_pareto"]),
+            width="stretch", config=PLOTLY_CONFIG,
+        )
+        st.caption(
+            "Como ler: os municípios de residência estão ordenados do maior para o menor valor registrado. "
+            "O eixo horizontal indica a posição nessa ordem; o vertical mostra o percentual do valor total "
+            "acumulado até aquela posição. A linha pontilhada marca 80% do total: "
+            "quanto antes a curva a alcança, maior a concentração do valor em poucos municípios. "
+            "É uma referência de concentração, não uma meta de qualidade. "
+            "Use os botões para alternar entre a curva completa e os primeiros 30 municípios."
+        )
 
     st.divider()
     col_rodape, col_btn = st.columns([5, 1])
