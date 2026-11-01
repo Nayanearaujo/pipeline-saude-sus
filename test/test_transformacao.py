@@ -170,3 +170,41 @@ def test_bronze_ausente_fecha_conexao(tmp_path, monkeypatch):
         transformacao.main()
     with pytest.raises(duckdb.ConnectionException):
         con.execute("SELECT 1")
+
+
+def test_desempate_de_valor_e_numerico(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET VAL_TOT = '9000.00' WHERE N_AIH = 'a1'")
+        con.execute("""
+            INSERT INTO bronze.internacoes
+            SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, '10000.00', DIAS_PERM,
+                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA
+            FROM bronze.internacoes WHERE N_AIH = 'a1'
+        """)
+    transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        valor = con.execute("SELECT valor_total FROM prata.internacoes WHERE aih = 'a1'").fetchone()[0]
+    assert str(valor) == "10000.00"
+
+
+def test_empate_de_data_e_valor_independe_da_ordem_de_entrada(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("""
+            INSERT INTO bronze.internacoes
+            SELECT N_AIH, MUNIC_RES, 'Z999', PROC_REA, VAL_TOT, DIAS_PERM,
+                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA
+            FROM bronze.internacoes WHERE N_AIH = 'a1'
+        """)
+    transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        antes = con.execute("SELECT * FROM prata.internacoes ORDER BY aih").fetchall()
+        con.execute(
+            "CREATE OR REPLACE TABLE bronze.internacoes AS "
+            "SELECT * FROM bronze.internacoes ORDER BY DIAG_PRINC DESC"
+        )
+    transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        assert con.execute("SELECT * FROM prata.internacoes ORDER BY aih").fetchall() == antes
+        assert con.execute("SELECT cid_principal FROM prata.internacoes WHERE aih = 'a1'").fetchone()[0] == "A001"

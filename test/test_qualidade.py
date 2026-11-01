@@ -160,3 +160,13 @@ def test_reconciliacao_aceita_exclusoes_previstas(tmp_path, monkeypatch):
         """)
     monkeypatch.setattr(db, "BANCO", banco)
     qualidade.main()
+
+
+def test_reconciliacao_usa_desempate_financeiro_numerico(tmp_path, monkeypatch):
+    banco = tmp_path / "sih.duckdb"
+    _banco_coerente(banco)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET VAL_TOT = '1000.00' WHERE N_AIH = 'a1'")
+        con.execute("INSERT INTO bronze.internacoes VALUES ('a1', '900.00', '20260701')")
+    monkeypatch.setattr(db, "BANCO", banco)
+    qualidade.main()

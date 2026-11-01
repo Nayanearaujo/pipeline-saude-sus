@@ -61,7 +61,7 @@ CREATE OR REPLACE TABLE prata.internacoes AS
 WITH base AS (
     -- Grao: 1 linha = 1 AIH. Dedup explicita por aih (QUALIFY), nao DISTINCT da
     -- linha inteira: duas AIH distintas com todos os campos iguais nao podem
-    -- colapsar numa so. Desempate deterministico pela data de saida e valor.
+    -- colapsar numa so. Desempate pela data de saida, valor numerico e demais campos preservados.
     SELECT
         CAST(N_AIH AS VARCHAR)                             AS aih,
         substr(CAST(MUNIC_RES AS VARCHAR), 1, 6)           AS cod_municipio,
@@ -94,7 +94,10 @@ WITH base AS (
     FROM bronze.internacoes
     QUALIFY row_number() OVER (
         PARTITION BY CAST(N_AIH AS VARCHAR)
-        ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+        ORDER BY DT_SAIDA DESC NULLS LAST,
+                 CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2)) DESC NULLS LAST,
+                 MUNIC_RES, DIAG_PRINC, PROC_REA, DIAS_PERM,
+                 IDADE, COD_IDADE, SEXO, MORTE, DT_INTER
     ) = 1
 )
 SELECT
@@ -164,7 +167,8 @@ def _motivos_exclusao_internacoes(con) -> tuple[int, int]:
                 NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
                 row_number() OVER (
                     PARTITION BY CAST(N_AIH AS VARCHAR)
-                    ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+                    ORDER BY DT_SAIDA DESC NULLS LAST,
+                 CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2)) DESC NULLS LAST
                 ) AS posicao
             FROM bronze.internacoes
         )
