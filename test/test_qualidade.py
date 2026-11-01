@@ -16,10 +16,16 @@ def _banco_coerente(banco):
     con = duckdb.connect(str(banco))
     con.execute("CREATE SCHEMA bronze; CREATE SCHEMA prata; CREATE SCHEMA ouro")
     # bronze: 3 linhas; prata: 3 (nada removido)
-    con.execute("CREATE TABLE bronze.internacoes AS SELECT * FROM range(3)")
+    con.execute("""
+        CREATE TABLE bronze.internacoes AS SELECT * FROM (VALUES
+            ('a1', '1000.00', '20260701'),
+            ('a2', '400.00', '20260701'),
+            ('a3', '400.00', '20260701')
+        ) AS t(N_AIH, VAL_TOT, DT_SAIDA)
+    """)
     con.execute("""
         CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
-            ('a1','RJ',40,100.0,3), ('a2','SP',0,200.0,0), ('a3','SP',102,300.0,5)
+            ('a1','RJ',40,1000.00,3), ('a2','SP',0,400.00,0), ('a3','SP',102,400.00,5)
         ) AS t(aih, uf, idade, valor_total, dias_permanencia)
     """)
     # dicionarios com chave unica (regras de unicidade)
@@ -29,7 +35,7 @@ def _banco_coerente(banco):
         "(VALUES ('330455','Rio','RJ')) AS t(cod_municipio, municipio, uf)"
     )
     # ouro: totais coerentes (3 internacoes, 2 UFs)
-    con.execute("CREATE TABLE ouro.kpis_gerais AS SELECT 3 AS internacoes, 1800.0 AS valor_total")
+    con.execute("CREATE TABLE ouro.kpis_gerais AS SELECT 3 AS internacoes, 1800.00 AS valor_total")
     con.execute("""
         CREATE TABLE ouro.por_estado AS SELECT * FROM (VALUES
             ('RJ', 1, 1000.0, 50.0), ('SP', 2, 800.0, 10.0)
@@ -67,7 +73,7 @@ def test_soma_que_nao_fecha_falha(tmp_path, monkeypatch):
     _banco_coerente(banco)
     # sabota: muda o KPI para 999, quebrando 'partes somam o todo'
     con = duckdb.connect(str(banco))
-    con.execute("CREATE OR REPLACE TABLE ouro.kpis_gerais AS SELECT 999 AS internacoes, 1800.0 AS valor_total")
+    con.execute("CREATE OR REPLACE TABLE ouro.kpis_gerais AS SELECT 999 AS internacoes, 1800.00 AS valor_total")
     con.close()
     monkeypatch.setattr(db, "BANCO", banco)
     with pytest.raises(SystemExit):
@@ -120,3 +126,37 @@ def test_qualidade_rejeita_valores_financeiros_e_permanencia_invalidos(tmp_path,
     monkeypatch.setattr(db, "BANCO", banco)
     with pytest.raises(SystemExit):
         qualidade.main()
+
+
+@pytest.mark.parametrize("sql", [
+    "DELETE FROM prata.internacoes WHERE aih = 'a1'",
+    "UPDATE prata.internacoes SET aih = 'inexistente' WHERE aih = 'a1'",
+    "UPDATE prata.internacoes SET valor_total = 1000.01 WHERE aih = 'a1'",
+    "UPDATE ouro.kpis_gerais SET valor_total = 1800.01",
+])
+def test_reconciliacao_detecta_perda_troca_de_aih_e_divergencia_financeira(tmp_path, monkeypatch, sql):
+    banco = tmp_path / "sih.duckdb"
+    _banco_coerente(banco)
+    with duckdb.connect(str(banco)) as con:
+        con.execute(sql)
+        novas_regras = [consulta for descricao, consulta in qualidade._regras(con)
+                        if descricao.startswith("Reconciliacao:")]
+        assert not all(con.execute(consulta).fetchone()[0] for consulta in novas_regras)
+    monkeypatch.setattr(db, "BANCO", banco)
+    with pytest.raises(SystemExit):
+        qualidade.main()
+
+
+def test_reconciliacao_aceita_exclusoes_previstas(tmp_path, monkeypatch):
+    banco = tmp_path / "sih.duckdb"
+    _banco_coerente(banco)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("""
+            INSERT INTO bronze.internacoes VALUES
+                ('a1', '900.00', '20260101'),
+                ('sem_valor', NULL, '20260701'),
+                ('sem_valor', '', '20260101'),
+                ('a2', NULL, '20260101')
+        """)
+    monkeypatch.setattr(db, "BANCO", banco)
+    qualidade.main()

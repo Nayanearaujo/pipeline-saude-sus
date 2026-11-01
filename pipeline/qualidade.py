@@ -104,6 +104,36 @@ def _regras(con) -> list[tuple[str, str]]:
          """SELECT (SELECT count(*) FROM prata.internacoes)
                 <= (SELECT count(*) FROM bronze.internacoes)"""),
 
+        # Reconciliacao por AIH e valor, depois das exclusoes previstas.
+        ("Reconciliacao: AIHs e valores da prata correspondem a bronze elegivel",
+         """WITH classificadas AS (
+                SELECT CAST(N_AIH AS VARCHAR) AS aih,
+                       NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
+                       row_number() OVER (
+                           PARTITION BY CAST(N_AIH AS VARCHAR)
+                           ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+                       ) AS posicao
+                FROM bronze.internacoes
+            ), esperadas AS (
+                SELECT aih, CAST(valor AS DECIMAL(12,2)) AS valor_total
+                FROM classificadas WHERE posicao = 1 AND valor IS NOT NULL
+            ), faltantes AS (
+                SELECT * FROM esperadas
+                EXCEPT ALL SELECT aih, valor_total FROM prata.internacoes
+            ), inesperadas AS (
+                SELECT aih, valor_total FROM prata.internacoes
+                EXCEPT ALL SELECT * FROM esperadas
+            )
+            SELECT NOT EXISTS (SELECT 1 FROM faltantes)
+               AND NOT EXISTS (SELECT 1 FROM inesperadas)"""),
+
+        ("Reconciliacao: KPI confere com quantidade e valor total da prata",
+         """SELECT (SELECT count(*) FROM ouro.kpis_gerais) = 1
+               AND (SELECT internacoes FROM ouro.kpis_gerais)
+                   = (SELECT count(*) FROM prata.internacoes)
+               AND (SELECT valor_total FROM ouro.kpis_gerais)
+                   = (SELECT sum(valor_total) FROM prata.internacoes)"""),
+
         # 2b. Chave unica nos dicionarios: um codigo nao pode ter duas linhas,
         #     senao o LEFT JOIN da camada ouro multiplicaria internacoes.
         ("Chave unica: prata.cid10 tem 1 linha por codigo CID",
