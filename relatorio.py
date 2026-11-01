@@ -172,20 +172,69 @@ _PAGINA = """<!doctype html>
   <div class="kpis">{cards}</div>
   <section class="secao" aria-labelledby="leitura">
     <h2 id="leitura">O retrato das internações</h2>
-    <p>Distribuição territorial, perfil das AIHs, diagnósticos e evolução das admissões. Explore os gráficos para investigar padrões, sem confundir associação com causalidade.</p>
+    <p>
+Distribuição territorial, perfil das AIHs, diagnósticos e evolução das admissões. Explore os 
+gráficos para investigar padrões, sem confundir associação com causalidade.</p>
+
   </section>
   <div class="grade">{graficos}</div>
   <section class="secao" aria-labelledby="metodologia">
     <h2 id="metodologia">Como interpretar os resultados</h2>
-    <p>Transparência metodológica é parte do resultado. Estes indicadores têm denominadores, períodos e unidades de análise específicos.</p>
+    <p>
+Transparência metodológica é parte do resultado. Estes indicadores têm denominadores, períodos e 
+unidades de análise específicos.</p>
+
   </section>
   <div class="notas">
-    <article class="nota-card"><h3>Competência não é data de entrada</h3><p>Os indicadores consolidados são da competência abril/2026. A série diária filtra a data de internação em abril/2026; portanto, seus totais não precisam coincidir com os indicadores por competência.</p></article>
-    <article class="nota-card"><h3>AIH não representa paciente único</h3><p>Uma autorização de internação hospitalar (AIH) é o registro analisado. Não interprete a contagem como número de pessoas distintas ou prevalência populacional.</p></article>
-    <article class="nota-card"><h3>Valores pagos, não custos assistenciais</h3><p>O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico integral da assistência.</p></article>
-    <article class="nota-card"><h3>Óbitos hospitalares, não mortalidade populacional</h3><p>A taxa hospitalar usa óbitos registrados nas AIHs como numerador e internações como denominador. Não mede o risco de morte na população geral.</p></article>
-    <article class="nota-card"><h3>Geografia de residência</h3><p>A distribuição por UF e município se refere à residência registrada, não necessariamente ao local de atendimento. Comparações entre regiões não são taxas ajustadas por população.</p></article>
-    <article class="nota-card"><h3>Limites e reprodutibilidade</h3><p>Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e as verificações de qualidade no repositório para rastrear as regras de cálculo.</p></article>
+    <article class="nota-card">
+<h3>
+Competência não é data de entrada</h3>
+<p>
+Os indicadores consolidados são da competência abril/2026. A série diária filtra a data de 
+internação em abril/2026; portanto, seus totais não precisam coincidir com os indicadores por 
+competência.</p>
+</article>
+
+    <article class="nota-card">
+<h3>
+AIH não representa paciente único</h3>
+<p>
+Uma autorização de internação hospitalar (AIH) é o registro analisado. Não interprete a contagem 
+como número de pessoas distintas ou prevalência populacional.</p>
+</article>
+
+    <article class="nota-card">
+<h3>
+Valores pagos, não custos assistenciais</h3>
+<p>
+O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico 
+integral da assistência.</p>
+</article>
+
+    <article class="nota-card">
+<h3>
+Óbitos hospitalares, não mortalidade populacional</h3>
+<p>
+A taxa hospitalar usa óbitos registrados nas AIHs como numerador e internações como denominador. Não 
+mede o risco de morte na população geral.</p>
+</article>
+
+    <article class="nota-card">
+<h3>
+Geografia de residência</h3>
+<p>
+A distribuição por UF e município se refere à residência registrada, não necessariamente ao local de 
+atendimento. Comparações entre regiões não são taxas ajustadas por população.</p>
+</article>
+
+    <article class="nota-card">
+<h3>
+Limites e reprodutibilidade</h3>
+<p>
+Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e 
+as verificações de qualidade no repositório para rastrear as regras de cálculo.</p>
+</article>
+
   </div>
   <footer>
     Nayane Araújo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
