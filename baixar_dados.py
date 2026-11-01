@@ -76,6 +76,19 @@ def _dbc_para_df(conteudo: bytes, nome: str):
         caminho_dbf.unlink(missing_ok=True)
 
 
+def _validar_configuracao(ufs):
+    """Recusa periodo e siglas invalidos antes de qualquer download."""
+    if not isinstance(ANO, int) or not 2000 <= ANO <= 2099:
+        raise ValueError("ANO deve estar entre 2000 e 2099")
+    if not isinstance(MES, int) or not 1 <= MES <= 12:
+        raise ValueError("MES deve estar entre 1 e 12")
+    if not ufs or len(set(ufs)) != len(ufs):
+        raise ValueError("UFS deve conter siglas unicas e nao pode ser vazia")
+    invalidas = sorted(set(ufs) - set(TODAS_UFS))
+    if invalidas:
+        raise ValueError(f"UF(s) invalidas: {', '.join(invalidas)}")
+
+
 def main():
     try:
         import pandas as pd  # noqa: F401
@@ -87,6 +100,7 @@ def main():
         sys.exit(1)
 
     ufs = UFS if UFS is not None else TODAS_UFS
+    _validar_configuracao(ufs)
     aa = f"{ANO % 100:02d}"
     mm = f"{MES:02d}"
 
@@ -102,6 +116,8 @@ def main():
             continue
         try:
             df = _dbc_para_df(conteudo, nome)
+            if df.empty:
+                raise ValueError("arquivo convertido sem registros")
             df["UF_ARQUIVO"] = uf
             dfs.append(df)
             print(f"  - {uf}: {len(df):,} linhas".replace(",", "."))
