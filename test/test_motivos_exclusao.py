@@ -1,9 +1,9 @@
 """Testa a classificacao exclusiva das exclusoes entre bronze e prata."""
 
 import duckdb
+from test_transformacao import _preparar
 
 from pipeline import transformacao
-from test_transformacao import _preparar
 
 
 def test_motivos_exclusao_sem_sobreposicao(tmp_path, monkeypatch, capsys):
