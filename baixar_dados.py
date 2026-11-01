@@ -11,9 +11,11 @@ Como funciona:
    estavel feita so para o formato do DATASUS).
 3. Junta tudo e grava data/raw/internacoes.parquet.
 
-Ajuste ANO, MES e UFS no topo. Se um mes nao existir no FTP, aquela UF e pulada
-com aviso; se nenhuma UF baixar, o script explica e encerra.
+Ajuste ANO, MES e UFS no topo. Por padrao, qualquer UF ausente interrompe a
+publicacao do Parquet para impedir totais nacionais incompletos. Para executar
+uma amostra parcial conscientemente, use PERMITIR_PARCIAL=1 no ambiente.
 """
+import os
 import sys
 from pathlib import Path
 
@@ -89,11 +91,13 @@ def main():
 
     print(f"Baixando SIH-RD {mm}/{ANO} para {len(ufs)} UF(s)...")
     dfs = []
+    faltantes = []
     for uf in ufs:
         nome = f"RD{uf}{aa}{mm}.dbc"
         conteudo = _baixar_dbc(nome)
         if conteudo is None:
-            print(f"  - {uf}: nao encontrado (pulado)")
+            print(f"  - {uf}: nao encontrado")
+            faltantes.append(uf)
             continue
         try:
             df = _dbc_para_df(conteudo, nome)
@@ -102,12 +106,21 @@ def main():
             print(f"  - {uf}: {len(df):,} linhas".replace(",", "."))
         except Exception as e:  # noqa: BLE001
             print(f"  - {uf}: erro ao converter ({e})")
+            faltantes.append(uf)
 
     if not dfs:
         print("\nNenhum arquivo baixou. Provavel que o mes ainda nao foi")
         print("publicado (o SIH atrasa 2-4 meses). Edite ANO/MES no topo e")
         print("rode de novo com um mes fechado.")
         sys.exit(1)
+
+    if faltantes:
+        print(f"\nATENCAO: {len(faltantes)} UF(s) ausentes: {', '.join(faltantes)}")
+        if os.environ.get("PERMITIR_PARCIAL") != "1":
+            print("ERRO: exportacao bloqueada para evitar dataset incompleto.")
+            print("Para uma amostra parcial intencional, defina PERMITIR_PARCIAL=1.")
+            sys.exit(1)
+        print("AVISO: exportando amostra PARCIAL; nao representa o total nacional.")
 
     import pandas as pd
     todos = pd.concat(dfs, ignore_index=True)
