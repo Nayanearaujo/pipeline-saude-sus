@@ -1,7 +1,7 @@
 """
-Testes de pipeline/marts.py (executor) e dos marts ouro 01 e 02 em SQL.
+Testes de pipeline/marts.py (executor) e dos marts ouro 01 a 10 em SQL.
 
-O executor roda sobre uma pasta de marts inventada; os marts 01 e 02 rodam
+O executor roda sobre uma pasta de marts inventada; os marts SQL rodam
 sobre uma prata minima montada a mao, para provar as regras com entrada conhecida.
 """
 from pathlib import Path
@@ -97,6 +97,22 @@ def test_sem_nenhum_sql_encerra(tmp_path, monkeypatch):
         marts.main()
 
 
+def test_erro_sql_faz_rollback_e_encerra(tmp_path, monkeypatch):
+    """SQL invalido dispara ROLLBACK na transacao e encerra com codigo 1."""
+    banco, pasta = _preparar(tmp_path, monkeypatch)
+    (pasta / "01_bom.sql").write_text("SELECT 1 AS x", encoding="utf-8")
+    (pasta / "02_quebrado.sql").write_text("SELECT * FROM tabela_que_nao_existe", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        marts.main()
+    con = duckdb.connect(str(banco))
+    sobrou = con.execute(
+        "SELECT count(*) FROM information_schema.tables "
+        "WHERE table_schema = 'ouro' AND table_name = 'bom'"
+    ).fetchone()[0]
+    con.close()
+    assert sobrou == 0  # ROLLBACK desfez inclusive o 01_bom
+
+
 def test_arquivo_apagado_faz_mart_sumir(tmp_path, monkeypatch):
     banco, pasta = _preparar(tmp_path, monkeypatch)
     arq = pasta / "00_teste.sql"
@@ -114,7 +130,7 @@ def test_arquivo_apagado_faz_mart_sumir(tmp_path, monkeypatch):
     assert sobrou == 0
 
 
-# --- marts 01 e 02 em SQL, sobre a prata inventada -------------------------
+# --- marts 01 a 10 em SQL, sobre a prata inventada -------------------------
 def _ler_sql(nome: str) -> str:
     raiz = Path(__file__).resolve().parent.parent
     return (raiz / "sql" / "marts" / nome).read_text(encoding="utf-8").strip().rstrip(";")
