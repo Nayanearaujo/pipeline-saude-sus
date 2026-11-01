@@ -67,7 +67,7 @@ def construir_html(dados: dict) -> str:
     perfil = dados["perfil_demografico_brasil"]
 
     cards = "".join([
-        _card("Internações (abril/2026)", painel.numero(k["internacoes"])),
+        _card("Internações (competência)", painel.numero(k["internacoes"])),
         _card("Gasto total", painel.reais_curto(k["valor_total"])),
         _card("Custo médio", painel.reais(k["custo_medio"], 0), "por internação"),
         _card("Permanência média", painel.numero(k["dias_medio"], 1) + " dias"),
@@ -97,7 +97,10 @@ def construir_html(dados: dict) -> str:
     )
 
     gerado = datetime.now().strftime("%d/%m/%Y às %H:%M")
-    return _PAGINA.format(cards=cards, graficos=graficos, gerado=gerado)
+    return _PAGINA.format(
+        cards=cards, graficos=graficos, gerado=gerado,
+        periodo_serie=painel.periodo_serie(serie),
+    )
 
 
 def main():
@@ -121,7 +124,7 @@ _PAGINA = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Relatório · Internações do SUS (abril/2026)</title>
+<title>Relatório · Internações do SUS</title>
 <style>
   :root{{--paper:#eef3f1;--surface:#fff;--ink:#10171a;--ink-3:#6b7b7c;
     --line:#d6e0db;--accent:#1a6b52;
@@ -163,8 +166,9 @@ _PAGINA = """<!doctype html>
 <body>
 <div class="wrap">
   <div class="banner">
-    <h1>🏥 Internações hospitalares do SUS · abril/2026</h1>
+    <h1>🏥 Internações hospitalares do SUS · por competência</h1>
     <p>Relatório executivo gerado da camada ouro · uma linha = uma internação (AIH)</p>
+    <p>Série diária: {periodo_serie}</p>
     <p>Fonte: SIH/SUS (DATASUS) ·
        <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">repositório</a> ·
        <a href="https://pipeline-saude-sus.streamlit.app/">dashboard interativo</a></p>
@@ -190,9 +194,9 @@ unidades de análise específicos.</p>
 <h3>
 Competência não é data de entrada</h3>
 <p>
-Os indicadores consolidados são da competência abril/2026. A série diária filtra a data de 
-internação em abril/2026; portanto, seus totais não precisam coincidir com os indicadores por 
-competência.</p>
+Os indicadores consolidados seguem a competência dos arquivos de origem. A série diária 
+exibe {periodo_serie}, conforme o recorte do mart. Esse mês não comprova a competência de 
+processamento, e os totais da série não precisam coincidir com os indicadores consolidados.</p>
 </article>
 
     <article class="nota-card">

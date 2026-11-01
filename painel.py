@@ -151,6 +151,15 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
 # ---------------------------------------------------------------------------
 # 3. FORMATO (funcoes puras)
 # ---------------------------------------------------------------------------
+def periodo_serie(serie: pd.DataFrame) -> str:
+    """Formata os meses presentes na serie; nao infere a competencia das AIHs."""
+    datas = pd.to_datetime(serie["dia"], errors="raise").dropna()
+    meses = sorted(set(datas.dt.strftime("%Y-%m")))
+    nomes = ("janeiro", "fevereiro", "março", "abril", "maio", "junho",
+             "julho", "agosto", "setembro", "outubro", "novembro", "dezembro")
+    return ", ".join(f"{nomes[int(mes[5:7]) - 1]}/{mes[:4]}" for mes in meses) or "não informado"
+
+
 def _br(texto: str) -> str:
     """Troca os separadores para o padrao brasileiro sem depender do locale."""
     return texto.replace(",", "\x00").replace(".", ",").replace("\x00", ".")

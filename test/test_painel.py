@@ -189,3 +189,14 @@ def test_perfil_tem_duas_series_de_sexo():
     fig = painel.fig_perfil(df, "Brasil")
     # barras agrupadas: uma trace por sexo
     assert len(fig.data) == 2
+
+
+def test_periodo_serie_respeita_dados_e_nao_fixa_abril():
+    serie = pd.DataFrame({"dia": ["2027-07-02", "2027-07-01"]})
+    assert painel.periodo_serie(serie) == "julho/2027"
+
+
+def test_periodo_serie_com_multiplos_meses_e_vazio():
+    serie = pd.DataFrame({"dia": ["2027-02-01", "2026-12-31", None]})
+    assert painel.periodo_serie(serie) == "dezembro/2026, fevereiro/2027"
+    assert painel.periodo_serie(pd.DataFrame({"dia": []})) == "não informado"
