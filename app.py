@@ -174,24 +174,6 @@ def _card_html(rotulo: str, valor: str, nota: str = "") -> str:
 
 
 def main():
-    # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
-    # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
-    # depender dos componentes do Streamlit (que sanitizam parte do CSS).
-    st.markdown(
-        """
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
-        <div class="sus-header">
-          <div class="sus-title">🏥 Internações hospitalares do SUS <span>· por estado</span></div>
-          <div class="sus-fonte">
-            Fonte:
-            <a href="https://datasus.saude.gov.br/transferencia-de-arquivos/" target="_blank">SIH/SUS · DATASUS</a>
-            · abril/2026 · uma linha = uma internação (AIH).
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
     try:
         dados = carregar()
     except Exception:  # noqa: BLE001
@@ -209,6 +191,25 @@ def main():
     if faltando:
         st.error("Faltam marts: " + ", ".join(faltando) + "\n\nRode: `uv run python -m pipeline.marts`")
         st.stop()
+
+    periodo = painel.periodo_serie(dados["internacoes_diarias_brasil"])
+    # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
+    # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
+    # depender dos componentes do Streamlit (que sanitizam parte do CSS).
+    st.markdown(
+        f"""
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&display=swap" rel="stylesheet">
+        <div class="sus-header">
+          <div class="sus-title">🏥 Internações hospitalares do SUS <span>· por estado</span></div>
+          <div class="sus-fonte">
+            Fonte:
+            <a href="https://datasus.saude.gov.br/transferencia-de-arquivos/" target="_blank">SIH/SUS · DATASUS</a>
+            · série diária: {periodo} · consolidado por competência · uma linha = uma AIH.
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     por_estado = dados["por_estado"]
     ufs = sorted(por_estado["uf"].dropna().unique())

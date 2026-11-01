@@ -111,7 +111,9 @@ def _regras(con) -> list[tuple[str, str]]:
                        NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
                        row_number() OVER (
                            PARTITION BY CAST(N_AIH AS VARCHAR)
-                           ORDER BY DT_SAIDA DESC NULLS LAST, VAL_TOT DESC NULLS LAST
+                           ORDER BY DT_SAIDA DESC NULLS LAST,
+                                    CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '')
+                                         AS DECIMAL(12,2)) DESC NULLS LAST
                        ) AS posicao
                 FROM bronze.internacoes
             ), esperadas AS (

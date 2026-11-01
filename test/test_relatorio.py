@@ -97,3 +97,12 @@ def test_relatorio_explicita_limites_metodologicos():
     assert "Valores pagos, não custos assistenciais" in html
     assert "Geografia de residência" in html
     assert "Limites e reprodutibilidade" in html
+
+
+def test_relatorio_deriva_periodo_da_serie_sem_inferir_competencia():
+    dados = _dados_inventados()
+    dados["internacoes_diarias_brasil"]["dia"] = ["2027-07-01", "2027-07-02"]
+    html = relatorio.construir_html(dados)
+    assert "Série diária: julho/2027" in html
+    assert "abril/2026" not in html
+    assert "não comprova a competência" in html

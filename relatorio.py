@@ -67,7 +67,7 @@ def construir_html(dados: dict) -> str:
     perfil = dados["perfil_demografico_brasil"]
 
     cards = "".join([
-        _card("Internações (abril/2026)", painel.numero(k["internacoes"])),
+        _card("Internações (competência)", painel.numero(k["internacoes"])),
         _card("Gasto total", painel.reais_curto(k["valor_total"])),
         _card("Custo médio", painel.reais(k["custo_medio"], 0), "por internação"),
         _card("Permanência média", painel.numero(k["dias_medio"], 1) + " dias"),
@@ -97,7 +97,10 @@ def construir_html(dados: dict) -> str:
     )
 
     gerado = datetime.now().strftime("%d/%m/%Y às %H:%M")
-    return _PAGINA.format(cards=cards, graficos=graficos, gerado=gerado)
+    return _PAGINA.format(
+        cards=cards, graficos=graficos, gerado=gerado,
+        periodo_serie=painel.periodo_serie(serie),
+    )
 
 
 def main():
@@ -121,7 +124,7 @@ _PAGINA = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Relatório · Internações do SUS (abril/2026)</title>
+<title>Relatório · Internações do SUS</title>
 <style>
   :root{{--paper:#eef3f1;--surface:#fff;--ink:#10171a;--ink-3:#6b7b7c;
     --line:#d6e0db;--accent:#1a6b52;
@@ -163,8 +166,9 @@ _PAGINA = """<!doctype html>
 <body>
 <div class="wrap">
   <div class="banner">
-    <h1>🏥 Internações hospitalares do SUS · abril/2026</h1>
+    <h1>🏥 Internações hospitalares do SUS · por competência</h1>
     <p>Relatório executivo gerado da camada ouro · uma linha = uma internação (AIH)</p>
+    <p>Série diária: {periodo_serie}</p>
     <p>Fonte: SIH/SUS (DATASUS) ·
        <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">repositório</a> ·
        <a href="https://pipeline-saude-sus.streamlit.app/">dashboard interativo</a></p>
@@ -173,7 +177,7 @@ _PAGINA = """<!doctype html>
   <section class="secao" aria-labelledby="leitura">
     <h2 id="leitura">O retrato das internações</h2>
     <p>
-Distribuição territorial, perfil das AIHs, diagnósticos e evolução das admissões. Explore os 
+Distribuição territorial, perfil das AIHs, diagnósticos e evolução das admissões. Explore os
 gráficos para investigar padrões, sem confundir associação com causalidade.</p>
 
   </section>
@@ -181,7 +185,7 @@ gráficos para investigar padrões, sem confundir associação com causalidade.<
   <section class="secao" aria-labelledby="metodologia">
     <h2 id="metodologia">Como interpretar os resultados</h2>
     <p>
-Transparência metodológica é parte do resultado. Estes indicadores têm denominadores, períodos e 
+Transparência metodológica é parte do resultado. Estes indicadores têm denominadores, períodos e
 unidades de análise específicos.</p>
 
   </section>
@@ -190,16 +194,16 @@ unidades de análise específicos.</p>
 <h3>
 Competência não é data de entrada</h3>
 <p>
-Os indicadores consolidados são da competência abril/2026. A série diária filtra a data de 
-internação em abril/2026; portanto, seus totais não precisam coincidir com os indicadores por 
-competência.</p>
+Os indicadores consolidados seguem a competência dos arquivos de origem. A série diária
+exibe {periodo_serie}, conforme o recorte do mart. Esse mês não comprova a competência de
+processamento, e os totais da série não precisam coincidir com os indicadores consolidados.</p>
 </article>
 
     <article class="nota-card">
 <h3>
 AIH não representa paciente único</h3>
 <p>
-Uma autorização de internação hospitalar (AIH) é o registro analisado. Não interprete a contagem 
+Uma autorização de internação hospitalar (AIH) é o registro analisado. Não interprete a contagem
 como número de pessoas distintas ou prevalência populacional.</p>
 </article>
 
@@ -207,7 +211,7 @@ como número de pessoas distintas ou prevalência populacional.</p>
 <h3>
 Valores pagos, não custos assistenciais</h3>
 <p>
-O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico 
+O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico
 integral da assistência.</p>
 </article>
 
@@ -215,7 +219,7 @@ integral da assistência.</p>
 <h3>
 Óbitos hospitalares, não mortalidade populacional</h3>
 <p>
-A taxa hospitalar usa óbitos registrados nas AIHs como numerador e internações como denominador. Não 
+A taxa hospitalar usa óbitos registrados nas AIHs como numerador e internações como denominador. Não
 mede o risco de morte na população geral.</p>
 </article>
 
@@ -223,7 +227,7 @@ mede o risco de morte na população geral.</p>
 <h3>
 Geografia de residência</h3>
 <p>
-A distribuição por UF e município se refere à residência registrada, não necessariamente ao local de 
+A distribuição por UF e município se refere à residência registrada, não necessariamente ao local de
 atendimento. Comparações entre regiões não são taxas ajustadas por população.</p>
 </article>
 
@@ -231,7 +235,7 @@ atendimento. Comparações entre regiões não são taxas ajustadas por populaç
 <h3>
 Limites e reprodutibilidade</h3>
 <p>
-Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e 
+Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e
 as verificações de qualidade no repositório para rastrear as regras de cálculo.</p>
 </article>
 

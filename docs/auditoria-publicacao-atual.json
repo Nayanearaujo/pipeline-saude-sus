@@ -1,0 +1,100 @@
+{
+  "data_utc": "2026-11-01T20:04:00.625646+00:00",
+  "commit_dados_recebidos": "2dfed2944bdc85d55a0309ddbd2d8821e005e3b8",
+  "escopo": "Dez CSVs exportados localmente e enviados ao PR; hashes e agregados verificados pelo agente, sem acesso aos microdados",
+  "kpi": {
+    "internacoes": "1238234",
+    "ufs": "27",
+    "valor_total": "2258865118.36",
+    "custo_medio": "1824.26",
+    "dias_medio": "4.8",
+    "taxa_mortalidade_pct": "4.1"
+  },
+  "competencias_registradas": [
+    [
+      "2026",
+      "04"
+    ]
+  ],
+  "serie_diaria": {
+    "inicio": "2026-04-01",
+    "fim": "2026-04-30",
+    "internacoes": 703067
+  },
+  "checks": {
+    "dez_marts": true,
+    "hashes_dez_csvs": true,
+    "competencia_registrada": true,
+    "kpi_linha_unica": true,
+    "kpi_proveniencia": true,
+    "por_estado_quantidade": true,
+    "perfil_demografico_quantidade": true,
+    "perfil_demografico_brasil_quantidade": true,
+    "top_diagnosticos_brasil_quantidade": true,
+    "municipios_pareto_quantidade": true,
+    "por_estado_financeiro": true,
+    "top_diagnosticos_brasil_financeiro": true,
+    "municipios_pareto_financeiro": true,
+    "perfil_demografico_brasil_internacoes_por_grupo": true,
+    "internacoes_diarias_brasil_internacoes_por_grupo": true,
+    "internacoes_diarias_brasil_valor_total_por_grupo": true,
+    "ufs_unicas_27": true,
+    "custo_medio": true,
+    "top_diagnosticos_brasil_chave_unica": true,
+    "perfil_demografico_chave_unica": true,
+    "internacoes_diarias_chave_unica": true,
+    "mortalidade_por_cid_chave_unica": true,
+    "municipios_pareto_chave_unica": true,
+    "mortalidade_elegibilidade_dominio": true,
+    "pareto_posicoes_sequenciais": true,
+    "pareto_acumulado_valido": true,
+    "mortalidade_quantidades_conferem_por_cid": true
+  },
+  "arquivos": {
+    "internacoes_diarias.csv": {
+      "sha256": "589a1072bd4d9229efc0a8773ac4e10b8324846e885ca47f6f15d2157f6eb333",
+      "linhas": 810
+    },
+    "internacoes_diarias_brasil.csv": {
+      "sha256": "9335067d2acbafaed1b62604d2e64c69e3dabb12346d6201af4e381a506dbccb",
+      "linhas": 30
+    },
+    "kpis_gerais.csv": {
+      "sha256": "158a97988300b88e315d439806e38b77137b6c51aa260a660c9805442a4450dd",
+      "linhas": 1
+    },
+    "mortalidade_por_cid.csv": {
+      "sha256": "5c218f633a96ce38ba46aea12b41cd24897015743b745ff9a8c1606a20e4dc83",
+      "linhas": 1429
+    },
+    "municipios_pareto.csv": {
+      "sha256": "34aeb48e86acff5a931b80cfe871cd031a3aca9140ba6286a6e5f9d992ae7285",
+      "linhas": 5569
+    },
+    "perfil_demografico.csv": {
+      "sha256": "0780afca8809049f209839ff81be35d4e356fcf940d3793fb3dc84b5218e101a",
+      "linhas": 324
+    },
+    "perfil_demografico_brasil.csv": {
+      "sha256": "51537303f7bc019066b6d9b4662d99bcb0f5262c28a198bffd059ae8621d5eb3",
+      "linhas": 12
+    },
+    "por_estado.csv": {
+      "sha256": "4fb3d0bd5ac242cbe27f9c49a426a0908585ecb01f597a95e517cdedca017e03",
+      "linhas": 27
+    },
+    "top_diagnosticos.csv": {
+      "sha256": "21e22322ebcc33727573e12f2b7c9286b5311248fbbdd7090ab148fa99ba80e0",
+      "linhas": 270
+    },
+    "top_diagnosticos_brasil.csv": {
+      "sha256": "d0ce26e8001266725135fd9be301a0bdd72571044b833d19140a052e40c4ba95",
+      "linhas": 7928
+    }
+  },
+  "limites": [
+    "Hashes dos arquivos brutos foram informados na origem e nao recalculados pelo agente",
+    "Nao confirma novo download DATASUS",
+    "Historico exato dos artefatos antigos nao determinado"
+  ]
+}
