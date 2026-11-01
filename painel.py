@@ -64,26 +64,24 @@ def rotulo(metrica: str) -> str:
     return ROTULO_METRICA.get(metrica, metrica)
 
 # Paleta suave: verde-agua claro como cor base, escala continua leve para o
-# mapa (nao cansa a vista). Tons pastel, puxando do verde ao azul.
+# mapa. Tons pastel, puxando do verde ao azul.
 COR = "#5bb6a6"           # verde-agua medio, suave
 ESCALA = "Teal"           # escala continua verde->azul suave para o mapa
 # Paleta qualitativa (rosca, varias categorias): tons claros e harmonicos.
 PALETA = ["#7fcbbd", "#9fd6c6", "#5bb6a6", "#cbe8df", "#f0c674", "#b7c4c0"]
 
-# Cor por regiao na rosca: Sudeste no azul-bebe (o tom pedido), as demais em
-# tons suaves que contrastam bem entre si.
+# Cor por regiao na rosca: tons suaves que contrastam bem entre si.
 COR_REGIAO = {
-    "Sudeste": "#8fcfe0",         # azul-bebe
+    "Sudeste": "#8fcfe0",         # azul suave
     "Nordeste": "#8fd4b8",        # verde claro
     "Sul": "#b6e0a8",             # verde-limao suave
     "Norte": "#f0c674",           # amarelo suave
     "Centro-Oeste": "#d9a8e0",    # lilas suave
 }
 
-# Cor por sexo: feminino em verde-bebe puxando ao azul; masculino em verde
-# claro, menos escuro. Pedido para nao cansar a vista.
+# Cor por sexo no grafico demografico.
 COR_SEXO = {
-    "Feminino": "#8fcfe0",        # verde-agua/azul bebe
+    "Feminino": "#8fcfe0",        # azul-esverdeado claro
     "Masculino": "#8fd4b8",       # verde claro suave
     "nao informado": "#c9d3cf",
 }
@@ -267,9 +265,7 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
 
 
 def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
-    """Grafico de rosca (donut) com a participacao de cada regiao na metrica.
-    O 'circulo classico': mostra como o total se divide entre as 5 regioes.
-    Sudeste no azul-bebe (COR_REGIAO)."""
+    """Grafico de rosca (donut) com a participacao de cada regiao na metrica."""
     fig = px.pie(
         por_estado, names="regiao", values=metrica, hole=0.55,
         color="regiao", color_discrete_map=COR_REGIAO,

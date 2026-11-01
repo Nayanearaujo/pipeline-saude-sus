@@ -294,6 +294,18 @@ def main():
 
     st.plotly_chart(painel.fig_perfil(perfil, rotulo), width="stretch", config=PLOTLY_CONFIG)
 
+    st.divider()
+    col_rodape, col_btn = st.columns([5, 1])
+    with col_rodape:
+        st.caption(
+            "Camada ouro lida em somente leitura (`read_only=True`). "
+            "Para atualizar a tela após rodar o pipeline, recarregue o cache ao lado."
+        )
+    with col_btn:
+        if st.button("Recarregar dados", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
+
 
 if __name__ == "__main__":
     main()

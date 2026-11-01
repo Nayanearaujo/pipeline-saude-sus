@@ -1,10 +1,10 @@
 """
 Gera um relatorio estatico em HTML (relatorio.html) a partir da camada ouro.
 
-Lê os marts pelo painel.py, monta os cartoes executivos e os mesmos graficos do
-dashboard Streamlit, e grava uma pagina unica e offline. Util para publicar no
-GitHub Pages e para quem nao quer rodar o Streamlit. Zero calculo novo: todo
-numero sai de um mart; os graficos sao os mesmos do painel.
+Le os marts pelo painel.py, monta os cartoes executivos e os mesmos graficos do
+dashboard Streamlit, e grava uma pagina unica estatica (sem servidor Python).
+Util para publicar no GitHub Pages e abrir direto no navegador. Zero calculo
+novo: todo numero sai de um mart; os graficos sao os mesmos do painel.
 
     uv run python relatorio.py
 
@@ -109,7 +109,9 @@ def main():
     for destino in destinos:
         destino.parent.mkdir(exist_ok=True)
         destino.write_text(html, encoding="utf-8")
-        print(f"  ok: {destino.relative_to(RAIZ)}")
+        tamanho_kb = destino.stat().st_size / 1024
+        kb_fmt = f"{tamanho_kb:.1f}".replace(".", ",")
+        print(f"  ok: {destino.relative_to(RAIZ)} ({kb_fmt} KB)")
     print("\nPronto. Abra relatorio.html no navegador ou publique docs/ no GitHub Pages.")
 
 
@@ -163,7 +165,7 @@ _PAGINA = """<!doctype html>
   <div class="kpis">{cards}</div>
   <div class="grade">{graficos}</div>
   <footer>
-    Nayane Araujo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
+    Nayane Araújo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
     Números lidos direto dos marts, sem cálculo na página.<br>
     Relatório gerado em {gerado}.
