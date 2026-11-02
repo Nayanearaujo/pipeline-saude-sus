@@ -39,7 +39,7 @@ brutos têm competência abril de 2026.
 
 ## Conferência antes da apresentação
 
-A conferência local final aprovou os 145 testes, as 37 regras e a igualdade dos
+A conferência local final aprovou os 156 testes, as 37 regras e a igualdade dos
 dez marts. O valor exato com centavos foi confirmado. A correção de idade ignorada
 não alterou os agregados deste conjunto.
 
@@ -54,5 +54,7 @@ Não é necessário publicar o banco, os microdados ou configurações privadas.
 
 A competência agora é preservada na Prata e define o mês das séries diárias.
 O pipeline rejeita competências misturadas e gera três auditorias locais de
-descrições, datas e meses de entrada. Os totais publicados são os da conferência
-anterior. A validação local desta atualização ainda precisa ser executada.
+descrições, datas e meses de entrada. A conferência local do commit `4510595` foi aprovada em duas execuções.
+Os dez marts coincidiram com os publicados. Não restou CID sem descrição.
+A auditoria produziu 6.336 grupos de datas e permanências para investigação,
+sem comprovar a causa das datas antigas.

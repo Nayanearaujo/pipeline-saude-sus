@@ -1,0 +1,34 @@
+{
+  "tipo": "Resumo de saída agregada enviada pela autora",
+  "commit_validado": "45105954508048a8c156205b7a6577c2451e3823",
+  "data_recebimento": "2026-11-02",
+  "sistema": "macOS",
+  "python": "3.11.4",
+  "execucoes_completas": 2,
+  "testes_aprovados": 156,
+  "cobertura_pct": 97.06,
+  "regras_aprovadas": 37,
+  "bronze_internacoes": 1238763,
+  "prata_internacoes": 1238234,
+  "duplicatas_excluidas": 529,
+  "exclusoes_sem_valor": 0,
+  "cid_codigos_unicos": 14240,
+  "valor_total_exato": "2258865118.36",
+  "marts_iguais": 10,
+  "linhas_marts": 16400,
+  "competencia_prata": "2026-04-01",
+  "auditoria": {
+    "cid_sem_descricao_grupos": 0,
+    "datas_para_investigar_grupos": 6336,
+    "entradas_por_mes_grupos": 216
+  },
+  "entradas_2008_01_01": 617,
+  "figuras_html": 9,
+  "originais_preservados": true,
+  "limites": [
+    "O log não contém o detalhamento de saídas e permanências dos 6.336 grupos.",
+    "Grupos de auditoria não equivalem à quantidade de internações com erro.",
+    "A causa das datas antigas não foi comprovada.",
+    "A evidência foi recebida da execução no computador da autora, sem acesso aos microdados neste ambiente."
+  ]
+}
