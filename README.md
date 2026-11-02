@@ -62,6 +62,7 @@ A correção de idade ignorada não alterou os resultados deste conjunto.
 | Bronze | Ler os três arquivos com todas as colunas como texto | `pipeline/ingestao.py` |
 | Prata | Declarar tipos, decodificar campos e manter uma linha por AIH | `pipeline/transformacao.py` |
 | Ouro | Construir dez marts com grão explícito e regras em SQL | `pipeline/marts.py`, `sql/marts/` |
+| Auditoria | Gerar relatórios agregados de descrições, datas e meses de entrada | `pipeline/auditoria.py` |
 | Qualidade | Verificar domínio, unicidade, reconciliação e descrições | `pipeline/qualidade.py` |
 | Publicação | Exportar os marts, montar o painel e gerar o HTML | `exportar_painel.py`, `app.py`, `relatorio.py` |
 
@@ -71,8 +72,9 @@ A mesma prioridade é usada na contagem de exclusões e na reconciliação.
 
 O código CID é ligado às categorias e subcategorias de uma fonte versionada.
 A revisão completou 1.048 descrições nacionais e reduziu as internações sem nome
-de 36.736 para 76, aproximadamente 0,0061% do total. Os sete códigos ausentes no
-espelho foram completados com fontes oficiais complementares. O limite de qualidade é de 0,1% das internações,
+de 36.736 para 76. Depois, os sete códigos ausentes no espelho foram completados
+com fontes oficiais complementares. A auditoria local confirmou zero internações
+sem descrição. O limite de qualidade é de 0,1% das internações,
 com nomes obrigatórios nos 20 primeiros diagnósticos nacionais e de mortalidade.
 
 ## Execução
@@ -183,7 +185,9 @@ Usei sugestões de código como ponto de partida e conferi os resultados antes d
 
 - O dicionário inicial não cobria todas as categorias. A contagem revelou 1.055
   diagnósticos sem nome, associados a 36.736 internações. A correção por código
-  exato deixou sete códigos e 76 internações sem descrição, sem mudar os valores.
+  exato reduziu a ausência para sete códigos, associados a 76 internações.
+  Completei esses códigos com fontes oficiais complementares e confirmei zero
+  internações sem descrição na auditoria local, sem alterar os valores.
 - O desempate por data podia escolher uma duplicata sem valor. Um teste com duas
   linhas da mesma AIH passou de nenhuma linha válida preservada para uma.
 - A cobertura excluía três scripts auxiliares. Com o escopo ampliado, medi 86,88%.
