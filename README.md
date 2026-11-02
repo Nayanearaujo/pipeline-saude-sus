@@ -52,9 +52,9 @@ As imagens são capturas do relatório executivo. O painel interativo usa os mes
 | Linhas nos dez CSVs publicados | 16.400 |
 | Regras de qualidade aprovadas na execução local | 37 |
 
-Os totais financeiros publicados reconciliam entre KPIs e estados. A saída local
-recebida confirmou as contagens e as 37 regras, mas exibiu o valor financeiro em
-notação científica. A conferência local final imprime centavos e compara cada mart.
+A conferência local final confirmou o valor exato com centavos, as 37 regras,
+os 145 testes e a igualdade de todos os campos dos dez marts com os CSVs publicados.
+A correção de idade ignorada não alterou os resultados deste conjunto.
 
 ## Arquitetura
 
@@ -143,10 +143,10 @@ esse acompanhamento na base usada.
   conforme o histograma local. Toda a Bronze tem competência abril de 2026.
 - O SQL escolhe o mês da data de entrada mais frequente com `mode()`. Neste conjunto,
   ele coincide com a competência. Isso não garante o mesmo resultado em outro conjunto.
-- Há 14.538 entradas registradas antes de 2026, incluindo 617 em janeiro de 2008.
+- Há 14.538 entradas registradas antes de 2026, incluindo 617 em 1º de janeiro de 2008.
   Não foram classificadas como datas padrão ou internações prolongadas sem investigação.
 - Idade ignorada é mantida como desconhecida. Dias e meses são convertidos para
-  a faixa de menos de um ano. A revisão final verifica o efeito dessa correção nos perfis.
+  a faixa de menos de um ano. A conferência final confirmou que os perfis deste conjunto permaneceram iguais.
 - `VAL_TOT` é o valor registrado na AIH, não o custo econômico integral da assistência.
 - Mortalidade hospitalar usa internações como denominador. Não mede mortalidade
   populacional e não é ajustada por gravidade, população ou composição dos casos.

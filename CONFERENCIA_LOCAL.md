@@ -66,3 +66,11 @@ Recarregar os dados não atualizou a interface. Na conta proprietária, abra
 `Manage app`, selecione `Reboot app` e confira novamente o endereço público.
 O deploy só deve ser considerado confirmado quando mostrar os nove gráficos,
 o detalhamento e os valores atuais. Nunca compartilhe credenciais no repositório.
+
+## Resultado já obtido
+
+A conferência do commit `24e781e` foi aprovada no macOS com Python 3.11.4.
+Passaram 145 testes, cobertura de 97,01% e as 37 regras. O valor exato foi
+R$ 2.258.865.118,36. Os dez marts coincidiram com os CSVs publicados.
+A correção de idade ignorada não alterou este conjunto. O procedimento acima
+permanece disponível para repetir a verificação.

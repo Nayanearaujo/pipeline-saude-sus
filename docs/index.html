@@ -41,7 +41,7 @@ footer{font-size:14px;text-align:center;color:#53665d}
 <tr><td>Qualidade na execução local registrada</td><td>37 regras aprovadas</td></tr>
 <tr><td>Testes desta revisão</td><td>145 testes e cobertura de 97,01%</td></tr>
 </tbody></table>
-<p>Os resultados locais registrados correspondem ao código executado na evidência recebida. A conferência final mede separadamente o efeito do ajuste de idade ignorada.</p></section>
+<p>A conferência local final confirmou os centavos, as 37 regras e todos os campos dos dez marts. A correção de idade ignorada não alterou os agregados.</p></section>
 <section><h2>Arquitetura e execução</h2>
 <p>A preparação converte os arquivos <code>.dbc</code> para Parquet e obtém os dicionários. A Bronze lê os três arquivos com todas as colunas como texto. A Prata declara tipos, decodifica campos e deduplica por AIH. A Ouro executa dez consultas SQL com grão explícito.</p>
 <p>Valores financeiros usam <code>DECIMAL(12,2)</code>. A publicação do Parquet é atômica. Ingestão e marts usam transações. Os testes cobrem falhas de escrita e preservação dos dados anteriores.</p>
@@ -62,7 +62,7 @@ uv run streamlit run app.py</pre>
 <p>A série de abril tem 703.067 entradas. As outras 535.167 se distribuem em março de 2026 (343.386), fevereiro (100.989), janeiro (76.254) e antes de 2026 (14.538). Toda a Bronze tem competência abril de 2026.</p>
 <p>O SQL ainda usa o mês da data de entrada mais frequente com <code>mode()</code>. Ele coincide com a competência neste conjunto, mas não é uma garantia para outras bases. Datas antigas não foram classificadas como erro ou internação prolongada sem investigação.</p>
 <p>As descrições CID foram completadas por correspondência exata, de 36.736 para 76 internações sem nome. Os sete códigos restantes não constam na fonte consultada. Os 20 primeiros diagnósticos nacionais e de mortalidade têm descrição.</p>
-<p>Idade ignorada é preservada como desconhecida. A correção final deve ser medida com o Parquet local. Mortalidade hospitalar não é mortalidade populacional. O valor registrado na AIH não é o custo econômico integral da assistência.</p></section>
+<p>Idade ignorada é preservada como desconhecida. A correção foi conferida no Parquet local sem mudar os dez marts. Mortalidade hospitalar não é mortalidade populacional. O valor registrado na AIH não é o custo econômico integral da assistência.</p></section>
 <section><h2>Testes e conferência da entrega</h2>
 <p>São 145 testes automatizados, cobertura de 97,01% e mínimo de 95% no CI. A medição inclui os scripts auxiliares. Os testes usam dados sintéticos e simulações de rede.</p>
 <pre>uv run ruff check .

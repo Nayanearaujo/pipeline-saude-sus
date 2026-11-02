@@ -3,7 +3,7 @@
 ## Escopo
 
 A revisão usa os dez CSVs publicados, o código do repositório e a saída agregada
-da execução local do commit `2eab12c`. Os arquivos brutos e o banco permanecem
+da conferência local final do commit `24e781e`. Os arquivos brutos e o banco permanecem
 fora do GitHub. Não houve confirmação de novo download de microdados.
 
 ## Evidência local recebida
@@ -33,11 +33,11 @@ O histograma da Prata contém 216 meses e soma as 1.238.234 AIHs.
 
 As quatro últimas linhas somam 535.167. A diferença para a série de abril é
 explicada pelas datas registradas, não por exclusão desses registros da Prata.
-A origem das datas antigas não foi comprovada. Janeiro de 2008 contém 617 entradas.
+A origem das datas antigas não foi comprovada. A data 2008-01-01 contém 617 entradas.
 
-A saída financeira recebida foi abreviada em notação científica. Ela não permite
-verificar centavos. Separadamente, os CSVs publicados reconciliam o valor exato
-de R$ 2.258.865.118,36 entre KPIs e estados.
+A conferência final imprimiu o valor exato de R$ 2.258.865.118,36.
+Os dez marts coincidiram com os CSVs publicados em todos os campos comparados,
+sem linhas exclusivas em nenhum dos lados. Os hashes dos dez CSVs também passaram.
 
 ## Descrições de diagnósticos
 
@@ -57,9 +57,14 @@ As três regras de descrição passaram nos CSVs e na execução local registrad
   Os marts demográficos já incluem a categoria técnica `nao informado`.
 - Código, credenciais e microdados são verificados separadamente na conferência local.
 
-A correção final de idade ainda precisa ser executada sobre o Parquet local.
-Os CSVs publicados não foram alterados com base em uma suposição. A conferência
-compara os dez marts e sinaliza qualquer diferença, inclusive nos perfis.
+A correção final de idade foi executada sobre o Parquet local e não alterou
+os dez marts, inclusive os perfis. As unidades na Bronze são 2 (35.843 linhas),
+3 (24.997), 4 (1.177.041) e 5 (882). A soma é 1.238.763. Não há unidade ignorada
+ou desconhecida neste conjunto, e a Prata permaneceu sem idade nula.
+
+A consulta de datas anteriores a fevereiro de 2008 encontrou uma única data,
+2008-01-01, com 617 registros. Isso confirma a concentração, mas não sua causa.
+O relatório foi gerado com nove figuras e mapa SVG. Os arquivos originais foram preservados.
 
 Referência para a unidade ignorada: [Ministério da Saúde, Orientações básicas
 para utilização de sistemas informatizados em auditoria no SUS](https://bvsms.saude.gov.br/bvs/publicacoes/auditoria_sus.pdf).

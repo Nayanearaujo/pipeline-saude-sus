@@ -39,7 +39,10 @@ brutos têm competência abril de 2026.
 
 ## Conferência antes da apresentação
 
-O tratamento final de idade ignorada deve ser conferido com os arquivos locais.
+A conferência local final aprovou os 145 testes, as 37 regras e a igualdade dos
+dez marts. O valor exato com centavos foi confirmado. A correção de idade ignorada
+não alterou os agregados deste conjunto.
+
 A instância pública do Streamlit deve exibir os nove gráficos, os dois seletores
 e o detalhamento expansível do perfil. A interface antiga observada no navegador
 remoto não foi considerada prova de atualização do deploy.
