@@ -1,14 +1,14 @@
 """
 app.py: dashboard interativo das internacoes do SUS, por estado.
 
-So arruma na tela o que painel.py entrega; nao calcula nada. Rodar com:
+Organiza na tela os indicadores entregues por painel.py. Não calcula novas métricas. Rodar com:
     uv run streamlit run app.py
 
 Interacao: um seletor de estado no topo. "Brasil" mostra a visao nacional
-(cartoes do mart kpis_gerais, mapa, rankings). Ao escolher uma UF, os cartoes
-passam a ler a linha daquela UF no mart por_estado, e os graficos de
-diagnostico, serie diaria e perfil recortam para o estado. Os valores por UF
-ja vem prontos do mart: a tela so escolhe a linha, nao recalcula.
+(cartões do mart kpis_gerais, mapa, rankings). Ao escolher uma UF, os cartões
+passam a ler a linha daquela UF no mart por_estado, e os gráficos de
+diagnóstico, serie diária e perfil recortam para o estado. Os valores por UF
+já vem prontos do mart: a tela só escolhe a linha, não recalcula.
 """
 import hashlib
 import logging
@@ -21,7 +21,7 @@ import painel
 st.set_page_config(page_title="SUS · internações por estado", layout="wide", page_icon="🏥")
 
 # Esconde a barra de ferramentas do plotly (camera, zoom, etc.): visual mais
-# limpo e profissional. Desliga tambem o menuzinho "produced with plotly".
+# limpo e profissional. Desliga também o menuzinho "produced with plotly".
 PLOTLY_CONFIG = {"displayModeBar": False, "displaylogo": False}
 
 # Visual: cards com borda arredondada e sombra, fundo suave, margens.
@@ -183,7 +183,7 @@ def carregar(assinatura):
 
 
 def _card_html(rotulo: str, valor: str, nota: str = "") -> str:
-    """Monta o HTML de um cartao KPI (o valor nunca e cortado em '...')."""
+    """Monta o HTML de um cartão KPI (o valor nunca e cortado em '...')."""
     sub = f"<div class='sus-card-sub'>{nota}</div>" if nota else ""
     return (
         f"<div class='sus-card'><div class='sus-card-rot'>{rotulo}</div>"
@@ -195,8 +195,8 @@ def main():
     try:
         dados = carregar(_assinatura_publicacao())
     except Exception:  # noqa: BLE001
-        # Mensagem amigavel na tela; o detalhe tecnico vai para o log do
-        # servidor, nao para o usuario (evita vazar caminho/stack na UI).
+        # Mensagem resumida na tela. O detalhe técnico fica no registro do
+        # servidor, sem expor caminhos locais ou rastros de erro na interface.
         logging.exception("Falha ao ler os marts do sih.duckdb")
         st.error(
             "Não consegui carregar os dados do painel. "
@@ -211,7 +211,7 @@ def main():
         st.stop()
 
     periodo = painel.periodo_serie(dados["internacoes_diarias_brasil"])
-    # Cabecalho como um bloco HTML proprio: banner verde com o titulo em Poppins
+    # Cabeçalho como um bloco HTML próprio: banner verde com o título em Poppins
     # e a fonte do dado como link para o DATASUS. Controlado 100% aqui, sem
     # depender dos componentes do Streamlit (que sanitizam parte do CSS).
     st.markdown(
@@ -254,7 +254,7 @@ def main():
 
     uf = None if escolha == "Brasil" else escolha
 
-    # ---- Cartoes: Brasil le kpis_gerais; UF le a linha do mart por_estado ----
+    # ---- Cartões: Brasil le kpis_gerais; UF le a linha do mart por_estado ----
     if uf is None:
         k = dados["kpis_gerais"].iloc[0]
         internacoes, valor, custo = k["internacoes"], k["valor_total"], k["custo_medio"]
@@ -298,7 +298,7 @@ def main():
     st.divider()
 
     # ---- Faixa recortada pelo estado escolhido -------------------------------
-    # Brasil le os marts nacionais; uma UF filtra a linha dos marts por estado.
+    # Brasil le os marts nacionais. Uma UF filtra a linha dos marts por estado.
     rotulo = uf if uf else "Brasil"
     if uf is None:
         diag = dados["top_diagnosticos_brasil"]
@@ -355,7 +355,7 @@ def main():
         )
         st.caption(
             "Como ler: os municípios de residência estão ordenados do maior para o menor valor registrado. "
-            "O eixo horizontal indica a posição nessa ordem; o vertical mostra o percentual do valor total "
+            "O eixo horizontal indica a posição nessa ordem. O eixo vertical mostra o percentual do valor total "
             "acumulado até aquela posição. A linha pontilhada marca 80% do total: "
             "quanto antes a curva a alcança, maior a concentração do valor em poucos municípios. "
             "É uma referência de concentração, não uma meta de qualidade. "

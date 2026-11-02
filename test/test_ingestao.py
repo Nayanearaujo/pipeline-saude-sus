@@ -1,5 +1,5 @@
 """
-Testes de pipeline/ingestao.py.
+Testes de pipeline/ingestão.py.
 
 Escreve um parquet e dois CSVs pequenos em tmp_path, aponta o pipeline para la e
 confere que viram tabelas bronze como texto. Nunca le data/raw/ nem o banco real.
@@ -16,7 +16,7 @@ def _montar_raw(tmp_path, monkeypatch):
     raw.mkdir()
     # internacoes.parquet com 2 linhas. VAL_TOT e IDADE entram como numericos
     # de proposito: a bronze tem que forcar tudo a texto mesmo assim (o parquet
-    # carrega o tipo; o CAST(COLUMNS(*) AS VARCHAR) da ingestao desfaz isso).
+    # carrega o tipo. O CAST(COLUMNS(*) AS VARCHAR) da ingestão desfaz isso).
     pd.DataFrame({
         "N_AIH": ["a1", "a2"],
         "MUNIC_RES": ["330455", "355030"],
@@ -43,7 +43,7 @@ def test_arquivos_viram_tabelas_bronze(tmp_path, monkeypatch):
 def test_bronze_e_tudo_texto(tmp_path, monkeypatch):
     """Regra da bronze: toda coluna como VARCHAR, inclusive vinda do parquet.
 
-    VAL_TOT e IDADE sao numericos no parquet de origem; na bronze tem que
+    VAL_TOT e IDADE são numericos no parquet de origem. Na bronze tem que
     virar VARCHAR. Este teste falha se o CAST(COLUMNS(*) AS VARCHAR) sumir."""
     _montar_raw(tmp_path, monkeypatch)
     ingestao.main()
@@ -63,7 +63,7 @@ def test_arquivo_faltando_encerra(tmp_path, monkeypatch):
 
 
 def test_erro_na_terceira_fonte_preserva_bronze_anterior(tmp_path, monkeypatch):
-    """Nao publica internacoes novas se o ultimo CSV estiver invalido."""
+    """Não publica internacoes novas se o ultimo CSV estiver inválido."""
     _montar_raw(tmp_path, monkeypatch)
     ingestao.main()
     raw = tmp_path / "raw"

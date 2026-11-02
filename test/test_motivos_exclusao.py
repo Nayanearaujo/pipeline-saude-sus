@@ -7,10 +7,10 @@ from pipeline import transformacao
 
 
 def test_motivos_exclusao_sem_sobreposicao(tmp_path, monkeypatch, capsys):
-    """Duplicata sem valor conta apenas como duplicata se nao for a AIH escolhida."""
+    """Duplicata sem valor conta apenas como duplicata se não for a AIH escolhida."""
     banco = _preparar(tmp_path, monkeypatch)
     con = duckdb.connect(str(banco))
-    # a3 ja nao tem valor. A copia de a1 com valor vazio perde no desempate.
+    # a3 já não tem valor. A copia de a1 com valor vazio perde no desempate.
     con.execute("""
         INSERT INTO bronze.internacoes
         SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, NULL, DIAS_PERM,

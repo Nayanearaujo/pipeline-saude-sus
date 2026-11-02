@@ -1,4 +1,4 @@
-"""Testes dos graficos complementares com valores sinteticos."""
+"""Testes dos gráficos complementares com valores sinteticos."""
 
 import pandas as pd
 import pytest

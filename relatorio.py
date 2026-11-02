@@ -1,16 +1,16 @@
 """
-Gera um relatorio estatico em HTML (relatorio.html) a partir da camada ouro.
+Gera um relatório estático em HTML (relatório.html) a partir da camada ouro.
 
-Le os marts pelo painel.py, monta os cartoes executivos e os mesmos graficos do
-dashboard Streamlit, e grava uma pagina unica estatica (sem servidor Python).
+Le os marts pelo painel.py, monta os cartões executivos e os mesmos gráficos do
+dashboard Streamlit, e grava uma pagina única estática (sem servidor Python).
 Util para publicar no GitHub Pages e abrir direto no navegador. Zero calculo
-novo: todo numero sai de um mart; os graficos sao os mesmos do painel.
+novo: todo número sai de um mart. Os gráficos são os mesmos do painel.
 
-    uv run python relatorio.py
+    uv run python relatório.py
 
-Gera relatorio.html na raiz e uma copia em docs/ (para o GitHub Pages servir ao
+Gera relatório.html na raiz e uma copia em docs/ (para o GitHub Pages servir ao
 lado do index.html). Rode depois do pipeline (pipeline.marts) ou com os CSVs de
-dados_painel/ ja presentes.
+dados_painel/ já presentes.
 """
 import sys
 from datetime import datetime
@@ -23,12 +23,12 @@ if hasattr(sys.stdout, "reconfigure"):
 
 RAIZ = Path(__file__).resolve().parent
 
-# Metrica padrao do mapa/ranking/rosca na visao nacional do relatorio.
+# Metrica padrão do mapa/ranking/rosca na visao nacional do relatório.
 METRICA = "internacoes"
 
 
 def _card(rotulo: str, valor: str, nota: str = "") -> str:
-    """Monta o HTML de um cartao executivo (rotulo, valor grande, nota)."""
+    """Monta o HTML de um cartão executivo (rótulo, valor grande, nota)."""
     sub = f'<div class="nota">{nota}</div>' if nota else ""
     return (
         f'<div class="kpi"><div class="rot">{rotulo}</div>'
@@ -115,9 +115,9 @@ def _mapa_svg(fig, div_id: str, incluir_js: bool) -> str:
 def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     """Converte uma figura Plotly em um bloco HTML (card branco).
 
-    largo=True ocupa a linha inteira da grade (bom para serie e perfil); por
-    padrao cada grafico ocupa metade (grade de 2 colunas). div_id fixo deixa o
-    HTML deterministico: sem ele o Plotly sorteia um id a cada execucao e o
+    largo=True ocupa a linha inteira da grade (bom para serie e perfil). Por
+    padrão cada gráfico ocupa metade (grade de 2 colunas). div_id fixo deixa o
+    HTML deterministico: sem ele o Plotly sorteia um id a cada execução e o
     arquivo muda mesmo com o dado igual."""
     if fig.data and fig.data[0].type == "choroplethmap":
         return _mapa_svg(fig, div_id, incluir_js)
@@ -138,7 +138,7 @@ def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
 
 
 def construir_html(dados: dict) -> str:
-    """Monta a pagina inteira: cabecalho, cartoes, graficos e rodape."""
+    """Monta a pagina inteira: cabeçalho, cartões, gráficos e rodape."""
     k = dados["kpis_gerais"].iloc[0]
     por_estado = dados["por_estado"]
     diag = dados["top_diagnosticos_brasil"]
@@ -154,7 +154,7 @@ def construir_html(dados: dict) -> str:
     ])
 
     # o mapa centralizado e sem margem lateral sobrando (o Brasil e estreito e
-    # alto; sem isso sobra muito branco dos lados no relatorio).
+    # alto. Sem isso sobra muito branco dos lados no relatório).
     mapa = painel.fig_mapa(por_estado, METRICA)
     limites = mapa.layout.map.bounds
     mapa.update_layout(
@@ -163,8 +163,8 @@ def construir_html(dados: dict) -> str:
                         south=limites.south - 2, north=limites.north + 2),
     )
 
-    # grade de 2 colunas: mapa + ranking no topo; rosca + custo; top diagnosticos
-    # emparelhado; serie e perfil ocupam a linha inteira (sao series temporais).
+    # grade de 2 colunas: mapa + ranking no topo. Rosca + custo. Top diagnósticos
+    # emparelhado. Serie e perfil ocupam a linha inteira (são series temporais).
     blocos = [
         (mapa, False),
         (painel.fig_ranking_estados(por_estado, METRICA), False),
@@ -193,10 +193,10 @@ def construir_html(dados: dict) -> str:
         + (
             '<p class="leitura">CID: Classificação Internacional de Doenças. '
             'AIH: Autorização de Internação Hospitalar. Taxa: proporção de internações com óbito '
-            'no diagnóstico, entre grupos com pelo menos 100 AIHs; não é mortalidade populacional '
+            'no diagnóstico, entre grupos com pelo menos 100 AIHs. Não é mortalidade populacional '
             'nem comparação ajustada por gravidade.</p>' if i == 7 else
             '<p class="leitura">Municípios de residência ordenados do maior para o menor valor. '
-            'O eixo horizontal indica a posição; o vertical, o percentual do valor total acumulado '
+            'O eixo horizontal indica a posição. O vertical mostra o percentual do valor total acumulado '
             'até aquela posição. A linha de 80% é uma referência de concentração, não uma meta '
             'de qualidade. Os botões mostram todos os municípios ou os primeiros 30.</p>' if i == 8 else ''
         )
@@ -211,7 +211,7 @@ def construir_html(dados: dict) -> str:
 
 
 def main():
-    """Lê os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
+    """Lê os marts, monta o HTML e grava relatório.html na raiz e em docs/."""
     dados = painel.ler(marts=[*painel.MARTS, "mortalidade_por_cid", "municipios_pareto"])
     html = construir_html(dados)
 

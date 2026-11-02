@@ -2,14 +2,14 @@
 Etapa 3: marts (prata -> ouro).
 
 Encanamento puro: le cada arquivo sql/marts/*.sql e o transforma numa tabela no
-schema ouro do sih.duckdb. A regra de negocio mora inteira nos arquivos .sql;
-este script so os executa, em ordem alfabetica, sem alterar o SQL.
+schema ouro do sih.duckdb. A regra de negocio mora inteira nos arquivos .sql.
+Este script só os executa, em ordem alfabética, sem alterar o SQL.
 
 Nome da tabela = nome do arquivo sem extensao e sem o prefixo numerico:
     sql/marts/01_kpis_gerais.sql -> ouro.kpis_gerais
 
-Reexecucao: o schema ouro e apagado e recriado a cada execucao (tudo numa
-transacao). Rodar com:
+Reexecucao: o schema ouro e apagado e recriado a cada execução (tudo numa
+transação). Rodar com:
     uv run python -m pipeline.marts
 """
 import re
@@ -37,7 +37,7 @@ def nome_tabela(arquivo: Path) -> str:
 
 
 def main():
-    """Executa cada sql/marts/*.sql como uma tabela na camada ouro, numa transacao."""
+    """Executa cada sql/marts/*.sql como uma tabela na camada ouro, numa transação."""
     con = conectar()
 
     existentes = {

@@ -1,15 +1,15 @@
 """
 Exporta a camada ouro (os marts) para CSVs leves em dados_painel/.
 
-Esses CSVs sao a fonte de leitura do dashboard quando ele roda num servidor
-(Streamlit Cloud), onde nao da para processar 1,2 milhao de linhas brutas. A
+Esses CSVs são a fonte de leitura do dashboard quando ele roda num servidor
+(Streamlit Cloud), onde não da para processar 1,2 milhao de linhas brutas. A
 camada ouro tem poucas dezenas de milhares de linhas no total, cabe no Git e
 sobe leve. Rode depois do pipeline, na sua maquina:
 
     uv run python exportar_painel.py
 
 Resultado: dados_painel/<mart>.csv para cada mart. O painel.py le desses CSVs
-se o sih.duckdb nao existir (caso do deploy).
+se o sih.duckdb não existir (caso do deploy).
 """
 import shutil
 import sys
@@ -41,7 +41,7 @@ def main():
         print(f"ERRO: {BANCO} nao existe. Rode o pipeline antes (pipeline.marts).")
         sys.exit(1)
 
-    # Valida todos os marts antes de alterar qualquer CSV publicado.
+    # Válida todos os marts antes de alterar qualquer CSV publicado.
     # Se uma consulta falhar, o diretorio de destino permanece intacto.
     con = duckdb.connect(str(BANCO), read_only=True)
     try:
@@ -74,7 +74,7 @@ def main():
                     (temporario / atual.name).replace(atual)
                     publicados.append(atual)
             except OSError:
-                # Reverte a publicacao se a substituicao de qualquer CSV falhar.
+                # Reverte a publicação se a substituicao de qualquer CSV falhar.
                 for atual in reversed(publicados):
                     copia = backups / atual.name
                     if copia.exists():

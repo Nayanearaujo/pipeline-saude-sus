@@ -7,7 +7,7 @@ from pipeline import transformacao
 
 
 def test_exclusoes_por_valor_e_aih_duplicada(tmp_path, monkeypatch):
-    """Uma AIH duplicada e uma linha sem valor nao podem inflar a prata."""
+    """Uma AIH duplicada e uma linha sem valor não podem inflar a prata."""
     banco = _preparar(tmp_path, monkeypatch)
     con = duckdb.connect(str(banco))
     con.execute("INSERT INTO bronze.internacoes SELECT * FROM bronze.internacoes WHERE N_AIH = 'a1'")

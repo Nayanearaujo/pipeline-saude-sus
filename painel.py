@@ -1,21 +1,21 @@
 """
-Painel do SIH/SUS: leitura dos marts, formatacao e graficos.
+Painel do SIH/SUS: leitura dos marts, formatacao e gráficos.
 
-Spec (fonte da verdade; o codigo e consequencia dela):
+Responsabilidades do módulo:
 
 1. LEITURA
    ler() devolve um dict nome -> DataFrame, rodando apenas SELECT * FROM
-   ouro.<nome>. Nenhuma outra SQL. Conexao read_only=True, aberta e fechada
-   dentro de ler(). Motivo: conexao aberta segura o arquivo e trava o pipeline.
+   ouro.<nome>. Nenhuma outra SQL. Conexão read_only=True, aberta e fechada
+   dentro de ler(). Motivo: conexão aberta segura o arquivo e trava o pipeline.
 
 2. NENHUM CALCULO
-   Este modulo nao agrega (sem groupby/sum/mean/merge). So ordena, filtra linha,
-   head(n) e formata. Numero novo na tela exige mart novo.
+   Este modulo não agrega (sem groupby/sum/mean/merge). Só ordena, filtra linha,
+   head(n) e formata. Número novo na tela exige mart novo.
 
 3. FORMATO
-   reais/numero/pct sao funcoes puras (sem streamlit, sem banco): milhar com
+   reais/número/pct são funções puras (sem streamlit, sem banco): milhar com
    ponto, decimal com virgula, sempre, sem depender do locale da maquina.
-   Uma funcao por grafico, recebendo DataFrame e devolvendo figura plotly.
+   Uma função por gráfico, recebendo DataFrame e devolvendo figura plotly.
 """
 from __future__ import annotations
 
@@ -29,11 +29,11 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# duckdb so e importado dentro de ler(), quando ha banco local. No deploy
-# (Streamlit Cloud) o painel le CSVs e nao precisa do duckdb instalado.
+# duckdb só e importado dentro de ler(), quando ha banco local. No deploy
+# (Streamlit Cloud) o painel le CSVs e não precisa do duckdb instalado.
 
 # Caminho absoluto a partir deste arquivo: o painel acha o banco mesmo quando
-# o Streamlit e iniciado de outra pasta (nao depende do diretorio atual).
+# o Streamlit e iniciado de outra pasta (não depende do diretorio atual).
 BANCO = str(Path(__file__).resolve().parent / "sih.duckdb")
 
 # Geometria local: evita buscar limites estaduais na rede ao abrir o mapa.
@@ -56,7 +56,7 @@ MARTS = [
     "perfil_demografico_brasil",
 ]
 
-# Nome bonito (com acento) de cada metrica, para a tela e os titulos.
+# Nome bonito (com acento) de cada metrica, para a tela e os títulos.
 ROTULO_METRICA = {
     "internacoes": "Internações",
     "valor_total": "Gasto total",
@@ -67,7 +67,7 @@ ROTULO_METRICA = {
 
 
 def rotulo(metrica: str) -> str:
-    """Devolve o nome legivel de uma metrica (ou ela mesma, se nao mapeada)."""
+    """Devolve o nome legivel de uma metrica (ou ela mesma, se não mapeada)."""
     return ROTULO_METRICA.get(metrica, metrica)
 
 # Paleta suave: verde-agua claro como cor base, escala continua leve para o
@@ -86,7 +86,7 @@ COR_REGIAO = {
     "Centro-Oeste": "#d9a8e0",    # lilas suave
 }
 
-# Cor por sexo no grafico demografico.
+# Cor por sexo no gráfico demografico.
 COR_SEXO = {
     "Feminino": "#8fcfe0",        # azul-esverdeado claro
     "Masculino": "#8fd4b8",       # verde claro suave
@@ -95,12 +95,12 @@ COR_SEXO = {
 
 
 def _layout(fig, titulo: str):
-    """Aplica um visual consistente a qualquer figura: titulo, fonte, margens.
+    """Aplica um visual consistente a qualquer figura: título, fonte, margens.
 
-    separators=',.' deixa todo numero no padrao BR (ponto de milhar, virgula
-    decimal) tanto nos rotulos quanto no hover, sem depender do locale."""
-    # o <sub> do subtitulo-resposta herda a fonte do titulo; css inline no texto
-    # deixa ele menor e mais suave que o titulo principal.
+    separators=',.' deixa todo número no padrão BR (ponto de milhar, virgula
+    decimal) tanto nos rótulos quanto no hover, sem depender do locale."""
+    # o <sub> do subtitulo-resposta herda a fonte do título. Css inline no texto
+    # deixa ele menor e mais suave que o título principal.
     fig.update_layout(
         title=dict(text=titulo, font=dict(size=16, family="Arial", color="#10171a")),
         font=dict(family="Arial", size=13, color="#39474a"),
@@ -122,11 +122,11 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
     """Le cada mart como DataFrame.
 
     Duas fontes, nesta ordem:
-    1. o sih.duckdb (uso local, apos rodar o pipeline) -> le do schema ouro;
-    2. a pasta dados_painel/ com os CSVs exportados (uso no deploy, onde nao ha
+    1. o sih.duckdb (uso local, após rodar o pipeline) -> le do schema ouro;
+    2. a pasta dados_painel/ com os CSVs exportados (uso no deploy, onde não ha
        banco) -> le de dados_painel/<mart>.csv.
     Assim o mesmo painel roda na maquina (banco completo) e no Streamlit Cloud
-    (so a camada ouro, leve)."""
+    (só a camada ouro, leve)."""
     nomes = marts if marts is not None else MARTS
     if not nomes:
         return {}
@@ -137,7 +137,7 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
         raise ValueError(f"Marts não reconhecidos: {', '.join(sorted(invalidos))}")
 
     if Path(banco).exists():
-        import duckdb  # importado so aqui: no deploy nao ha banco nem duckdb
+        import duckdb  # importado só aqui: no deploy não ha banco nem duckdb
         con = duckdb.connect(banco, read_only=True)
         try:
             return {nome: con.execute(f"SELECT * FROM ouro.{nome}").df() for nome in nomes}
@@ -156,10 +156,10 @@ def ler(marts: list[str] | None = None, banco: str = BANCO) -> dict[str, pd.Data
 
 
 # ---------------------------------------------------------------------------
-# 3. FORMATO (funcoes puras)
+# 3. FORMATO (funções puras)
 # ---------------------------------------------------------------------------
 def periodo_serie(serie: pd.DataFrame) -> str:
-    """Formata os meses presentes na serie; nao infere a competencia das AIHs."""
+    """Formata os meses presentes na serie. Não infere a competência das AIHs."""
     datas = pd.to_datetime(serie["dia"], errors="raise").dropna()
     meses = sorted(set(datas.dt.strftime("%Y-%m")))
     nomes = ("janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -168,7 +168,7 @@ def periodo_serie(serie: pd.DataFrame) -> str:
 
 
 def _br(texto: str) -> str:
-    """Troca os separadores para o padrao brasileiro sem depender do locale."""
+    """Troca os separadores para o padrão brasileiro sem depender do locale."""
     return texto.replace(",", "\x00").replace(".", ",").replace("\x00", ".")
 
 
@@ -178,7 +178,7 @@ def reais(valor: float, casas: int = 2) -> str:
 
 
 def reais_curto(valor: float) -> str:
-    """Formato compacto para caber no cartao: 2259000000 -> 'R$ 2,26 bi'."""
+    """Formato compacto para caber no cartão: 2259000000 -> 'R$ 2,26 bi'."""
     v = float(valor)
     if abs(v) >= 1_000_000_000:
         return "R$ " + _br(f"{v / 1_000_000_000:.2f}") + " bi"
@@ -203,9 +203,9 @@ def lidera(df: pd.DataFrame, rotulo_col: str, valor_col: str,
            pct_col: str | None = None) -> str:
     """Frase-resposta do tipo 'SP lidera: 249.866 (20,2% do total)'.
 
-    Nao calcula nada: le a primeira linha (os marts ja vem ordenados do maior
-    para o menor). Quando pct_col e dado, a participacao ja vem pronta na coluna
-    (somada por window function no proprio mart); sem ela, mostra so o valor."""
+    Não calcula nada: le a primeira linha (os marts já vem ordenados do maior
+    para o menor). Quando pct_col e dado, a participacao já vem pronta na coluna
+    (somada por window function no próprio mart). Sem ela, mostra só o valor."""
     if df.empty:
         return ""
     topo = df.iloc[0]
@@ -216,14 +216,14 @@ def lidera(df: pd.DataFrame, rotulo_col: str, valor_col: str,
 
 
 # ---------------------------------------------------------------------------
-# Graficos: uma funcao por grafico. Nenhuma agrega; o dado ja vem do mart.
+# Gráficos: uma função por gráfico. Nenhuma agrega. O dado já vem do mart.
 # ---------------------------------------------------------------------------
 def _barh(df: pd.DataFrame, x: str, y: str, titulo: str,
           hovertemplate: str | None = None) -> go.Figure:
     """Barras horizontais, maior em cima, com visual consistente.
 
-    Numeros no padrao BR (ponto de milhar) via separators=',.'; hover opcional
-    para um rotulo mais rico do que o padrao do plotly."""
+    Números no padrão BR (ponto de milhar) via separators=',.'. Hover opcional
+    para um rótulo mais rico do que o padrão do plotly."""
     fig = px.bar(df, x=x, y=y, orientation="h", text=x)
     fig.update_traces(
         marker_color=COR,
@@ -235,7 +235,7 @@ def _barh(df: pd.DataFrame, x: str, y: str, titulo: str,
     if hovertemplate is not None:
         fig.update_traces(hovertemplate=hovertemplate)
     fig = _layout(fig, titulo)
-    # margem direita extra para o maior rotulo nao cortar; eixo x limpo.
+    # margem direita extra para o maior rótulo não cortar. Eixo x limpo.
     # separators=',.' faz o plotly usar '.' para milhar e ',' para decimal (BR).
     fig.update_layout(
         yaxis=dict(autorange="reversed"),
@@ -279,7 +279,7 @@ def fig_mapa(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figur
 
 
 def fig_rosca_regiao(por_estado: pd.DataFrame, metrica: str = "internacoes") -> go.Figure:
-    """Grafico de rosca (donut) com a participacao de cada regiao na metrica."""
+    """Gráfico de rosca (donut) com a participacao de cada regiao na metrica."""
     if metrica not in {"internacoes", "valor_total"}:
         raise ValueError("Composicao regional exige uma metrica aditiva: internacoes ou valor_total")
     fig = px.pie(
@@ -321,7 +321,7 @@ def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
     """Custo medio por internacao em cada UF: mostra a desigualdade regional."""
     df = por_estado.sort_values("custo_medio", ascending=False)
     # resposta: o contraste entre o maior e o menor custo medio (desigualdade).
-    # So leitura das pontas do ranking ja ordenado, sem conta.
+    # Só leitura das pontas do ranking já ordenado, sem conta.
     resposta = ""
     if not df.empty:
         alto, baixo = df.iloc[0], df.iloc[-1]
@@ -342,29 +342,29 @@ def fig_custo_medio_uf(por_estado: pd.DataFrame) -> go.Figure:
     return fig
 
 
-# As tres funcoes de detalhe recebem o DataFrame ja no escopo certo: o app
-# passa o mart nacional (para "Brasil") ou o mart por UF ja filtrado por linha
+# As tres funções de detalhe recebem o DataFrame já no escopo certo: o app
+# passa o mart nacional (para "Brasil") ou o mart por UF já filtrado por linha
 # (para um estado). Assim o painel nunca decide escopo nem agrega.
 def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
-    """Top 10 diagnosticos do escopo recebido, maior em cima.
+    """Top 10 diagnósticos do escopo recebido, maior em cima.
 
-    Eixo mostra o nome da doenca; o codigo CID e o valor pago vao para o hover,
-    para o rotulo ficar limpo mas a informacao tecnica continuar a um passe de mouse."""
-    # o mart ja vem ordenado por 'posicao' e com o top 10 (mart 03) ou todos
-    # (mart 06); head(10) cobre os dois casos sem reordenar nem calcular.
+    Eixo mostra o nome da doenca. O código CID e o valor pago vao para o hover,
+    para o rótulo ficar limpo mas a informação tecnica continuar a um passe de mouse."""
+    # o mart já vem ordenado por 'posicao' e com o top 10 (mart 03) ou todos
+    # (mart 06). Head(10) cobre os dois casos sem reordenar nem calcular.
     top = df.sort_values("posicao").head(10).copy()
     # corta nomes muito longos no eixo, sem perder o nome inteiro (fica no hover)
     top["rotulo"] = top["doenca"].str.slice(0, 32).where(
         top["doenca"].str.len() <= 32, top["doenca"].str.slice(0, 32) + "…"
     )
     top["rotulo"] = top["cid"].fillna("Sem CID").astype(str) + " · " + top["rotulo"]
-    # titulo que responde: a doenca que mais interna no escopo e sua participacao
+    # título que responde: a doenca que mais interna no escopo e sua participacao
     resposta = lidera(top, "doenca", "internacoes", "pct_do_total")
     fig = _barh(
         top, x="internacoes", y="rotulo",
         titulo=f"Top 10 diagnósticos · {rotulo}<br><sub>{resposta}</sub>",
     )
-    # hover rico: nome completo (codigo CID), internacoes e valor pago.
+    # hover rico: nome completo (código CID), internacoes e valor pago.
     fig.update_traces(
         customdata=top[["doenca", "cid", "valor_total", "pct_do_total"]].to_numpy(),
         hovertemplate=(
@@ -377,10 +377,10 @@ def fig_top_diagnosticos(df: pd.DataFrame, rotulo: str) -> go.Figure:
 
 
 def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
-    """Internacoes por dia (por data de ENTRADA) ao longo do mes, no escopo recebido.
+    """Internacoes por dia (por data de ENTRADA) ao longo do mês, no escopo recebido.
 
-    O total desta serie nao bate com o KPI de internacoes: o KPI e por
-    competencia (AIH processadas no mes) e a serie e por data de entrada."""
+    O total desta serie não bate com o KPI de internacoes: o KPI e por
+    competência (AIH processadas no mês) e a serie e por data de entrada."""
     serie = df.sort_values("dia")
     fig = px.line(serie, x="dia", y="internacoes", markers=True)
     fig.update_traces(
@@ -388,7 +388,7 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
         fill="tozeroy", fillcolor="rgba(91,182,166,0.12)",
         hovertemplate="%{x|%d/%m}<br>%{y:,.0f} internações<extra></extra>",
     )
-    # resposta: o dia de pico de entradas no mes (le a maior linha, nao calcula)
+    # resposta: o dia de pico de entradas no mês (le a maior linha, não calcula)
     resposta = ""
     if not serie.empty:
         pico = serie.sort_values("internacoes", ascending=False).iloc[0]
@@ -405,7 +405,7 @@ def fig_serie_diaria(df: pd.DataFrame, rotulo: str) -> go.Figure:
 
 
 def fig_perfil(df: pd.DataFrame, rotulo: str) -> go.Figure:
-    """Internacoes por faixa etaria e sexo (barras agrupadas), no escopo recebido."""
+    """Internacoes por faixa etária e sexo (barras agrupadas), no escopo recebido."""
     ordem = ["< 1 ano", "1-14", "15-29", "30-49", "50-64", "65+", "nao informado"]
     fig = px.bar(
         df, x="faixa_etaria", y="internacoes", color="sexo", barmode="group",

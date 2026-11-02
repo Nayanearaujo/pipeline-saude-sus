@@ -1,24 +1,24 @@
 """
-Etapa 1: ingestao (arquivos de data/raw/ -> schema bronze).
+Etapa 1: ingestão (arquivos de data/raw/ -> schema bronze).
 
 Le os arquivos brutos do SIH/SUS e grava cada um como uma tabela no schema
 bronze do sih.duckdb. Regra da camada bronze: tudo entra como veio, todas as
 colunas como texto (VARCHAR), campo vazio virando NULL. Nada de tipo nem de
-limpeza aqui, isso e trabalho da transformacao.
+limpeza aqui, isso e trabalho da transformação.
 
 Fontes esperadas em data/raw/ (veja README para como gerar com baixar_dados.py
 e gerar_dicionarios.py):
     internacoes.parquet   microdados do SIH-RD (uma linha por internacao/AIH)
-    cid10.csv             dicionario CID-10: codigo -> nome da doenca
-    municipios.csv        dicionario IBGE: codigo -> municipio, UF
+    cid10.csv             dicionario CID-10: código -> nome da doenca
+    municípios.csv        dicionario IBGE: código -> município, UF
 
 Os microdados vem do DATASUS convertidos de .dbc para parquet (pyreaddbc +
-dbfread). Os dois dicionarios sao CSVs pequenos e estaveis (API do IBGE e
+dbfread). Os dois dicionarios são CSVs pequenos e estaveis (API do IBGE e
 tabela CID-10 do DATASUS). O DuckDB le parquet e csv direto.
 
 Idempotente: CREATE OR REPLACE TABLE, entao rodar de novo da o mesmo resultado.
 Rodar com:
-    uv run python -m pipeline.ingestao
+    uv run python -m pipeline.ingestão
 """
 import sys
 from pathlib import Path
@@ -31,8 +31,8 @@ RAIZ = Path(__file__).resolve().parent.parent
 RAW = RAIZ / "data" / "raw"
 
 # arquivo em data/raw/ -> (tabela bronze, leitor duckdb)
-# all_varchar=true garante a camada bronze para CSV; para o parquet, que carrega
-# o proprio tipo, o CAST(COLUMNS(*) AS VARCHAR) forca toda coluna a texto. Sem
+# all_varchar=true garante a camada bronze para CSV. Para o parquet, que carrega
+# o próprio tipo, o CAST(COLUMNS(*) AS VARCHAR) forca toda coluna a texto. Sem
 # ele, VAL_TOT entraria DOUBLE e IDADE BIGINT, quebrando a regra da bronze.
 ARQUIVOS = {
     "internacoes.parquet": (
@@ -53,8 +53,8 @@ ARQUIVOS = {
 def main():
     """Lê os arquivos de data/raw/ e grava cada um como tabela na bronze (texto)."""
     # Pre-requisito ANTES de conectar: os tres arquivos tem que existir. Se
-    # faltar algum, o script nao pode nem criar um sih.duckdb vazio no disco
-    # (ingestao parcial produz dashboard errado). Por isso a checagem vem antes
+    # faltar algum, o script não pode nem criar um sih.duckdb vazio no disco
+    # (ingestão parcial produz dashboard errado). Por isso a checagem vem antes
     # de conectar() e criar_schema().
     faltando = [arq for arq in ARQUIVOS if not (RAW / arq).exists()]
     if faltando:
@@ -66,8 +66,8 @@ def main():
 
     con = conectar()
     try:
-        # As tres fontes formam uma unica unidade de publicacao: erro em qualquer
-        # leitura preserva integralmente a versao anterior da bronze.
+        # As tres fontes formam uma única unidade de publicação: erro em qualquer
+        # leitura preserva integralmente a versão anterior da bronze.
         con.execute("BEGIN")
         criar_schema(con, "bronze")
 

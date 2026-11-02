@@ -3,7 +3,7 @@ Abre a interface web local do DuckDB (DuckDB UI) sobre o sih.duckdb.
 
 Permite explorar os schemas bronze, prata e ouro pelo navegador em
 http://localhost:4213 sem precisar abrir sessao interativa no terminal.
-Se o banco ainda nao existir, avisa e encerra sem criar arquivo vazio.
+Se o banco ainda não existir, avisa e encerra sem criar arquivo vazio.
 
     uv run python ui.py
 """
