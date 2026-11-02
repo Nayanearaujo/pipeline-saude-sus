@@ -346,7 +346,7 @@ as verificações de qualidade no repositório para rastrear as regras de cálcu
 
   </div>
   <footer>
-    Nayane Araújo · Desafio Final — Engenharia de Dados · dados públicos do SIH/SUS.<br>
+    Nayane Araújo · Desafio Final : Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
     Números lidos direto dos marts, sem cálculo na página.<br>
     Relatório gerado em {gerado}.

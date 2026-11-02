@@ -20,6 +20,7 @@ Rodar com:
 import sys
 
 from pipeline.db import conectar
+from pipeline.transformacao import ORDEM_AIH
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -106,14 +107,12 @@ def _regras(con) -> list[tuple[str, str]]:
 
         # Reconciliacao por AIH e valor, depois das exclusoes previstas.
         ("Reconciliacao: AIHs e valores da prata correspondem a bronze elegivel",
-         """WITH classificadas AS (
+         f"""WITH classificadas AS (
                 SELECT CAST(N_AIH AS VARCHAR) AS aih,
                        NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
                        row_number() OVER (
                            PARTITION BY CAST(N_AIH AS VARCHAR)
-                           ORDER BY DT_SAIDA DESC NULLS LAST,
-                                    CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '')
-                                         AS DECIMAL(12,2)) DESC NULLS LAST
+                           ORDER BY {ORDEM_AIH}
                        ) AS posicao
                 FROM bronze.internacoes
             ), esperadas AS (
@@ -150,6 +149,25 @@ def _regras(con) -> list[tuple[str, str]]:
         ("Nomes reais: top_diagnosticos_brasil nao esta em modo neutro (CID <codigo>)",
          """SELECT count(*) FILTER (WHERE doenca = 'CID ' || cid) < count(*) / 2
             FROM ouro.top_diagnosticos_brasil"""),
+
+        # Orçamento de descrições ausentes: no máximo uma AIH em mil (0,1%).
+        # A correção das categorias deixa 76/1.238.234 (0,0062%) nos CSVs;
+        # o teto permite resíduos raros, mas bloqueia a regressão anterior de 2,97%.
+        ("Descricoes: no maximo 0,1% das internacoes sem nome CID",
+         """SELECT 100.0 * coalesce(sum(internacoes) FILTER (
+                 WHERE lower(trim(coalesce(doenca, ''))) IN ('nao classificado', 'não classificado', '')
+                    OR doenca = 'CID ' || cid), 0) / nullif(sum(internacoes), 0) <= 0.1
+            FROM ouro.top_diagnosticos_brasil"""),
+        ("Descricoes: top 20 nacional tem nomes CID",
+         """SELECT count(*) = 0 FROM (
+                SELECT * FROM ouro.top_diagnosticos_brasil ORDER BY internacoes DESC, cid LIMIT 20
+            ) WHERE lower(trim(coalesce(doenca, ''))) IN ('nao classificado', 'não classificado', '')
+                 OR doenca = 'CID ' || cid"""),
+        ("Descricoes: top 20 mortalidade tem nomes CID",
+         """SELECT count(*) = 0 FROM (
+                SELECT * FROM ouro.mortalidade_por_cid ORDER BY taxa_mortalidade_pct DESC, cid LIMIT 20
+            ) WHERE lower(trim(coalesce(doenca, ''))) IN ('nao classificado', 'não classificado', '')
+                 OR doenca = 'CID ' || cid"""),
 
         # 5b. Dois caminhos concordam, por-UF x nacional: a soma das internacoes
         #     do perfil por UF bate com o total do perfil nacional.

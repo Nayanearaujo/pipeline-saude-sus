@@ -133,3 +133,46 @@ def test_subconjunto_com_opt_in_publica_amostra(tmp_path, monkeypatch):
     )
     baixar_dados.main()
     assert pd.read_parquet(tmp_path / "internacoes.parquet")["UF_ARQUIVO"].tolist() == ["RJ"]
+
+
+def test_download_tenta_espelhos_e_retorna_bytes(monkeypatch):
+    import io
+    chamadas = []
+    def resposta(url, **kwargs):
+        chamadas.append(url)
+        if len(chamadas) == 1:
+            raise OSError('primeiro espelho indisponivel')
+        return io.BytesIO(b'dbc')
+    monkeypatch.setattr('urllib.request.urlopen', resposta)
+    assert baixar_dados._baixar_dbc('arquivo.dbc') == b'dbc'
+    assert len(chamadas) == 2
+    monkeypatch.setattr('urllib.request.urlopen', lambda *a, **k: (_ for _ in ()).throw(OSError('offline')))
+    assert baixar_dados._baixar_dbc('arquivo.dbc') is None
+
+
+def test_conversao_limpa_temporarios_em_sucesso_e_erro(tmp_path, monkeypatch):
+    import dbfread
+    import pyreaddbc
+    monkeypatch.setattr(baixar_dados, 'RAW', tmp_path)
+    def converter(origem, destino):
+        from pathlib import Path
+        assert Path(origem).read_bytes() == b'dbc'
+        Path(destino).write_bytes(b'dbf')
+    monkeypatch.setattr(pyreaddbc, 'dbc2dbf', converter)
+    monkeypatch.setattr(dbfread, 'DBF', lambda *a, **k: [{'N_AIH': '123'}])
+    assert baixar_dados._dbc_para_df(b'dbc', 'teste.dbc').N_AIH.tolist() == ['123']
+    assert not list(tmp_path.iterdir())
+    monkeypatch.setattr(dbfread, 'DBF', lambda *a, **k: (_ for _ in ()).throw(ValueError('dbf invalido')))
+    with pytest.raises(ValueError):
+        baixar_dados._dbc_para_df(b'dbc', 'teste.dbc')
+    assert not list(tmp_path.iterdir())
+
+
+def test_download_sem_arquivos_encerra(tmp_path, monkeypatch):
+    monkeypatch.setattr(baixar_dados, 'RAW', tmp_path)
+    monkeypatch.setattr(baixar_dados, 'UFS', ['RJ'])
+    monkeypatch.setenv('PERMITIR_PARCIAL', '1')
+    monkeypatch.setattr(baixar_dados, '_baixar_dbc', lambda nome: None)
+    with pytest.raises(SystemExit):
+        baixar_dados.main()
+    assert not (tmp_path / 'internacoes.parquet').exists()

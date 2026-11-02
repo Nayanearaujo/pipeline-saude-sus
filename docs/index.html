@@ -74,7 +74,7 @@
 
   <div class="banner">
     <h1>🏥 Pipeline de Saúde SUS · do .dbc ao dashboard</h1>
-    <p><strong>Desafio Final — Trilha de Engenharia de Dados</strong></p>
+    <p><strong>Desafio Final : Trilha de Engenharia de Dados</strong></p>
     <p>Autora: Nayane Araújo · dataset: internações hospitalares do SUS (SIH/DATASUS)</p>
     <p>Repositório: <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">github.com/Nayanearaujo/pipeline-saude-sus</a></p>
     <p>Dashboard ao vivo: <a href="https://pipeline-saude-sus.streamlit.app/">pipeline-saude-sus.streamlit.app</a></p>
@@ -83,7 +83,7 @@
       <span class="pill">Python</span>
       <span class="pill">DuckDB</span>
       <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura 97,54%</span>
+      <span class="pill">pytest · cobertura 97,01%</span>
       <span class="pill">CI (GitHub Actions)</span>
       <span class="pill">1.238.234 internações</span>
       <span class="pill">abril/2026</span>
@@ -232,20 +232,20 @@ ORDER BY internacoes DESC, uf;</pre>
       percentual e posição de ranking já vem pronto dos marts em SQL.</p>
     </div>
     <div class="etapa">
-      <span class="tag">testes · test/ (120 testes unitários)</span>
-      <h3>Testes com pytest, cobertura de 97,54%</h3>
-      <p>120 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
+      <span class="tag">testes · test/ (138 testes unitários)</span>
+      <h3>Testes com pytest, cobertura de 97,01%</h3>
+      <p>138 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
       (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
       <code>transformacao.py</code> (96%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
       faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
       <code>painel.py</code> (99%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,54%</strong>.</p>
+      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,01%</strong>.</p>
     </div>
     <div class="etapa">
-      <span class="tag">qualidade · pipeline/qualidade.py (34 regras)</span>
+      <span class="tag">qualidade · pipeline/qualidade.py (37 regras)</span>
       <h3>34 checagens SQL que travam o build</h3>
-      <p>A conferência que a gente faria na mão virou código: 34 regras SQL cobrindo as 6
-      famílias da Aula 4 — <em>não vazio</em> (nos 10 marts), <em>chave única</em>
+      <p>A conferência que a gente faria na mão virou código: 37 regras SQL cobrindo as 6
+      famílias da Aula 4 : <em>não vazio</em> (nos 10 marts), <em>chave única</em>
       (<code>aih</code> na prata, <code>uf</code> no por_estado e códigos nos dicionários
       <code>cid10</code> e <code>municipios</code>), <em>domínio</em> (idade ≥ 0, mortalidade
       0..100, 27 siglas de UF e proteção contra dicionário em modo neutro),
@@ -267,7 +267,7 @@ uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
 uv run python executar.py                # bronze -> prata -> ouro -> qualidade
 
 uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 120 testes (cobertura 97,54%)
+uv run pytest --cov                       # os 138 testes (cobertura 97,01%)
 uv run ruff check .                       # estilo e imports</pre>
     <div class="nota">
       Os dados brutos não ficam no repositório (boas práticas: são grandes e
@@ -288,21 +288,20 @@ uv run ruff check .                       # estilo e imports</pre>
       <code>COD_IDADE</code>. O perfil publicado contém 60.839 AIHs menores de um ano;
       comparações históricas antes/depois não foram reexecutadas na auditoria.</li>
       <li><strong>Descrições e proveniência.</strong> O IBGE é consultado para municípios;
-      o CID-10 vem de um espelho público. A qualidade bloqueia predominância de nomes
-      neutros, sem garantir descrição para todo código.</li>
+      o CID-10 vem de um espelho público. A qualidade limita nomes ausentes a 0,1% das internações e exige descrições nos 20 primeiros diagnósticos nacionais e de mortalidade.</li>
     </ul>
     <p>Por isso toda a conferência de grão, chave única e reconciliação de somas
     virou código executável em <code>pipeline/qualidade.py</code>.</p>
   </section>
 
   <section>
-    <h2>Auditoria final · 01/11/2026</h2>
-    <p>Os dez CSVs do PR final passaram em 27 verificações e seus hashes conferem
-    com o manifesto. A saída de terminal fornecida pelo usuário confirmou 34 regras
-    aprovadas, 529 AIHs duplicadas excluídas e os dez marts exportados. Competência
-    registrada: abril/2026. A recomputação em ambos os bancos confirmou
-    R$ 2.258.865.118,36; os totais antigos e a limitação de proveniência histórica
-    estão documentados na auditoria. O merge final aguarda aprovação.</p>
+    <h2>Validação atual</h2>
+    <p>Os dez CSVs reconciliam 1.238.234 internações e R$ 2.258.865.118,36.
+    A atualização de descrições CID reduziu as internações sem nome de 36.736 para 76,
+    sem alterar os demais campos. Os 138 testes passaram, com cobertura de 97,01%
+    incluindo scripts auxiliares. Há 37 regras no código; a execução real anterior
+    passou nas 34 regras então existentes. A nova deduplicação e as 37 regras
+    aguardam reprocessamento local, assim como a investigação do recorte mensal.</p>
     <p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/AUDITORIA_FINAL.md">Evidências, verificações e pendências</a>.</p>
   </section>
 
@@ -320,7 +319,7 @@ uv run ruff check .                       # estilo e imports</pre>
   </section>
 
   <footer>
-    Nayane Araújo · Pós-Graduanda em Engenharia de Dados · Desafio Final — Trilha de Engenharia de Dados ·
+    Nayane Araújo · Pós-Graduanda em Engenharia de Dados · Desafio Final : Trilha de Engenharia de Dados ·
     dados públicos do SIH/SUS (DATASUS)
   </footer>
 

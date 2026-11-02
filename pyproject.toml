@@ -40,11 +40,8 @@ pythonpath = ["."]
 
 [tool.coverage.run]
 source = ["."]
-# Fora da medicao: a tela (app.py, conferida no navegador), o atalho do DuckDB UI
-# e os scripts de I/O externo (baixam da internet, nao se testa com dado inventado).
-# A cobertura mede a logica do pipeline: ingestao, transformacao, marts, qualidade,
-# painel e relatorio.
-omit = ["test/*", "app.py", "ui.py", "baixar_dados.py", "gerar_dicionarios.py", "executar.py", ".venv/*"]
+# Inclui download, dicionários e orquestração; exclui somente interfaces e testes.
+omit = ["test/*", "app.py", "ui.py", ".venv/*"]
 
 [tool.coverage.report]
 fail_under = 95

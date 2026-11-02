@@ -1,8 +1,6 @@
 # Gráficos · manutenção da identidade visual da saúde
 
-O PR nº 16 foi revisto após a avaliação do usuário. O cabeçalho, o fundo
-verde-bebê, os cartões e a disposição anterior foram restaurados. A proposta
-azul com abas não faz parte desta revisão.
+O dashboard mantém o cabeçalho, o fundo verde-bebê, os cartões e o fluxo contínuo aprovados.
 
 | Gráfico | Melhoria |
 |---|---|
@@ -16,21 +14,17 @@ azul com abas não faz parte desta revisão.
 | Mortalidade por CID | Nome do diagnóstico e CID visíveis; volume e óbitos no detalhe; explicação de CID, AIH e taxa abaixo. |
 | Pareto municipal | Curva completa, referência de 80% dentro da área visível, explicação dos eixos e botões para todos ou os primeiros 30. |
 
-Não foram alterados SQLs ou os dez CSVs auditados. Não foram criadas médias,
-taxas ou percentuais novos na interface. A mediana e a permanência por grupo
-já existem nos marts; os percentuais do Pareto são lidos prontos.
+Os SQLs dos marts e as métricas visuais permanecem iguais. A atualização de
+CID alterou somente descrições em três CSVs; não criou taxas, médias ou
+percentuais na interface. A mediana, a permanência por grupo e o percentual
+acumulado são lidos prontos dos marts.
 
-O mapa usa MapLibre com fundo sem tiles. O arquivo e sua atribuição/licença
-estão em `assets/`. A geometria foi simplificada para uso visual e não serve
-para análises geoespaciais. JavaScript e WebGL continuam necessários.
-A dependência Plotly foi alinhada à API de mapas usada, mantendo a versão 7.1.0
-já presente no lockfile e no deploy.
+O Streamlit usa MapLibre com geometria local em `assets/`, cuja licença e
+atribuição estão preservadas. Precisa de JavaScript e WebGL. No relatório HTML,
+o mapa é SVG completo e centralizado, sem câmera nem dependência de WebGL.
+A geometria é simplificada para apresentação, não para análise geoespacial.
 
-Validação: 120 testes aprovados, cobertura de 97,54%, Ruff aprovado. AppTest
-com Brasil/SP/AC e as cinco métricas, nove gráficos e tabela demográfica.
-A verificação visual do mapa na prévia do usuário permanece necessária;
-a remoção das dependências remotas não equivale a testar seu navegador.
-O relatório estático foi regenerado com os mesmos CSVs para acompanhar as
-mudanças dos gráficos compartilhados, preservando os valores da auditoria.
-
-Revisão de entrega: o HTML inclui os nove gráficos nacionais e as explicações dos dois complementares. A prévia local das mudanças visuais foi aprovada pelo usuário; a versão do Streamlit público ainda precisa ser confirmada.
+Validação: 138 testes, cobertura de 97,01% incluindo scripts auxiliares e Ruff aprovado.
+O visual do Streamlit e o enquadramento do mapa SVG foram aprovados na revisão
+anterior. Esta atualização preserva as figuras e altera somente os nomes CID.
+O HTML foi regenerado a partir dos CSVs atuais.

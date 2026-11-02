@@ -204,8 +204,8 @@ RO,J189,Pneumonia não especificada,281,284992.45,2.26,2
 RO,O820,Parto por cesariana eletiva,225,165091.94,1.81,3
 RO,Z039,Observação por suspeita de doença ou afecção não especificada,222,12235.89,1.79,4
 RO,Z302,Esterilização,199,147826.46,1.6,5
-RO,O82,nao classificado,196,159209.6,1.58,6
-RO,J18,nao classificado,182,201686.79,1.47,7
+RO,O82,Parto único por cesariana,196,159209.6,1.58,6
+RO,J18,Pneumonia por microorganismo não especificada,182,201686.79,1.47,7
 RO,N390,Infecção do trato urinário de localização não especificada,179,52465.59,1.44,8
 RO,I64,"Acidente vascular cerebral, não especificado como hemorrágico ou isquêmico",138,200010.46,1.11,9
 RO,P599,Icterícia neonatal não especificada,120,42364.22,0.97,10
