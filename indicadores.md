@@ -61,7 +61,7 @@ O código é preservado sem ponto. Sem correspondência exata, a expressão SQL
 `COALESCE(c.doenca, 'nao classificado')` mantém a internação no resultado.
 
 A qualidade tolera até 0,1% das internações sem descrição e exige nomes nos
-20 primeiros diagnósticos nacionais e de mortalidade. A revisão publicada
+20 primeiros diagnósticos nacionais e de mortalidade. A versão publicada
 completou os sete códigos restantes, associados a 76 internações, com fontes
 oficiais complementares registradas em `docs/cid-complementar.csv`.
 
