@@ -58,11 +58,12 @@ A taxa não é ajustada por gravidade e não mede mortalidade populacional.
 
 Os códigos são ligados ao dicionário completo de categorias e subcategorias.
 O código é preservado sem ponto. Sem correspondência exata, a expressão SQL
-`COALESCE(c.doenca, 'nao classificado')` mantém a internação no resultado.
+`COALESCE(c.doenca, 'Descrição não localizada na fonte')` mantém a internação no resultado.
 
 A qualidade tolera até 0,1% das internações sem descrição e exige nomes nos
 20 primeiros diagnósticos nacionais e de mortalidade. A revisão publicada
-contém sete códigos sem nome, associados a 76 internações.
+completou os sete códigos restantes, associados a 76 internações, com fontes
+oficiais complementares registradas em `docs/cid-complementar.csv`.
 
 ## Série diária e competência
 
@@ -71,10 +72,11 @@ Neste conjunto, todas as 1.238.763 linhas da Bronze têm competência abril de 2
 A série de entradas de abril soma 703.067 AIHs. As 535.167 restantes têm datas
 anteriores e permanecem nos indicadores consolidados.
 
-Os marts 05 e 07 selecionam o mês da data de entrada mais frequente com
-`date_trunc('month', mode(data_internacao))`. Não selecionam necessariamente
-o mês com maior volume. A heurística foi preservada e deve ser revista antes
-de generalizar o projeto para outras competências.
+Os marts 05 e 07 selecionam as entradas no mês da coluna `competencia`,
+preservada de `ANO_CMPT` e `MES_CMPT`. O pipeline rejeita competências misturadas
+antes da deduplicação e da construção dos marts. A generalização para vários meses
+exige execuções separadas. A série não inclui entradas anteriores, mas elas
+continuam nos indicadores consolidados da competência.
 
 ## Municípios, geografia e concentração
 

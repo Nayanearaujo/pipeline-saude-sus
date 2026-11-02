@@ -2379,7 +2379,7 @@ L88,Piodermite gangrenosa,38,17429.11,0.0,2377
 M202,Hallux rigidus,38,32308.05,0.0,2378
 M508,Outros transtornos de discos cervicais,38,183399.29,0.0,2379
 N059,Síndrome nefrítica não especificada - não especificada,38,21431.16,0.0,2380
-N185,nao classificado,38,71913.0,0.0,2381
+N185,"Doença renal crônica, estágio 5",38,71913.0,0.0,2381
 N489,Transtorno não especificado do pênis,38,15080.82,0.0,2382
 N908,Outros transtornos não-inflamatórios especificados da vulva e do períneo,38,7364.89,0.0,2383
 O063,"Aborto não especificado - incompleto, com outras complicações ou com complicações não especificadas",38,10133.39,0.0,2384
@@ -3067,7 +3067,7 @@ M798,Outros transtornos especificados dos tecidos moles,21,25498.79,0.0,3065
 M890,Algoneurodistrofia,21,42551.52,0.0,3066
 M939,"Osteocondropatias, não especificada",21,62477.9,0.0,3067
 N165,Transtornos renais túbulo-intersticiais em rejeição a transplantes,21,54528.09,0.0,3068
-N184,nao classificado,21,17182.26,0.0,3069
+N184,"Doença renal crônica, estágio 4",21,17182.26,0.0,3069
 N393,"Incontinência de tensão (""stress"")",21,13613.19,0.0,3070
 N609,Displasia mamária benigna não especificada,21,33514.55,0.0,3071
 N888,Outros transtornos não-inflamatórios especificados do colo do útero,21,7180.78,0.0,3072
@@ -4679,7 +4679,7 @@ M81,Osteoporose sem fratura patológica,7,1354.56,0.0,4677
 M818,Outras osteoporoses,7,2300.34,0.0,4678
 M911,Osteocondrose juvenil da cabeça do fêmur [Legg-Calvé-Perthes],7,4252.07,0.0,4679
 N00,Síndrome nefrítica aguda,7,2412.62,0.0,4680
-N182,nao classificado,7,8269.34,0.0,4681
+N182,"Doença renal crônica, estágio 2",7,8269.34,0.0,4681
 N323,Divertículo da bexiga,7,10465.77,0.0,4682
 N51,Transtornos dos órgãos genitais masculinos em doenças classificadas em outra parte,7,2159.13,0.0,4683
 N821,Outras fístulas do trato geniturinário feminino,7,8749.82,0.0,4684
@@ -5501,7 +5501,7 @@ N079,Nefropatia hereditária não classificada em outra parte - não especificad
 N08,Transtornos glomerulares em doenças classificadas em outra parte,4,1482.99,0.0,5500
 N083,Transtornos glomerulares no diabetes mellitus,4,8329.03,0.0,5501
 N16,Transtornos renais túbulo-intersticiais em doenças classificadas em outra parte,4,2048.94,0.0,5502
-N183,nao classificado,4,5171.7,0.0,5503
+N183,"Doença renal crônica, estágio 3",4,5171.7,0.0,5503
 N330,Cistite tuberculosa,4,1621.83,0.0,5504
 N36,Outros transtornos da uretra,4,1999.44,0.0,5505
 N490,Transtornos inflamatórios da vesícula seminal,4,7634.62,0.0,5506
@@ -6065,7 +6065,7 @@ T900,Seqüelas de traumatismo superficial da cabeça,3,1079.12,0.0,6063
 T918,Seqüelas de outros traumatismos especificados do pescoço e do tronco,3,10888.72,0.0,6064
 T919,Seqüelas de traumatismo não especificado do pescoço e do tronco,3,11705.0,0.0,6065
 T98,Seqüelas de outros efeitos de causas externas e dos não especificados,3,1656.9,0.0,6066
-U10,nao classificado,3,1153.61,0.0,6067
+U10,Síndrome inflamatória multissistêmica associada à covid-19,3,1153.61,0.0,6067
 Z004,Exame psiquiátrico geral não classificado em outra parte,3,476.36,0.0,6068
 Z11,"Exame especial de rastreamento (""screening"") de doenças infecciosas e parasitárias",3,5976.49,0.0,6069
 Z138,Exame especial de rastreamento de outras doenças e transtornos especificados,3,585.99,0.0,6070
@@ -6713,7 +6713,7 @@ T87,Complicações próprias de reimplante e amputação,2,2238.77,0.0,6711
 T914,Seqüelas de traumatismo de órgãos intratorácicos,2,20268.21,0.0,6712
 T920,Seqüelas de ferimento do membro superior,2,1291.98,0.0,6713
 T954,Seqüelas de queimadura e corrosão classificável só de acordo com a extensão da área corporal envolvida,2,653.22,0.0,6714
-U109,nao classificado,2,576.14,0.0,6715
+U109,"Síndrome inflamatória multissistêmica associada à covid-19, não especificada",2,576.14,0.0,6715
 Z034,Observação por suspeita de infarto do miocárdio,2,641.68,0.0,6716
 Z035,Observação por suspeita de outras doenças cardiovasculares,2,599.81,0.0,6717
 Z042,Exame e observação após acidente de trabalho,2,90.44,0.0,6718
@@ -6880,7 +6880,7 @@ C512,Neoplasia maligna do clitóris,1,933.51,0.0,6878
 C573,Neoplasia maligna do paramétrio,1,428.64,0.0,6879
 C754,Neoplasia maligna do corpo carotídeo,1,302.59,0.0,6880
 C755,Neoplasia maligna do corpo aórtico e outros paragânglios,1,45.93,0.0,6881
-C823,nao classificado,1,496.87,0.0,6882
+C823,Linfoma folicular grau IIIa,1,496.87,0.0,6882
 C88,Doenças imunoproliferativas malignas,1,1276.48,0.0,6883
 C881,Doença de cadeia pesada alfa,1,138.87,0.0,6884
 C883,Doença imunoproliferativa do intestino delgado,1,867.86,0.0,6885

@@ -14,7 +14,7 @@ def test_motivos_exclusao_sem_sobreposicao(tmp_path, monkeypatch, capsys):
     con.execute("""
         INSERT INTO bronze.internacoes
         SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, NULL, DIAS_PERM,
-               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, '20260101'
+               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, '20260101', ANO_CMPT, MES_CMPT
         FROM bronze.internacoes WHERE N_AIH = 'a1'
     """)
     assert transformacao._motivos_exclusao_internacoes(con) == (1, 1)
@@ -43,7 +43,7 @@ def test_duplicata_recente_sem_valor_preserva_aih_valida(tmp_path, monkeypatch):
     con = duckdb.connect(str(banco))
     con.execute("""INSERT INTO bronze.internacoes
         SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, NULL, DIAS_PERM,
-               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, '20261231'
+               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, '20261231', ANO_CMPT, MES_CMPT
         FROM bronze.internacoes WHERE N_AIH = 'a1'""")
     assert transformacao._motivos_exclusao_internacoes(con) == (1, 1)
     con.close()

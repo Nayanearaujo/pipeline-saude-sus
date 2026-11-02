@@ -9,18 +9,19 @@ rode depois: uv run streamlit run app.py
 """
 import sys
 
-from pipeline import ingestao, marts, qualidade, transformacao
+from pipeline import auditoria, ingestao, marts, qualidade, transformacao
 
 ETAPAS = [
-    ("1/4 · ingestao   (data/raw -> bronze)", ingestao.main),
-    ("2/4 · transformacao (bronze -> prata)", transformacao.main),
-    ("3/4 · marts         (prata -> ouro)", marts.main),
-    ("4/4 · qualidade     (checagens)", qualidade.main),
+    ("1/5 · ingestao   (data/raw -> bronze)", ingestao.main),
+    ("2/5 · transformacao (bronze -> prata)", transformacao.main),
+    ("3/5 · marts         (prata -> ouro)", marts.main),
+    ("4/5 · auditoria     (descrições e datas)", auditoria.main),
+    ("5/5 · qualidade     (checagens)", qualidade.main),
 ]
 
 
 def main():
-    """Roda as quatro etapas em ordem, parando na primeira que falhar."""
+    """Roda as cinco etapas em ordem, parando na primeira que falhar."""
     for titulo, etapa in ETAPAS:
         print(f"\n=== {titulo} ===")
         etapa()

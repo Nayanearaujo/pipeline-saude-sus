@@ -136,3 +136,12 @@ def test_main_dicionarios_exige_parquet_e_encaminha_codigos(tmp_path, monkeypatc
     monkeypatch.setattr(gd, 'gerar_cid', lambda cod: chamados.append(cod))
     gd.main()
     assert chamados == [{'330455'}, {'A00'}]
+
+
+def test_complemento_oficial_exato_sem_substituir_descricao_da_fonte():
+    out = pd.DataFrame({'codigo': ['N185'], 'descricao': ['Descrição original']})
+    r = gd.complementar_cid(out, {'N185', 'U109', 'ZZZ'})
+    nomes = dict(zip(r.codigo, r.descricao))
+    assert nomes['N185'] == 'Descrição original'
+    assert nomes['U109'] == 'Síndrome inflamatória multissistêmica associada à covid-19, não especificada'
+    assert 'ZZZ' not in nomes

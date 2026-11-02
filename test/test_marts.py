@@ -28,6 +28,7 @@ def _prata_minima(con):
                valor_total, dias_permanencia, idade, sexo, morte,
                data_internacao, data_saida)
     """)
+    con.execute("ALTER TABLE prata.internacoes ADD COLUMN competencia DATE DEFAULT DATE '2026-07-01'")
     con.execute(
         "CREATE TABLE prata.cid10 AS "
         "SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)"
@@ -275,7 +276,7 @@ def test_join_cid_categoria_subcategoria_e_inexistente():
     con.execute('CREATE TABLE ouro.top_diagnosticos_brasil AS ' +
                 (Path(__file__).resolve().parents[1] / 'sql/marts/06_top_diagnosticos_brasil.sql').read_text())
     assert dict(con.execute('SELECT cid,doenca FROM ouro.top_diagnosticos_brasil').fetchall()) == {
-        'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'nao classificado'}
+        'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'Descrição não localizada na fonte'}
     assert con.execute('SELECT sum(internacoes) FROM ouro.top_diagnosticos_brasil').fetchone()[0] == 3
     con.close()
 
@@ -291,3 +292,26 @@ def test_perfil_preserva_idade_desconhecida_sem_classificar_como_idoso():
         assert linhas.loc[linhas.faixa_etaria == 'nao informado', 'internacoes'].sum() == 1
         assert not (linhas.faixa_etaria == '65+').any()
     con.close()
+
+
+def test_serie_usa_competencia_mesmo_com_mais_entradas_anteriores():
+    con = duckdb.connect()
+    _prata_minima(con)
+    con.execute("UPDATE prata.internacoes SET data_internacao=DATE '2026-06-01' WHERE aih != 'a3'")
+    for arquivo in ['05_internacoes_diarias.sql', '07_internacoes_diarias_brasil.sql']:
+        resultado = con.execute(_ler_sql(arquivo)).df()
+        assert resultado.internacoes.sum() == 1
+        assert str(resultado.iloc[0].dia.date()) == '2026-07-03'
+    con.execute("UPDATE prata.internacoes SET competencia=DATE '2026-06-01' WHERE aih='a1'")
+    with pytest.raises(duckdb.InvalidInputException, match='competência'):
+        con.execute(_ler_sql('07_internacoes_diarias_brasil.sql')).fetchall()
+    con.close()
+
+
+def test_executor_rejeita_competencias_misturadas(tmp_path, monkeypatch):
+    banco, pasta = _preparar(tmp_path, monkeypatch)
+    (pasta / '01_teste.sql').write_text('SELECT 1 AS x')
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE prata.internacoes SET competencia=DATE '2026-06-01' WHERE aih='a1'")
+    with pytest.raises(SystemExit, match='competência'):
+        marts.main()

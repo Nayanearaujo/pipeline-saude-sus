@@ -39,3 +39,6 @@ service-account*.json
 
 # Resultados locais da conferência final
 /conferencia-final.json
+
+# Auditorias locais agregadas
+/data/auditoria/

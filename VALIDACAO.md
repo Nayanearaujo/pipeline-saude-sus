@@ -43,13 +43,14 @@ sem linhas exclusivas em nenhum dos lados. Os hashes dos dez CSVs também passar
 
 A inclusão das categorias do CID completou 1.048 descrições nacionais.
 As internações sem nome passaram de 36.736 para 76, em sete códigos ausentes
-na fonte versionada. A atualização dos CSVs alterou apenas `doenca`.
+no espelho versionado. Esses sete foram depois completados com fontes oficiais
+registradas em `docs/cid-complementar.csv`, deixando zero ausências nos CSVs. A atualização dos CSVs alterou apenas `doenca`.
 Códigos, posições, contagens, valores e demais campos foram preservados.
 As três regras de descrição passaram nos CSVs e na execução local registrada.
 
 ## Revisão final do código
 
-- 147 testes automatizados aprovados, com cobertura de 97,05%.
+- 156 testes automatizados aprovados, com cobertura de 97,06%.
 - Ruff aprovado e cobertura mínima de 95% preservada.
 - Download, dicionários e orquestração incluídos na cobertura.
 - Duplicata recente sem valor não elimina a linha válida da mesma AIH.
@@ -85,9 +86,16 @@ apresentou uma interface anterior. A verificação após o reinício do aplicati
 
 ## Limites preservados
 
-O recorte mensal continua usando o mês da data de entrada mais frequente,
-por meio de `mode()`. Ele coincide com abril de 2026 neste conjunto.
-A generalização para outras competências exige uma alteração específica.
+O recorte mensal agora usa a competência explícita, sem `mode()`.
+A Bronze deve conter uma única competência por execução, inclusive antes da
+deduplicação. Os testes incluem um conjunto com mais entradas em outro mês.
+O resultado segue o mês de processamento, independentemente dessa frequência.
+A execução com os microdados locais desta nova versão ainda está pendente.
+
+A auditoria de datas produz arquivos agregados locais, sem alterar a Prata.
+A regra de dez anos é uma triagem para investigação, sem diagnóstico de causa.
+A concentração em 01/01/2008 continua sem explicação comprovada até a nova
+execução e análise conjunta de saídas e permanências.
 
 AIHs não representam pessoas únicas. Valores registrados não medem o custo
 integral da assistência. A mortalidade hospitalar não é uma taxa populacional
