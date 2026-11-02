@@ -279,7 +279,12 @@ def main():
     metrica_regional = metrica if metrica in {"internacoes", "valor_total"} else "internacoes"
     mapa = painel.fig_mapa(por_estado, metrica)
     rosca = painel.fig_rosca_regiao(por_estado, metrica_regional)
-    mapa.update_layout(height=560)
+    mapa.update_layout(
+        height=560,
+        map_bounds=None,
+        map_center=dict(lon=-54, lat=-14),
+        map_zoom=2.2,
+    )
     rosca.update_layout(height=560)
     col_mapa, col_rosca = st.columns(2)
     with col_mapa:
