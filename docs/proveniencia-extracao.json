@@ -58,5 +58,13 @@
     "aihs_sem_descricao_antes": 36736,
     "aihs_sem_descricao_depois": 76,
     "limite_percentual": 0.1
+  },
+  "validacao_local_corrigida": {
+    "commit_processamento": "2eab12c82389bf5cd2289ce582f3a8df2840ac37",
+    "evidencia": "validacao-local-corrigida.json",
+    "regras_aprovadas": 37,
+    "competencia_bronze": "2026-04",
+    "histograma_prata_soma": 1238234,
+    "valor_total_com_centavos_confirmado_nesta_saida": false
   }
 }

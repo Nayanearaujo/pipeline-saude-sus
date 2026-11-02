@@ -1,0 +1,908 @@
+{
+  "base_codigo": "2eab12c82389bf5cd2289ce582f3a8df2840ac37",
+  "origem": "Saída de terminal da execução local, recebida para conferência. Não é execução remota nem acesso independente aos microdados.",
+  "sha256_registro_terminal": "f86483c4ad973a0609046efb74a62a7b1e323a2f5ede3e56e29a9339bea0f144",
+  "bronze_internacoes": 1238763,
+  "prata_internacoes": 1238234,
+  "aih_duplicadas_excluidas": 529,
+  "exclusoes_sem_valor": 0,
+  "dicionario_cid_linhas": 14233,
+  "municipios_linhas": 5571,
+  "marts": 10,
+  "linhas_marts": 16400,
+  "regras_qualidade_aprovadas": 37,
+  "competencias_bronze": [
+    {
+      "ano": "2026",
+      "mes": "04",
+      "registros": 1238763
+    }
+  ],
+  "kpi_exibido": {
+    "internacoes": 1238234,
+    "ufs": 27,
+    "valor_total_notacao_cientifica": "2.258865e+09",
+    "custo_medio": 1824.26,
+    "dias_medio": 4.8,
+    "taxa_mortalidade_pct": 4.1
+  },
+  "limite_financeiro_evidencia": "O valor total foi impresso em notação científica; esta saída não permite confirmar centavos. O valor exato publicado continua verificado separadamente nos CSVs.",
+  "serie_diaria": {
+    "mes": "2026-04",
+    "internacoes": 703067,
+    "fora_do_mes": 535167,
+    "antes_de_2026": 14538,
+    "soma_histograma": 1238234
+  },
+  "internacoes_por_mes_entrada": [
+    {
+      "mes": "2008-01-01",
+      "internacoes": 617
+    },
+    {
+      "mes": "2008-02-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2008-03-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2008-04-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2008-05-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2008-06-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2008-07-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2008-08-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2008-09-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2008-10-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2008-11-01",
+      "internacoes": 20
+    },
+    {
+      "mes": "2009-01-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2009-02-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2009-03-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2009-04-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2009-06-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2009-07-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2009-08-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2009-09-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2009-10-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2009-11-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2009-12-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2010-01-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2010-03-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2010-04-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2010-05-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2010-06-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2010-07-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2010-08-01",
+      "internacoes": 31
+    },
+    {
+      "mes": "2010-09-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2010-10-01",
+      "internacoes": 18
+    },
+    {
+      "mes": "2010-11-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2010-12-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2011-01-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2011-02-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2011-03-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2011-04-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2011-05-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2011-06-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2011-07-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2011-08-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2011-10-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2011-11-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2011-12-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2012-01-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2012-02-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2012-03-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2012-04-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2012-05-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2012-06-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2012-07-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2012-08-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2012-09-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2012-10-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2012-11-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2012-12-01",
+      "internacoes": 24
+    },
+    {
+      "mes": "2013-01-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2013-02-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2013-03-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2013-04-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2013-05-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2013-06-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2013-07-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2013-08-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2013-09-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2013-10-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2013-11-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2013-12-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2014-01-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2014-02-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2014-03-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2014-04-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2014-05-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2014-06-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2014-07-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2014-08-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2014-09-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2014-10-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2014-11-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2014-12-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2015-01-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2015-02-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2015-03-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2015-04-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2015-05-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2015-06-01",
+      "internacoes": 13
+    },
+    {
+      "mes": "2015-07-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2015-08-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2015-09-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2015-10-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2015-11-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2015-12-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2016-01-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2016-02-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2016-03-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2016-04-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2016-05-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2016-06-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2016-07-01",
+      "internacoes": 45
+    },
+    {
+      "mes": "2016-08-01",
+      "internacoes": 20
+    },
+    {
+      "mes": "2016-09-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2016-10-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2016-11-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2016-12-01",
+      "internacoes": 13
+    },
+    {
+      "mes": "2017-01-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2017-02-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2017-03-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2017-04-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2017-05-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2017-06-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2017-07-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2017-08-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2017-09-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2017-10-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2017-11-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2017-12-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2018-01-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2018-02-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2018-03-01",
+      "internacoes": 3
+    },
+    {
+      "mes": "2018-04-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2018-05-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2018-06-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2018-07-01",
+      "internacoes": 5
+    },
+    {
+      "mes": "2018-08-01",
+      "internacoes": 10
+    },
+    {
+      "mes": "2018-09-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2018-10-01",
+      "internacoes": 12
+    },
+    {
+      "mes": "2018-11-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2018-12-01",
+      "internacoes": 20
+    },
+    {
+      "mes": "2019-01-01",
+      "internacoes": 35
+    },
+    {
+      "mes": "2019-02-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2019-03-01",
+      "internacoes": 35
+    },
+    {
+      "mes": "2019-04-01",
+      "internacoes": 4
+    },
+    {
+      "mes": "2019-05-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2019-06-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2019-07-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2019-08-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2019-09-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2019-10-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2019-11-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2019-12-01",
+      "internacoes": 18
+    },
+    {
+      "mes": "2020-01-01",
+      "internacoes": 36
+    },
+    {
+      "mes": "2020-02-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2020-03-01",
+      "internacoes": 10
+    },
+    {
+      "mes": "2020-04-01",
+      "internacoes": 1
+    },
+    {
+      "mes": "2020-05-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2020-06-01",
+      "internacoes": 2
+    },
+    {
+      "mes": "2020-07-01",
+      "internacoes": 12
+    },
+    {
+      "mes": "2020-08-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2020-09-01",
+      "internacoes": 14
+    },
+    {
+      "mes": "2020-10-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2020-11-01",
+      "internacoes": 10
+    },
+    {
+      "mes": "2020-12-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2021-01-01",
+      "internacoes": 22
+    },
+    {
+      "mes": "2021-02-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2021-03-01",
+      "internacoes": 16
+    },
+    {
+      "mes": "2021-04-01",
+      "internacoes": 7
+    },
+    {
+      "mes": "2021-05-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2021-06-01",
+      "internacoes": 9
+    },
+    {
+      "mes": "2021-07-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2021-08-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2021-09-01",
+      "internacoes": 6
+    },
+    {
+      "mes": "2021-10-01",
+      "internacoes": 13
+    },
+    {
+      "mes": "2021-11-01",
+      "internacoes": 10
+    },
+    {
+      "mes": "2021-12-01",
+      "internacoes": 17
+    },
+    {
+      "mes": "2022-01-01",
+      "internacoes": 17
+    },
+    {
+      "mes": "2022-02-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2022-03-01",
+      "internacoes": 17
+    },
+    {
+      "mes": "2022-04-01",
+      "internacoes": 8
+    },
+    {
+      "mes": "2022-05-01",
+      "internacoes": 11
+    },
+    {
+      "mes": "2022-06-01",
+      "internacoes": 10
+    },
+    {
+      "mes": "2022-07-01",
+      "internacoes": 13
+    },
+    {
+      "mes": "2022-08-01",
+      "internacoes": 15
+    },
+    {
+      "mes": "2022-09-01",
+      "internacoes": 12
+    },
+    {
+      "mes": "2022-10-01",
+      "internacoes": 12
+    },
+    {
+      "mes": "2022-11-01",
+      "internacoes": 16
+    },
+    {
+      "mes": "2022-12-01",
+      "internacoes": 19
+    },
+    {
+      "mes": "2023-01-01",
+      "internacoes": 14
+    },
+    {
+      "mes": "2023-02-01",
+      "internacoes": 44
+    },
+    {
+      "mes": "2023-03-01",
+      "internacoes": 17
+    },
+    {
+      "mes": "2023-04-01",
+      "internacoes": 20
+    },
+    {
+      "mes": "2023-05-01",
+      "internacoes": 35
+    },
+    {
+      "mes": "2023-06-01",
+      "internacoes": 18
+    },
+    {
+      "mes": "2023-07-01",
+      "internacoes": 20
+    },
+    {
+      "mes": "2023-08-01",
+      "internacoes": 21
+    },
+    {
+      "mes": "2023-09-01",
+      "internacoes": 16
+    },
+    {
+      "mes": "2023-10-01",
+      "internacoes": 13
+    },
+    {
+      "mes": "2023-11-01",
+      "internacoes": 23
+    },
+    {
+      "mes": "2023-12-01",
+      "internacoes": 35
+    },
+    {
+      "mes": "2024-01-01",
+      "internacoes": 28
+    },
+    {
+      "mes": "2024-02-01",
+      "internacoes": 18
+    },
+    {
+      "mes": "2024-03-01",
+      "internacoes": 30
+    },
+    {
+      "mes": "2024-04-01",
+      "internacoes": 47
+    },
+    {
+      "mes": "2024-05-01",
+      "internacoes": 34
+    },
+    {
+      "mes": "2024-06-01",
+      "internacoes": 31
+    },
+    {
+      "mes": "2024-07-01",
+      "internacoes": 21
+    },
+    {
+      "mes": "2024-08-01",
+      "internacoes": 30
+    },
+    {
+      "mes": "2024-09-01",
+      "internacoes": 33
+    },
+    {
+      "mes": "2024-10-01",
+      "internacoes": 33
+    },
+    {
+      "mes": "2024-11-01",
+      "internacoes": 49
+    },
+    {
+      "mes": "2024-12-01",
+      "internacoes": 56
+    },
+    {
+      "mes": "2025-01-01",
+      "internacoes": 39
+    },
+    {
+      "mes": "2025-02-01",
+      "internacoes": 45
+    },
+    {
+      "mes": "2025-03-01",
+      "internacoes": 41
+    },
+    {
+      "mes": "2025-04-01",
+      "internacoes": 68
+    },
+    {
+      "mes": "2025-05-01",
+      "internacoes": 58
+    },
+    {
+      "mes": "2025-06-01",
+      "internacoes": 74
+    },
+    {
+      "mes": "2025-07-01",
+      "internacoes": 62
+    },
+    {
+      "mes": "2025-08-01",
+      "internacoes": 86
+    },
+    {
+      "mes": "2025-09-01",
+      "internacoes": 104
+    },
+    {
+      "mes": "2025-10-01",
+      "internacoes": 407
+    },
+    {
+      "mes": "2025-11-01",
+      "internacoes": 1555
+    },
+    {
+      "mes": "2025-12-01",
+      "internacoes": 9414
+    },
+    {
+      "mes": "2026-01-01",
+      "internacoes": 76254
+    },
+    {
+      "mes": "2026-02-01",
+      "internacoes": 100989
+    },
+    {
+      "mes": "2026-03-01",
+      "internacoes": 343386
+    },
+    {
+      "mes": "2026-04-01",
+      "internacoes": 703067
+    }
+  ],
+  "limites": [
+    "A distribuição reproduz datas registradas, sem comprovar a causa de registros antigos.",
+    "Sem novo download de microdados confirmado.",
+    "Os SQLs mensais ainda usam mode(data_internacao); o recorte não foi alterado."
+  ]
+}

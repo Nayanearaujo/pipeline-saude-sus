@@ -49,13 +49,14 @@ A revisão das descrições CID preservou todos os campos numéricos e reduziu
 os registros sem nome de 36.736 para 76. A fonte não contém os sete códigos restantes.
 
 São 138 testes aprovados e cobertura de 97,01%, incluindo scripts auxiliares.
-O CI exige 95%. Há 37 regras de qualidade; a execução real anterior passou
-nas 34 regras existentes naquela versão. As três regras novas e a deduplicação
-corrigida aguardam reprocessamento com os microdados locais.
+O CI exige 95%. A execução local da versão corrigida passou nas 37 regras,
+com 1.238.234 internações, 529 duplicadas excluídas e zero exclusões por ausência de valor.
+A evidência recebida está em `docs/validacao-local-corrigida.json`.
 
 O Streamlit mantém o visual aprovado; o mapa do HTML usa SVG centralizado.
-A série mensal continua com o recorte publicado. Sua substituição exige conferir
-as colunas de competência e as datas de entrada no Parquet, sem simular resultados.
+A Bronze confirmou competência abril/2026 para todos os registros. A série mantém
+703.067 entradas de abril; as outras 535.167 são entradas anteriores, conforme
+o histograma local. O recorte e o uso de `mode()` não foram alterados.
 
 ---
 
