@@ -25,15 +25,15 @@ A distribuição geográfica considera a residência registrada, não o hospital
 
 ## Demonstração
 
-As imagens são capturas do relatório executivo. O painel interativo usa os mesmos marts.
+As duas primeiras imagens são capturas do painel em Streamlit. A última mostra o relatório executivo, que usa os mesmos marts.
 
 **Distribuição nacional e participação das regiões**
 
-![Mapa completo do Brasil e participação regional](assets/relatorio-nacional.jpg)
+![Mapa completo do Brasil e participação regional](assets/painel-mapa-regioes.png)
 
-**Ranking de internações, valor médio e mediana por estado**
+**Diagnósticos mais frequentes e internações por dia de entrada**
 
-![Ranking estadual e comparação entre média e mediana](assets/relatorio-regioes.jpg)
+![Dez diagnósticos mais frequentes e série diária de internações no Brasil](assets/painel-diagnosticos-serie.png)
 
 **Mortalidade hospitalar por diagnóstico, com códigos e descrições**
 
