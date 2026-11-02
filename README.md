@@ -23,20 +23,23 @@ compara os 27 estados em volume, gasto, permanência e mortalidade.
 
 ## Demonstração
 
-O [relatório HTML atualizado](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html) contém nove gráficos, incluindo mortalidade por diagnóstico e concentração municipal, com explicações. As capturas abaixo são registros de uma versão anterior; a publicação atual do Streamlit deve ser conferida no link ao vivo.
-
-Painel interativo com seletor de estado, construído com Streamlit e Plotly.
+O dashboard interativo tem seletor de estado e métricas, construído com Streamlit e Plotly.
 
 👉 **Acesse o dashboard ao vivo:** https://pipeline-saude-sus.streamlit.app/
 
-**Visão nacional: mapa e ranking de estados**
-![Visão nacional do dashboard](assets/dashboard1.png)
+As imagens abaixo são capturas atuais do [relatório executivo publicado](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html), alimentado pelos mesmos marts do dashboard. Competência: abril/2026.
 
-**Detalhe: top 10 diagnósticos e internações por dia**
-![Diagnósticos e série diária](assets/dashboard2.png)
+**Relatório: mapa completo do Brasil e ranking dos 27 estados**
 
-**Participação por região e custo médio por estado**
-![Participação por região e custo por UF](assets/dashboard3.png)
+![Mapa completo e ranking nacional no relatório executivo](assets/relatorio-nacional.jpg)
+
+**Relatório: participação regional e valor médio e mediano por UF**
+
+![Participação por região, média e mediana por estado](assets/relatorio-regioes.jpg)
+
+**Relatório: mortalidade hospitalar com nomes dos diagnósticos e códigos CID**
+
+![Mortalidade hospitalar por diagnóstico, com nomes e códigos CID](assets/relatorio-mortalidade.jpg)
 
 ---
 
