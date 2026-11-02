@@ -33,7 +33,8 @@ O histograma da Prata contém 216 meses e soma as 1.238.234 AIHs.
 
 As quatro últimas linhas somam 535.167. A diferença para a série de abril é
 explicada pelas datas registradas, não por exclusão desses registros da Prata.
-A origem das datas antigas não foi comprovada. A data 2008-01-01 contém 617 entradas.
+A exatidão das datas originais não foi comprovada. As 617 entradas de 01/01/2008
+foram identificadas como AIHs tipo 5, de continuidade.
 
 A conferência final imprimiu o valor exato de R$ 2.258.865.118,36.
 Os dez marts coincidiram com os CSVs publicados em todos os campos comparados,
@@ -64,7 +65,7 @@ os dez marts, inclusive os perfis. As unidades na Bronze são 2 (35.843 linhas),
 ou desconhecida neste conjunto, e a Prata permaneceu sem idade nula.
 
 A consulta de datas anteriores a fevereiro de 2008 encontrou uma única data,
-2008-01-01, com 617 registros. Isso confirma a concentração, mas não sua causa.
+2008-01-01, com 617 registros. A consulta posterior confirmou `IDENT = 5` em todas essas linhas.
 O relatório foi gerado com nove figuras e mapa SVG. Os arquivos originais foram preservados.
 
 Referência para a unidade ignorada: [Ministério da Saúde, Orientações básicas
@@ -99,8 +100,9 @@ O número de grupos não informa, sozinho, quantas internações estão envolvid
 
 A auditoria de datas produz arquivos agregados locais, sem alterar a Prata.
 A regra de dez anos é uma triagem para investigação, sem diagnóstico de causa.
-A concentração em 01/01/2008 continua sem explicação comprovada até a nova
-execução e análise conjunta de saídas e permanências.
+As 617 entradas de 01/01/2008 foram identificadas como AIHs tipo 5, com
+permanência coerente com o período cobrado na competência. Isso não comprova
+a exatidão da data original nem classifica os outros alertas da auditoria.
 
 AIHs não representam pessoas únicas. Valores registrados não medem o custo
 integral da assistência. A mortalidade hospitalar não é uma taxa populacional
@@ -114,3 +116,16 @@ nem uma comparação ajustada por gravidade. A geografia é a residência regist
 
 As auditorias intermediárias e as capturas antigas foram retiradas da entrega
 para evitar números concorrentes. O histórico Git preserva as versões anteriores.
+
+## Confirmação das AIHs de continuidade
+
+A consulta agregada na Bronze confirmou que as 617 linhas com entrada em
+01/01/2008 têm `IDENT = 5`, de continuidade. Há uma linha com saída em 20/04/2026
+e 20 dias registrados, uma com saída em 26/04/2026 e 26 dias, e 615 com saída
+em 30/04/2026 e 30 dias. O padrão corresponde à regra documentada para AIH tipo 5:
+a data original de entrada é mantida e a permanência pode refletir o período
+cobrado na competência. Isso explica a diferença para o intervalo de calendário,
+mas não comprova a exatidão da data original nem explica os demais alertas.
+
+Fontes: [SIH, AIH de continuidade](https://wiki.saude.gov.br/sih/index.php/P%C3%A1gina_principal)
+e [SES-SP, dias de permanência por tipo de AIH](https://www.saude.sp.gov.br/resources/ses/perfil/gestor/informacoes-de-saude/tabnet/comunicado_1_tabnet.pdf).
