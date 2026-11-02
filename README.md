@@ -46,9 +46,10 @@ Os dez CSVs publicados reconciliam **1.238.234 internações** e
 **R$ 2.258.865.118,36**. A competência registrada na extração é abril/2026.
 
 1. **Datas têm recortes diferentes.** A série de entradas de abril soma 703.067
-   internações, 535.167 a menos que o consolidado. Não atribuo datas a essa
-   diferença sem consultar os microdados. O SQL ainda escolhe o mês da data de
-   entrada mais frequente, e isso não é necessariamente o mês com mais entradas.
+   internações. A execução local confirmou outras 535.167 entradas anteriores:
+   343.386 em março/2026, 100.989 em fevereiro, 76.254 em janeiro e 14.538 antes
+   de 2026. Todas as 1.238.763 linhas da Bronze têm competência abril/2026.
+   O SQL ainda usa o mês da data mais frequente, uma heurística mantida nesta versão.
 2. **Idade depende da unidade.** A transformação combina `IDADE` e `COD_IDADE`.
    O perfil publicado contém 60.839 internações com menos de um ano.
 3. **Diagnósticos precisam de categorias e subcategorias.** Completei os nomes
@@ -335,14 +336,16 @@ valores ausentes. As situações abaixo descrevem o tratamento do código; sua
 frequência precisa ser verificada nos microdados de cada execução.
 
 - **Entradas fora do recorte diário.** A diferença entre o consolidado e a série
-  publicada é de 535.167 AIHs. Os microdados são necessários para confirmar
-  em quais datas ocorreram; a transformação não exclui AIHs só pela data de entrada.
+  publicada é de 535.167 AIHs. A distribuição mensal da execução local soma
+  exatamente essa diferença, com entradas anteriores a abril/2026. A transformação
+  não exclui AIHs apenas pela data de entrada.
 - **Internações com `dias_permanencia` = 0.** Entrada e saída no mesmo dia
   existem no SIH (procedimento de day clinic, óbito no primeiro dia); são dado
   válido, não erro.
 - **Datas de internação antigas.** Se presentes e válidas, permanecem na
   Prata; a série diária as deixa de fora quando estão fora do mês selecionado.
-  A frequência e a causa dessas datas não foram revalidadas nesta auditoria.
+  A execução local contém 14.538 entradas anteriores a 2026, desde 2008.
+  A contagem confirma as datas registradas, não a causa nem sua validade clínica.
 
 ## Validação e limites atuais
 
@@ -351,16 +354,18 @@ frequência precisa ser verificada nos microdados de cada execução.
 - **37 regras de qualidade** no código: as três novas verificam descrições
   ausentes, com limite ponderado de 0,1% das internações e nomes obrigatórios
   nos 20 primeiros diagnósticos nacionais e de mortalidade.
-- A execução real registrada anteriormente passou nas 34 regras então existentes:
-  1.238.763 linhas na Bronze, 1.238.234 na Prata, 529 duplicadas e zero exclusões
-  por ausência de valor. A nova deduplicação e as 37 regras ainda precisam ser
-  reexecutadas com os microdados locais. Não afirmo que esse reprocessamento ocorreu.
+- A execução local da versão corrigida passou nas **37 regras**: 1.238.763 linhas
+  na Bronze, 1.238.234 na Prata, 529 duplicadas e zero exclusões por ausência de
+  valor. O dicionário tem 14.233 códigos únicos; os dez marts somam 16.400 linhas.
+  A [evidência local](docs/validacao-local-corrigida.json) registra a saída recebida.
 - Os dez CSVs somam 16.400 linhas. Nesta revisão alterei somente descrições em
   três CSVs, sem mudar códigos, posições, quantidades, valores ou demais campos.
   O [manifesto](docs/proveniencia-extracao.json) registra hashes anteriores e atuais.
 - Os arquivos brutos e o banco não são publicados. Não houve novo download de
-  microdados nesta revisão. O recorte mensal continua pendente da conferência
-  de `ANO_CMPT`, `MES_CMPT` e da distribuição das datas no Parquet local.
+  microdados nesta revisão. `ANO_CMPT` e `MES_CMPT` confirmaram abril/2026 para
+  toda a Bronze, e o histograma da Prata fecha as 1.238.234 internações.
+  A troca de `mode()` por uma referência explícita de competência não faz parte
+  desta validação; a série publicada permanece igual.
 - [Resumo técnico da revisão](AUDITORIA_FINAL.md). Os JSONs de auditorias
   anteriores permanecem como registros históricos, não como resultados desta execução.
 
@@ -378,8 +383,8 @@ frequência precisa ser verificada nos microdados de cada execução.
   conversão e orquestração, alcançando 97,01% sem baixar o limite de 95%.
 - **Documentação e período:** a descrição do `COALESCE` não correspondia ao SQL,
   e `mode(data_internacao)` não escolhe o mês com maior volume. Corrigi os textos
-  e mantive os SQLs da série até conferir os microdados; seus 703.067 registros
-  continuam publicados, sem forçar igualdade com o consolidado.
+  e mantive os SQLs da série. A execução local confirmou abril/2026 e explicou
+  as 535.167 entradas anteriores ao mês, sem forçar igualdade com o consolidado.
 
 ## Fonte dos dados
 

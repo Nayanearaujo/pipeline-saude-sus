@@ -283,7 +283,8 @@ uv run ruff check .                       # estilo e imports</pre>
     <ul>
       <li><strong>Recortes diferentes.</strong> Os CSVs consolidados contêm
       1.238.234 AIHs; a série de entradas em abril/2026 soma 703.067. Essa diferença
-      não comprova a distribuição das outras datas sem consultar os microdados.</li>
+      foi explicada pelo histograma local: 343.386 entradas em março/2026,
+      100.989 em fevereiro, 76.254 em janeiro e 14.538 antes de 2026.</li>
       <li><strong>Idade e unidade.</strong> A Prata combina <code>IDADE</code> e
       <code>COD_IDADE</code>. O perfil publicado contém 60.839 AIHs menores de um ano;
       comparações históricas antes/depois não foram reexecutadas na auditoria.</li>
@@ -299,9 +300,10 @@ uv run ruff check .                       # estilo e imports</pre>
     <p>Os dez CSVs reconciliam 1.238.234 internações e R$ 2.258.865.118,36.
     A atualização de descrições CID reduziu as internações sem nome de 36.736 para 76,
     sem alterar os demais campos. Os 138 testes passaram, com cobertura de 97,01%
-    incluindo scripts auxiliares. Há 37 regras no código; a execução real anterior
-    passou nas 34 regras então existentes. A nova deduplicação e as 37 regras
-    aguardam reprocessamento local, assim como a investigação do recorte mensal.</p>
+    incluindo scripts auxiliares. A execução local da versão corrigida passou nas
+    37 regras, com 529 duplicadas excluídas e nenhuma exclusão por ausência de valor.
+    A competência da Bronze é abril/2026; o histograma da Prata fecha 1.238.234
+    internações. O recorte mensal e o uso de mode() permanecem inalterados.</p>
     <p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/AUDITORIA_FINAL.md">Evidências, verificações e pendências</a>.</p>
   </section>
 

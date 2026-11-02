@@ -25,17 +25,38 @@ originais dos microdados e os hashes anteriores e atuais dos CSVs com descriçõ
 A origem do dicionário foi fixada no commit `b6eb7d0fe8be752307741d156d67eacf539a186c`
 do repositório `cleytonferrari/CidDataSus`, um espelho público, não a API oficial.
 
-## Pendente de execução local
+## Validação local da versão corrigida
 
-Os microdados e o banco não estão disponíveis nesta revisão remota.
-É necessário gerar o dicionário completo e reexecutar a nova deduplicação,
-os marts e as 37 regras antes de afirmar que os totais da nova execução real
-permanecem iguais. Não houve novo download de microdados nem alteração de `data/raw/`.
+A saída recebida da execução do commit `2eab12c` confirma as quatro etapas e
+as 37 regras aprovadas: Bronze com 1.238.763 internações, Prata com 1.238.234,
+529 AIHs duplicadas excluídas e zero exclusões por ausência de valor. O dicionário
+possui 14.233 códigos únicos; os dez marts continuam com 16.400 linhas.
 
-A série diária permanece com 703.067 internações; a diferença para o consolidado
-é de 535.167 (43,22%). O SQL usa o mês da data mais frequente, não o mês de maior
-volume. A distribuição dessas entradas e as colunas `ANO_CMPT` e `MES_CMPT`
-precisam ser conferidas no Parquet local antes de alterar o recorte.
+As colunas `ANO_CMPT` e `MES_CMPT` registram 2026/04 para todas as 1.238.763
+linhas da Bronze. O histograma de datas de entrada da Prata contém 216 meses
+e soma exatamente 1.238.234 internações:
+
+| Entrada | Internações |
+|---|---:|
+| Abril/2026 | 703.067 |
+| Março/2026 | 343.386 |
+| Fevereiro/2026 | 100.989 |
+| Janeiro/2026 | 76.254 |
+| Antes de 2026 | 14.538 |
+
+As quatro últimas linhas somam 535.167, a diferença entre consolidado e série.
+Há datas registradas desde 2008; a contagem não demonstra a causa nem autoriza
+interpretá-las como duração comprovada de internação ou erro de origem.
+
+A evidência em `docs/validacao-local-corrigida.json` foi transcrita da saída
+recebida, não de acesso remoto ao banco. O total financeiro foi impresso em
+notação científica, portanto esta saída não verifica os centavos. Os CSVs
+publicados continuam reconciliados separadamente em R$ 2.258.865.118,36.
+Não houve confirmação de novo download de microdados.
+
+O recorte mensal permanece igual. O uso de `mode(data_internacao)` continua
+como limitação de generalização; substituir a heurística exige uma alteração
+própria e revisão dos testes para competências múltiplas ou ausentes.
 
 ## Publicação e apresentação
 
