@@ -4,7 +4,7 @@ from pathlib import Path
 from pipeline.db import conectar
 
 DESTINO = Path(__file__).resolve().parents[1] / "data" / "auditoria"
-SEM_DESCRICAO = "Descrição não localizada na fonte"
+SEM_DESCRICAO = "nao classificado"
 
 
 def tabelas(con):
@@ -13,7 +13,7 @@ def tabelas(con):
         SELECT i.cid_principal AS cid, count(*) AS internacoes,
                round(100.0 * count(*) / (SELECT count(*) FROM prata.internacoes), 6) AS pct_do_total,
                round(sum(i.valor_total), 2) AS valor_total,
-               'Descrição não localizada na fonte' AS situacao
+               'nao classificado' AS situacao
         FROM prata.internacoes i LEFT JOIN prata.cid10 c ON c.cid = i.cid_principal
         WHERE c.doenca IS NULL OR trim(c.doenca) = '' OR c.doenca = 'CID ' || i.cid_principal
         GROUP BY i.cid_principal ORDER BY internacoes DESC, cid

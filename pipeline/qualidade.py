@@ -156,20 +156,20 @@ def _regras(con) -> list[tuple[str, str]]:
         ("Descricoes: no maximo 0,1% das internacoes sem nome CID",
          """SELECT 100.0 * coalesce(sum(internacoes) FILTER (
                  WHERE lower(trim(coalesce(doenca, ''))) IN (
-                    'nao classificado', 'não classificado', 'descrição não localizada na fonte', '')
+                    'nao classificado', 'não classificado', '')
                     OR doenca = 'CID ' || cid), 0) / nullif(sum(internacoes), 0) <= 0.1
             FROM ouro.top_diagnosticos_brasil"""),
         ("Descricoes: top 20 nacional tem nomes CID",
          """SELECT count(*) = 0 FROM (
                 SELECT * FROM ouro.top_diagnosticos_brasil ORDER BY internacoes DESC, cid LIMIT 20
             ) WHERE lower(trim(coalesce(doenca, ''))) IN (
-                    'nao classificado', 'não classificado', 'descrição não localizada na fonte', '')
+                    'nao classificado', 'não classificado', '')
                  OR doenca = 'CID ' || cid"""),
         ("Descricoes: top 20 mortalidade tem nomes CID",
          """SELECT count(*) = 0 FROM (
                 SELECT * FROM ouro.mortalidade_por_cid ORDER BY taxa_mortalidade_pct DESC, cid LIMIT 20
             ) WHERE lower(trim(coalesce(doenca, ''))) IN (
-                    'nao classificado', 'não classificado', 'descrição não localizada na fonte', '')
+                    'nao classificado', 'não classificado', '')
                  OR doenca = 'CID ' || cid"""),
 
         # 5b. Dois caminhos concordam, por-UF x nacional: a soma das internacoes
