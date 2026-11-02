@@ -36,3 +36,21 @@ def test_aih_com_todos_valores_vazios(tmp_path, monkeypatch):
     con.execute("INSERT INTO bronze.internacoes SELECT * FROM bronze.internacoes WHERE N_AIH = 'a3'")
     assert transformacao._motivos_exclusao_internacoes(con) == (1, 1)
     con.close()
+
+
+def test_duplicata_recente_sem_valor_preserva_aih_valida(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    con = duckdb.connect(str(banco))
+    con.execute("""INSERT INTO bronze.internacoes
+        SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, NULL, DIAS_PERM,
+               IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, '20261231'
+        FROM bronze.internacoes WHERE N_AIH = 'a1'""")
+    assert transformacao._motivos_exclusao_internacoes(con) == (1, 1)
+    con.close()
+    transformacao.main()
+    con = duckdb.connect(str(banco))
+    assert str(con.execute("SELECT valor_total FROM prata.internacoes WHERE aih='a1'").fetchone()[0]) == '1500.50'
+    from pipeline import qualidade
+    sql = next(sql for nome, sql in qualidade._regras(con) if nome.startswith('Reconciliacao: AIHs'))
+    assert con.execute(sql).fetchone()[0]
+    con.close()

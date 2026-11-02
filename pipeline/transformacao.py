@@ -56,7 +56,12 @@ def _tabela_ufs(con):
 
 # A transformacao da tabela-fato. Os nomes a esquerda sao os do SIH-RD; os da
 # direita sao o vocabulario legivel que vou usar nos JOINs da camada ouro.
-SQL_INTERNACOES = """
+# Critério compartilhado pela seleção, contagem de exclusões e reconciliação.
+ORDEM_AIH = """(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') IS NULL) ASC,
+                 DT_SAIDA DESC NULLS LAST,
+                 CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2)) DESC NULLS LAST"""
+
+SQL_INTERNACOES = f"""
 CREATE OR REPLACE TABLE prata.internacoes AS
 WITH base AS (
     -- Grao: 1 linha = 1 AIH. Dedup explicita por aih (QUALIFY), nao DISTINCT da
@@ -94,8 +99,7 @@ WITH base AS (
     FROM bronze.internacoes
     QUALIFY row_number() OVER (
         PARTITION BY CAST(N_AIH AS VARCHAR)
-        ORDER BY DT_SAIDA DESC NULLS LAST,
-                 CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2)) DESC NULLS LAST,
+        ORDER BY {ORDEM_AIH},
                  MUNIC_RES, DIAG_PRINC, PROC_REA, DIAS_PERM,
                  IDADE, COD_IDADE, SEXO, MORTE, DT_INTER
     ) = 1
@@ -161,14 +165,13 @@ def _resumo_nulos_internacoes(con) -> str:
 
 def _motivos_exclusao_internacoes(con) -> tuple[int, int]:
     """Conta AIHs duplicadas e sem valor apos a mesma deduplicacao da prata."""
-    sem_valor, duplicadas = con.execute("""
+    sem_valor, duplicadas = con.execute(f"""
         WITH classificadas AS (
             SELECT
                 NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS valor,
                 row_number() OVER (
                     PARTITION BY CAST(N_AIH AS VARCHAR)
-                    ORDER BY DT_SAIDA DESC NULLS LAST,
-                 CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2)) DESC NULLS LAST
+                    ORDER BY {ORDEM_AIH}
                 ) AS posicao
             FROM bronze.internacoes
         )
