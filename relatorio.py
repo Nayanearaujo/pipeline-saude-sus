@@ -1,14 +1,14 @@
 """
-Gera um relatório estático em HTML (relatório.html) a partir da camada ouro.
+Gera um relatório estático em HTML (relatorio.html) a partir da camada ouro.
 
 Le os marts pelo painel.py, monta os cartões executivos e os mesmos gráficos do
 dashboard Streamlit, e grava uma pagina única estática (sem servidor Python).
 Util para publicar no GitHub Pages e abrir direto no navegador. Zero calculo
 novo: todo número sai de um mart. Os gráficos são os mesmos do painel.
 
-    uv run python relatório.py
+    uv run python relatorio.py
 
-Gera relatório.html na raiz e uma copia em docs/ (para o GitHub Pages servir ao
+Gera relatorio.html na raiz e uma copia em docs/ (para o GitHub Pages servir ao
 lado do index.html). Rode depois do pipeline (pipeline.marts) ou com os CSVs de
 dados_painel/ já presentes.
 """
@@ -137,6 +137,52 @@ def _grafico(fig, incluir_js: bool, div_id: str, largo: bool = False) -> str:
     return f'<div class="{classe}">{html}</div>'
 
 
+def _perfil_detalhado(perfil):
+    """Tabela expansível com filtros visuais, sem calcular indicadores."""
+    from html import escape
+
+    campos = perfil[["faixa_etaria", "sexo", "internacoes", "dias_medio"]].copy()
+    campos[["faixa_etaria", "sexo"]] = campos[["faixa_etaria", "sexo"]].fillna("Não informado")
+    seletores = []
+    for coluna, rotulo in [("sexo", "Sexo registrado"), ("faixa_etaria", "Faixa etária")]:
+        opcoes = '<option value="">Todos</option>' + "".join(
+            f'<option value="{escape(str(v), quote=True)}">{escape(str(v))}</option>'
+            for v in campos[coluna].drop_duplicates()
+        )
+        seletores.append(f'<label>{rotulo}<select id="filtro-{coluna}" data-perfil-filtro>{opcoes}</select></label>')
+    linhas = "".join(
+        f'<tr data-sexo="{escape(str(r.sexo), quote=True)}" '
+        f'data-faixa="{escape(str(r.faixa_etaria), quote=True)}">'
+        f'<td>{escape(str(r.faixa_etaria))}</td><td>{escape(str(r.sexo))}</td>'
+        f'<td>{painel.numero(r.internacoes)}</td><td>{painel.numero(r.dias_medio, 1)}</td></tr>'
+        for r in campos.itertuples(index=False)
+    )
+    return (
+        '<details class="detalhe-perfil" id="perfil-detalhado">'
+        '<summary>Ver perfil detalhado por sexo e faixa etária</summary>'
+        '<p>Brasil. Sexo conforme registro da AIH. As contagens representam internações, não pessoas únicas.</p>'
+        '<div class="filtros-perfil">' + "".join(seletores) + '</div>'
+        '<div class="tabela-perfil"><table id="tabela-perfil"><thead><tr>'
+        '<th>Faixa etária</th><th>Sexo registrado</th><th>Internações</th>'
+        '<th>Permanência média (dias)</th></tr></thead><tbody>' + linhas + '</tbody></table></div></details>'
+        '<script>'
+        'document.querySelectorAll("[data-perfil-filtro]").forEach(campo => campo.addEventListener("change", () => {'
+        'const sexo = document.getElementById("filtro-sexo").value\n'
+        'const faixa = document.getElementById("filtro-faixa_etaria").value\n'
+        'document.querySelectorAll("#tabela-perfil tbody tr").forEach(linha => {'
+        'linha.hidden = (sexo !== "" && linha.dataset.sexo !== sexo) || '
+        '(faixa !== "" && linha.dataset.faixa !== faixa)\n'
+        '})\n'
+        '}))\n'
+        'const atalho = document.getElementById("atalho-perfil")\n'
+        'if (atalho) atalho.addEventListener("click", () => {\n'
+        'document.getElementById("perfil-detalhado").open = true\n'
+        '})\n'
+        'if (location.hash === "#perfil-detalhado") document.getElementById("perfil-detalhado").open = true\n'
+        '</script>'
+    )
+
+
 def construir_html(dados: dict) -> str:
     """Monta a pagina inteira: cabeçalho, cartões, gráficos e rodape."""
     k = dados["kpis_gerais"].iloc[0]
@@ -200,6 +246,7 @@ def construir_html(dados: dict) -> str:
             'até aquela posição. A linha de 80% é uma referência de concentração, não uma meta '
             'de qualidade. Os botões mostram todos os municípios ou os primeiros 30.</p>' if i == 8 else ''
         )
+        + (_perfil_detalhado(perfil) if i == 5 else "")
         for i, (f, largo) in enumerate(blocos)
     )
 
@@ -211,7 +258,7 @@ def construir_html(dados: dict) -> str:
 
 
 def main():
-    """Lê os marts, monta o HTML e grava relatório.html na raiz e em docs/."""
+    """Lê os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
     dados = painel.ler(marts=[*painel.MARTS, "mortalidade_por_cid", "municipios_pareto"])
     html = construir_html(dados)
 
@@ -265,6 +312,15 @@ _PAGINA = """<!doctype html>
     min-width:0;overflow:hidden;}}
   .grafico .plotly-graph-div{{width:100%;}}
   .grafico.largo{{grid-column:1 / -1;}}
+  .detalhe-perfil{{grid-column:1 / -1;background:white;border:1px solid var(--line);
+    border-radius:12px;padding:16px;color:var(--ink);}}
+  .detalhe-perfil summary{{cursor:pointer;font-weight:600;color:var(--accent);}}
+  .filtros-perfil{{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;}}
+  .filtros-perfil label{{display:flex;flex-direction:column;gap:4px;font-size:13px;}}
+  .filtros-perfil select{{padding:8px;border:1px solid var(--line);border-radius:8px;background:#f3fbf7;}}
+  .tabela-perfil{{overflow-x:auto;}}
+  .tabela-perfil table{{border-collapse:collapse;width:100%;font-size:13px;}}
+  .tabela-perfil th,.tabela-perfil td{{padding:10px;text-align:left;border-bottom:1px solid var(--line);}}
   .leitura{{grid-column:1 / -1;margin:0;color:#46575a;font-size:13px;}}
   @media (max-width:900px){{.grade,.notas{{grid-template-columns:1fr;}}}}
   footer{{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);
@@ -281,6 +337,8 @@ _PAGINA = """<!doctype html>
        <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">repositório</a> ·
        <a href="https://pipeline-saude-sus.streamlit.app/">dashboard interativo</a></p>
   </div>
+  <p class="atalhos"><a id="atalho-perfil" href="#perfil-detalhado">Ver detalhes de sexo e faixa etária</a> ·
+  <a href="#g08">Ver concentração municipal</a></p>
   <div class="kpis">{cards}</div>
   <section class="secao" aria-labelledby="leitura">
     <h2 id="leitura">O retrato das internações</h2>

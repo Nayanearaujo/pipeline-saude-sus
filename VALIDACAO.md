@@ -49,7 +49,7 @@ As três regras de descrição passaram nos CSVs e na execução local registrad
 
 ## Revisão final do código
 
-- 145 testes automatizados aprovados, com cobertura de 97,01%.
+- 147 testes automatizados aprovados, com cobertura de 97,05%.
 - Ruff aprovado e cobertura mínima de 95% preservada.
 - Download, dicionários e orquestração incluídos na cobertura.
 - Duplicata recente sem valor não elimina a linha válida da mesma AIH.
@@ -73,6 +73,10 @@ O dicionário identifica `COD_IDADE = 0` como idade ignorada.
 ## Apresentação e publicação
 
 O relatório mantém nove figuras e o mapa SVG completo, com dimensões compactas.
+A curva municipal usa SVG para funcionar sem WebGL. A tabela expansível do
+perfil oferece filtros de sexo e faixa etária. Duas regressões novas verificam
+a renderização da curva completa e o escape dos textos da tabela. A execução
+local anterior permaneceu registrada com seus 145 testes e cobertura de 97,01%.
 O Streamlit mantém os filtros de estado e métrica, o detalhamento do perfil e as
 análises nacionais de mortalidade por CID e concentração municipal.
 O código atual contém esses recursos, mas a instância pública observada ainda

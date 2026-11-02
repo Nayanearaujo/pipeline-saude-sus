@@ -1,5 +1,5 @@
 """
-Testes de pipeline/transformação.py: a decodificação dos códigos do SIH.
+Testes de pipeline/transformacao.py: a decodificação dos códigos do SIH.
 
 Monta um schema bronze mínimo com dado inventado (poucas AIH, cada uma testando
 uma regra) e roda a transformação. O valor esperado sai da entrada.

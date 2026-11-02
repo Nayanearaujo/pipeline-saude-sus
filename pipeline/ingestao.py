@@ -18,7 +18,7 @@ tabela CID-10 do DATASUS). O DuckDB le parquet e csv direto.
 
 Idempotente: CREATE OR REPLACE TABLE, entao rodar de novo da o mesmo resultado.
 Rodar com:
-    uv run python -m pipeline.ingestão
+    uv run python -m pipeline.ingestao
 """
 import sys
 from pathlib import Path

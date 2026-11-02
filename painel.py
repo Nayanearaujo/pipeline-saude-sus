@@ -453,7 +453,7 @@ def fig_mortalidade_por_cid(df: pd.DataFrame) -> go.Figure:
 def fig_municipios_pareto(df: pd.DataFrame) -> go.Figure:
     """Mostra o percentual acumulado dos municípios, já calculado no mart."""
     ordem = df.sort_values("posicao")
-    fig = px.line(ordem, x="posicao", y="pct_acumulado", markers=False)
+    fig = px.line(ordem, x="posicao", y="pct_acumulado", markers=False, render_mode="svg")
     fig.update_traces(
         line_color=COR, marker_color=COR,
         customdata=ordem[["municipio", "uf", "internacoes", "valor_total"]].to_numpy(),

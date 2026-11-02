@@ -21,7 +21,7 @@ Decisoes de dado (resumo. Cada uma com o motivo no código):
 - UF sai do código IBGE do município (2 primeiros digitos) via tabela de UFs.
 
 Reexecucao: CREATE OR REPLACE TABLE, nunca append. Rodar com:
-    uv run python -m pipeline.transformação
+    uv run python -m pipeline.transformacao
 """
 import sys
 

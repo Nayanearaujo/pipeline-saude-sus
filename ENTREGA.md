@@ -25,7 +25,7 @@
 | Transformação | Tipos explícitos, deduplicação e decodificação dos campos |
 | Camada analítica | Dez marts SQL com grão declarado |
 | Qualidade | 37 regras e reconciliação entre camadas e agregados |
-| Testes | 145 testes, cobertura de 97,01% e mínimo de 95% no CI |
+| Testes | 147 testes, cobertura de 97,05% e mínimo de 95% no CI |
 | Apresentação | Cinco cartões, nove figuras, painel interativo e relatório HTML |
 | Reprodutibilidade | Dependências versionadas, execução documentada e conferência isolada |
 

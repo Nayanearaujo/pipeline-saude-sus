@@ -110,7 +110,7 @@ orquestração, transformação, qualidade, exportação e relatório. Apenas as
 interfaces `app.py` e `ui.py`, os próprios testes e o ambiente virtual ficam fora.
 Os testes usam dados sintéticos e simulações de rede, sem consultar o banco real.
 
-**Resultado desta revisão: 145 testes e cobertura de 97,01%.**
+**Resultado desta revisão: 147 testes e cobertura de 97,05%.**
 
 Para repetir a validação completa com os arquivos locais, consulte
 [CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md). O procedimento usa uma pasta
@@ -127,7 +127,9 @@ identificadas como Brasil. O painel não calcula novos indicadores.
 São cinco cartões executivos e nove figuras. Média e mediana são distintas.
 O gráfico regional usa apenas medidas aditivas. O mapa interativo usa geometria
 local, fundo branco e WebGL. O HTML usa um mapa SVG completo e centralizado,
-sem câmera nem dependência de WebGL. A biblioteca dos demais gráficos exige JavaScript.
+sem câmera nem dependência de WebGL. A curva municipal também usa SVG e não
+depende de WebGL. O relatório inclui a tabela expansível do perfil, com filtros
+de sexo e faixa etária. A biblioteca dos demais gráficos exige JavaScript.
 
 O [rascunho](design/rascunho.png) é um planejamento identificado, não uma captura
 do painel em funcionamento. As capturas da seção Demonstração mostram o relatório publicado.
