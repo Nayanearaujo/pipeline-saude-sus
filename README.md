@@ -1,6 +1,8 @@
 # Internações do SUS: pipeline de dados e painel por estado
 
 [![Testes](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
+![Testes aprovados](https://img.shields.io/badge/testes-147%20aprovados-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97%2C05%25-brightgreen)
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
 ![Licença](https://img.shields.io/badge/c%C3%B3digo-MIT-green)
 
