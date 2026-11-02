@@ -26,7 +26,7 @@
     "dias_medio": 4.8,
     "taxa_mortalidade_pct": 4.1
   },
-  "limite_financeiro_evidencia": "O valor total foi impresso em notação científica; esta saída não permite confirmar centavos. O valor exato publicado continua verificado separadamente nos CSVs.",
+  "limite_financeiro_evidencia": "O valor total foi impresso em notação científica. esta saída não permite confirmar centavos. O valor exato publicado continua verificado separadamente nos CSVs.",
   "serie_diaria": {
     "mes": "2026-04",
     "internacoes": 703067,
@@ -903,6 +903,6 @@
   "limites": [
     "A distribuição reproduz datas registradas, sem comprovar a causa de registros antigos.",
     "Sem novo download de microdados confirmado.",
-    "Os SQLs mensais ainda usam mode(data_internacao); o recorte não foi alterado."
+    "Os SQLs mensais ainda usam mode(data_internacao). o recorte não foi alterado."
   ]
 }

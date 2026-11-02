@@ -1,68 +1,48 @@
-# Entrega do Desafio Final · Pipeline de Internações do SUS
+# Entrega do projeto de engenharia de dados
 
-**Autora:** Nayane Araújo
-**Dataset:** Internações hospitalares do SUS (SIH/SUS, DATASUS), abril de 2026, Brasil inteiro, 1.238.763 registros brutos.
+**Autora:** Nayane Araújo, pós-graduanda em Engenharia de Dados.
 
-## Links
+**Tema:** registros públicos de internação hospitalar do SIH/SUS.
+**Competência de processamento:** abril de 2026.
+**Abrangência:** Brasil, por residência registrada.
 
-- Repositório: https://github.com/Nayanearaujo/pipeline-saude-sus
-- Dashboard ao vivo (Streamlit): https://pipeline-saude-sus.streamlit.app/
-- Relatório executivo (GitHub Pages): https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html
-- Guia do projeto (GitHub Pages): https://nayanearaujo.github.io/pipeline-saude-sus/
+## Acessos
 
-## O que é
+- [Repositório](https://github.com/Nayanearaujo/pipeline-saude-sus)
+- [Painel em Streamlit](https://pipeline-saude-sus.streamlit.app/)
+- [Relatório executivo](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html)
+- [Guia do projeto](https://nayanearaujo.github.io/pipeline-saude-sus/)
+- [Definições dos indicadores](indicadores.md)
+- [Validação e limites](VALIDACAO.md)
 
-Um pipeline de dados de ponta a ponta sobre as internações do SUS, partindo dos
-arquivos `.dbc` do DATASUS e chegando a um dashboard interativo por estado e a um
-relatório estático. O mesmo caminho das aulas (Olist), com um dataset novo: dado
-de saúde brasileiro, cru e sem documentação amigável.
+## Escopo implementado
 
-## Como cumpre cada requisito da aula 4
-
-| Requisito | Como foi atendido |
+| Componente | Entrega |
 |---|---|
-| Dataset diferente do das aulas | SIH/SUS (DATASUS), 1,2 milhão de internações |
-| Três camadas (bronze, prata, ouro) | `ingestao.py` (bronze), `transformacao.py` (prata), `marts.py` + 10 SQL (ouro) |
-| Pelo menos 2 tabelas com JOIN | `internacoes` × `cid10` (nome da doença), × `ufs` (sigla e região) e × `municipios` (nome da cidade) |
-| Testes com cobertura mínima de 70% | 138 testes, cobertura de 97,01% |
-| Repositório com todo o código e README | Sim, com README de instalação e execução |
-| Histórico de commits passo a passo | Commits pequenos e temáticos, em português (Conventional Commits) |
-| Dashboard (opcional) | Streamlit interativo por estado, com deploy no Streamlit Cloud |
+| Fonte própria | SIH/SUS, com 1.238.763 registros brutos de internação |
+| Arquitetura | Bronze, Prata e Ouro em DuckDB |
+| Relacionamentos | Internações, CID, municípios e unidades federativas |
+| Transformação | Tipos explícitos, deduplicação e decodificação dos campos |
+| Camada analítica | Dez marts SQL com grão declarado |
+| Qualidade | 37 regras e reconciliação entre camadas e agregados |
+| Testes | 145 testes, cobertura de 97,01% e mínimo de 95% no CI |
+| Apresentação | Cinco cartões, nove figuras, painel interativo e relatório HTML |
+| Reprodutibilidade | Dependências versionadas, execução documentada e conferência isolada |
 
-## Além do pedido
+Os CSVs publicados contêm 1.238.234 AIHs e R$ 2.258.865.118,36.
+A execução local registrada excluiu 529 duplicatas, nenhuma linha por ausência
+de valor e aprovou as 37 regras. Os dez marts somam 16.400 linhas.
 
-- **Qualidade de dados que trava o build** (`pipeline/qualidade.py`): 37 regras
-  que falham o pipeline se um número não fechar (as partes somam o todo, o grão é
-  real, valores dentro do domínio, consistência por UF x nacional).
-- **CI e Keep-Alive no GitHub Actions**: roda testes e lint (ruff) a cada push e mantém o app do Streamlit Cloud acordado via Chromium headless.
-- **Relatório HTML estático** publicado no GitHub Pages.
-- **Comando único** (`executar.py`) roda tudo: bronze, prata, ouro e qualidade.
-- **CAST estrito** na transformação, **API oficial do IBGE** com fallback e **DuckDB UI** (`ui.py`).
+A série diária contém 703.067 entradas em abril. As demais 535.167 entradas têm
+datas anteriores, conforme o histograma da execução local. Todos os registros
+brutos têm competência abril de 2026.
 
-## Evidências e limites da entrega
+## Conferência antes da apresentação
 
-A auditoria de 01/11/2026 está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
-## Validação da entrega
+O tratamento final de idade ignorada deve ser conferido com os arquivos locais.
+A instância pública do Streamlit deve exibir os nove gráficos, os dois seletores
+e o detalhamento expansível do perfil. A interface antiga observada no navegador
+remoto não foi considerada prova de atualização do deploy.
 
-Os dez CSVs reconciliam 1.238.234 internações e R$ 2.258.865.118,36.
-A revisão das descrições CID preservou todos os campos numéricos e reduziu
-os registros sem nome de 36.736 para 76. A fonte não contém os sete códigos restantes.
-
-São 138 testes aprovados e cobertura de 97,01%, incluindo scripts auxiliares.
-O CI exige 95%. A execução local da versão corrigida passou nas 37 regras,
-com 1.238.234 internações, 529 duplicadas excluídas e zero exclusões por ausência de valor.
-A evidência recebida está em `docs/validacao-local-corrigida.json`.
-
-O Streamlit mantém o visual aprovado; o mapa do HTML usa SVG centralizado.
-A Bronze confirmou competência abril/2026 para todos os registros. A série mantém
-703.067 entradas de abril; as outras 535.167 são entradas anteriores, conforme
-o histograma local. O recorte e o uso de `mode()` não foram alterados.
-
----
-
-## Autora
-
-**Nayane Araújo** Pós-Graduanda em Engenharia de Dados
-
-[![GitHub Nayanearaujo](https://img.shields.io/badge/GitHub-Nayanearaujo-181717?style=flat&logo=github)](https://github.com/Nayanearaujo)
-[![LinkedIn Conectar](https://img.shields.io/badge/LinkedIn-Conectar-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/nayane-araujo-548063195/)
+O procedimento completo está em [CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md).
+Não é necessário publicar o banco, os microdados ou configurações privadas.

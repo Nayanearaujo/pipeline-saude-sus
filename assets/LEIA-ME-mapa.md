@@ -12,7 +12,7 @@ RS, SC, SP e TO). A maior diferença relativa de área após simplificar foi
 inferior a 0,27%, medida em coordenadas geográficas apenas como controle técnico.
 As coordenadas foram arredondadas a cinco casas, mantendo a validade das feições.
 Não é uma malha oficial atualizada nem um arquivo para análise geoespacial.
-A simplificação é apenas visual; não modifica os indicadores ou a associação por UF.
+A simplificação é apenas visual. Não modifica os indicadores ou a associação por UF.
 
 O GeoJSON é embutido na figura e o mapa usa fundo branco sem tiles, tokens ou
 consulta à URL remota de geometria na abertura do dashboard. O componente
