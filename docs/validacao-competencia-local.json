@@ -1,7 +1,6 @@
 {
-  "tipo": "Resumo de saída agregada enviada pela autora",
+  "tipo": "Registro agregado da conferência local",
   "commit_validado": "45105954508048a8c156205b7a6577c2451e3823",
-  "data_recebimento": "2026-11-02",
   "sistema": "macOS",
   "python": "3.11.4",
   "execucoes_completas": 2,
@@ -28,7 +27,7 @@
   "limites": [
     "O log não contém o detalhamento de saídas e permanências dos 6.336 grupos.",
     "Grupos de auditoria não equivalem à quantidade de internações com erro.",
-    "A evidência foi recebida da execução no computador da autora, sem acesso aos microdados neste ambiente.",
+    "Resultados de execução local. Os microdados e o banco não são versionados.",
     "A consulta confirma o tipo 5 nas 617 linhas de 2008, mas não valida prontuários nem resolve os demais grupos de auditoria."
   ],
   "confirmacao_tipo_aih_2008": {
@@ -53,5 +52,6 @@
       }
     ],
     "interpretacao": "Padrão de permanência por competência compatível com a documentação de AIH tipo 5. Não valida a exatidão da data original nem os demais alertas."
-  }
+  },
+  "data_registro": "2026-11-02"
 }

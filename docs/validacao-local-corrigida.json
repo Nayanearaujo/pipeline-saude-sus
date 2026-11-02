@@ -1,6 +1,6 @@
 {
   "commit_validado": "24e781e954099b99cde9c1fcd281e61513ebbf49",
-  "origem": "Conferência executada no computador local. Evidência recebida pela saída agregada do Terminal. Sem acesso remoto aos microdados.",
+  "origem": "Registro histórico da execução local de 24e781e. Resultados agregados do Terminal, com arquivos brutos e banco não versionados.",
   "sha256_registro_terminal": "968e9c9df20e6ea59adb4e0cdd5a74212bdb79ad30a239e5491fbc09bb7d402a",
   "ambiente": {
     "sistema": "macOS",
@@ -107,7 +107,7 @@
   "distribuicao_mensal": {
     "origem_commit": "2eab12c82389bf5cd2289ce582f3a8df2840ac37",
     "sha256_registro_terminal": "f86483c4ad973a0609046efb74a62a7b1e323a2f5ede3e56e29a9339bea0f144",
-    "nota": "Histograma recebido na execução anterior dos mesmos arquivos. A conferência final preservou todos os campos dos dez marts.",
+    "nota": "Histograma da execução anterior dos mesmos arquivos, identificada pelo commit de origem. A conferência posterior preservou todos os campos dos dez marts.",
     "linhas": [
       {
         "mes": "2008-01-01",
