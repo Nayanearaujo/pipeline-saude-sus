@@ -35,10 +35,6 @@ As duas primeiras imagens são capturas do painel em Streamlit. A última mostra
 
 ![Dez diagnósticos mais frequentes e série diária de internações no Brasil](assets/painel-diagnosticos-serie.png)
 
-**Mortalidade hospitalar por diagnóstico, com códigos e descrições**
-
-![Mortalidade hospitalar por diagnóstico e código CID](assets/relatorio-mortalidade.jpg)
-
 ## Resultados publicados
 
 | Medida | Resultado |
