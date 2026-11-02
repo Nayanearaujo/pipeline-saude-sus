@@ -1,7 +1,7 @@
 # Internações do SUS · pipeline e dashboard por estado
 
 [![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-97.54%25-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97.01%25-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.11+-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
 ![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
@@ -42,26 +42,22 @@ Painel interativo com seletor de estado, construído com Streamlit e Plotly.
 
 ## Achados
 
-Os CSVs agregados publicados permitem conferir os totais abaixo. A auditoria de
-01/11/2026 verificou sua consistência interna. Depois, a saída de terminal do
-usuário confirmou a reexecução local dos arquivos existentes e 34 regras aprovadas. Evidências e pendências estão em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md).
+Os dez CSVs publicados reconciliam **1.238.234 internações** e
+**R$ 2.258.865.118,36**. A competência registrada na extração é abril/2026.
 
-1. **Série diária e consolidado têm recortes diferentes.** Os CSVs consolidados
-   registram 1.238.234 AIHs; a série de entradas entre 01/04 e 30/04/2026 soma
-   703.067. A diferença não comprova, sozinha, quando cada uma das outras AIHs
-   começou: essa distribuição exige os microdados.
+1. **Datas têm recortes diferentes.** A série de entradas de abril soma 703.067
+   internações, 535.167 a menos que o consolidado. Não atribuo datas a essa
+   diferença sem consultar os microdados. O SQL ainda escolhe o mês da data de
+   entrada mais frequente, e isso não é necessariamente o mês com mais entradas.
 2. **Idade depende da unidade.** A transformação combina `IDADE` e `COD_IDADE`.
-   O perfil publicado contém 60.839 AIHs na faixa "< 1 ano". A auditoria não
-   repetiu uma comparação histórica antes/depois da correção.
-3. **Dicionários precisam de validação.** A API de municípios é do IBGE; o CID-10
-   é obtido de um espelho público. Falhas de rede podem gerar rótulos neutros.
-   A regra de qualidade bloqueia predominância de `CID <codigo>`, mas não
-   garante que todo código possua descrição.
-4. **Grão e desempate explícitos.** A Prata mantém uma linha por AIH, escolhida
-   por data de saída, valor numérico e campos de desempate estáveis. O efeito
-   dessa correção foi conferido por recomputação: as regras antiga e nova
-   produziram o mesmo total nesses dados. Os artefatos antigos não correspondiam
-   à recomputação atual; o novo total reproduzível é R$ 2.258.865.118,36.
+   O perfil publicado contém 60.839 internações com menos de um ano.
+3. **Diagnósticos precisam de categorias e subcategorias.** Completei os nomes
+   por correspondência exata com o dicionário consultado: de 36.736 para 76
+   internações sem descrição (de 2,97% para aproximadamente 0,0061%). Os sete
+   códigos restantes não constam nessa fonte e não receberam nomes inventados.
+4. **Uma linha por AIH.** O desempate prioriza valor preenchido, alta mais
+   recente e valor numérico, seguido de critérios estáveis. Os testes cobrem
+   uma duplicata recente sem valor, que antes eliminava a linha válida.
 
 ---
 
@@ -75,7 +71,7 @@ aulas do curso: da ingestão ao dashboard.
 | **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
 | **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
 | **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,54% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,01% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
 
 ---
 
@@ -116,11 +112,11 @@ uv run python baixar_dados.py        # baixa os .dbc do DATASUS direto (HTTPS,
 uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municipios.csv
 ```
 
-- **`internacoes.parquet`** — microdados do SIH-RD, uma linha por AIH.
+- **`internacoes.parquet`** : microdados do SIH-RD, uma linha por AIH.
   `baixar_dados.py` baixa os `.dbc` por UF e converte com `pyreaddbc` + `dbfread`
   (não usa o PySUS).
-- **`cid10.csv`** — `codigo,descricao` (CID-10 → nome da doença). Fonte: DATASUS.
-- **`municipios.csv`** — `codigo,municipio,uf` (código IBGE → município, UF).
+- **`cid10.csv`** : `codigo,descricao` (CID-10 → nome da doença). Fonte: DATASUS.
+- **`municipios.csv`** : `codigo,municipio,uf` (código IBGE → município, UF).
   Fonte: IBGE.
 
 > `gerar_dicionarios.py` consulta o IBGE e espelhos públicos de dicionários. Sem internet ele cai num
@@ -220,7 +216,7 @@ Antes de escrever o código da tela, o painel foi estruturado respondendo às
 1. **Para quem é?** Gestores públicos de saúde, analistas e auditores do SUS que
    precisam comparar rapidamente o desempenho hospitalar dos estados.
 2. **O que precisa saber primeiro (teste dos 5 segundos)?** Se o volume, o gasto
-   e os desfechos estão dentro do esperado — respondido imediatamente pelos
+   e os desfechos estão dentro do esperado : respondido imediatamente pelos
    **5 cartões executivos no topo** (com subtítulo explicativo da métrica).
 3. **O que a pessoa pergunta depois do primeiro olhar?** *"Onde está concentrado?"*
    (visão nacional: mapa coroplético, ranking de UFs, participação por região e
@@ -254,7 +250,7 @@ Abre com a **visão Brasil** e tem um **seletor de estado** que recorta tudo:
 
 O projeto separa **testes unitários de código** (`test/`, com `pytest` e dados
 inventados em `tmp_path`) das **regras de qualidade de dados** (`pipeline/qualidade.py`,
-34 asserções SQL que rodam sobre o banco real e travam o pipeline se algum
+37 asserções SQL que rodam sobre o banco real e travam o pipeline se algum
 número não fechar):
 
 | Módulo testado | Escopo dos testes unitários | Cobertura |
@@ -263,11 +259,13 @@ número não fechar):
 | `pipeline/ingestao.py` | leitura em texto (`VARCHAR`), idempotência e falha rápida sem criar banco vazio quando falta arquivo | **97%** |
 | `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **96%** |
 | `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **93%** |
-| `pipeline/qualidade.py` | aprovação em banco íntegro e bloqueio imediato (`SystemExit`) quando a soma das partes não bate com o KPI | **96%** |
+| `pipeline/qualidade.py` | aprovação, reconciliação, descrições e bloqueio em divergência | **97%** |
 | `painel.py` / `exportar_painel.py` | formatadores BR, figuras Plotly, fallback DuckDB/CSV e publicação com rollback | **99%** / **98%** |
-| `relatorio.py` | geração determinística do HTML (`div_id` fixo e tamanho em KB) | **98%** |
-| `gerar_dicionarios.py` | consumo da API oficial do IBGE com mock e fallback para modo neutro (3 testes; script de I/O externo, fora da medição de cobertura) | n/a |
-| **TOTAL (120 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,54%** |
+| `relatorio.py` | HTML determinístico e mapa SVG centralizado | **99%** |
+| `gerar_dicionarios.py` | categorias e subcategorias CID, API IBGE, fallbacks e arquivo de entrada | **99%** |
+| `baixar_dados.py` | espelhos, conversão e limpeza de temporários, completude e publicação atômica | **96%** |
+| `executar.py` | ordem das etapas e interrupção em falha | **64%** |
+| **TOTAL (138 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,01%** |
 
 ---
 
@@ -290,7 +288,7 @@ pipeline-saude-sus/
 ├── exportar_painel.py   exporta a camada ouro para dados_painel/
 ├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
 ├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
-├── test/                120 testes pytest com dado inventado e mocks de rede
+├── test/                138 testes pytest com dado inventado e mocks de rede
 ├── data/raw/            os arquivos baixados (não versionados)
 └── pyproject.toml
 ```
@@ -303,8 +301,8 @@ As decisões de transformação (o que é descartado, como cada código é
 decodificado, por que o valor é `DECIMAL(12,2)` e o código IBGE é texto) estão
 documentadas em `indicadores.md`, nos comentários de `transformacao.py` e no
 topo de cada `.sql`. Como em SQL um `JOIN` mal especificado não gera erro de
-sintaxe — apenas multiplica linhas silenciosamente —, cada mart declara
-explicitamente o seu grão e é validado pelas 34 regras de `pipeline/qualidade.py`
+sintaxe : apenas multiplica linhas silenciosamente :, cada mart declara
+explicitamente o seu grão e é validado pelas 37 regras de `pipeline/qualidade.py`
 contando linhas e somas antes e depois.
 
 ## Limitações e notas de dado
@@ -346,35 +344,42 @@ frequência precisa ser verificada nos microdados de cada execução.
   Prata; a série diária as deixa de fora quando estão fora do mês selecionado.
   A frequência e a causa dessas datas não foram revalidadas nesta auditoria.
 
-## Auditoria e pendências de entrega
+## Validação e limites atuais
 
-A auditoria final está em [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), com
-[evidência dos dez CSVs](docs/auditoria-publicacao-atual.json) e
-[consulta de dependências](docs/auditoria-dependencias.json).
+- **138 testes aprovados**, cobertura de **97,01%**, incluindo download,
+  dicionários e orquestração. O mínimo do CI permanece em 95%.
+- **37 regras de qualidade** no código: as três novas verificam descrições
+  ausentes, com limite ponderado de 0,1% das internações e nomes obrigatórios
+  nos 20 primeiros diagnósticos nacionais e de mortalidade.
+- A execução real registrada anteriormente passou nas 34 regras então existentes:
+  1.238.763 linhas na Bronze, 1.238.234 na Prata, 529 duplicadas e zero exclusões
+  por ausência de valor. A nova deduplicação e as 37 regras ainda precisam ser
+  reexecutadas com os microdados locais. Não afirmo que esse reprocessamento ocorreu.
+- Os dez CSVs somam 16.400 linhas. Nesta revisão alterei somente descrições em
+  três CSVs, sem mudar códigos, posições, quantidades, valores ou demais campos.
+  O [manifesto](docs/proveniencia-extracao.json) registra hashes anteriores e atuais.
+- Os arquivos brutos e o banco não são publicados. Não houve novo download de
+  microdados nesta revisão. O recorte mensal continua pendente da conferência
+  de `ANO_CMPT`, `MES_CMPT` e da distribuição das datas no Parquet local.
+- [Resumo técnico da revisão](AUDITORIA_FINAL.md). Os JSONs de auditorias
+  anteriores permanecem como registros históricos, não como resultados desta execução.
 
-- 120 testes passaram; cobertura de 97,54%. O CI exige pelo menos 95%.
-- Os dez CSVs recebidos no PR passaram em 27 verificações; seus hashes conferem
-  com [o manifesto da extração](docs/proveniencia-extracao.json).
-- Os marts `mortalidade_por_cid` e `municipios_pareto` existem em SQL e têm
-  testes e CSVs reais incluídos no PR final, com 1.429 e 5.569 linhas, respectivamente.
-- O reprocessamento local do commit `99d5eb9` passou nas 34 regras: Bronze com
-  1.238.763 linhas, Prata com 1.238.234, 529 AIHs duplicadas e 0 sem valor.
-  Os dez marts somam 16.400 linhas exportadas. A saída foi fornecida pelo usuário;
-  o total financeiro reproduzível é R$ 2.258.865.118,36. Os arquivos e o manifesto
-  foram recebidos e verificados; competência registrada: abril/2026. Não foi
-  confirmado um novo download DATASUS.
-- O mês da série é derivado da data de entrada mais frequente (`mode()`),
-  não de metadados de competência nem da maior soma mensal. A interface identifica
-  esse período como mês da série, sem inferir a competência dos arquivos.
-- A comparação das regras antiga e nova sobre a mesma Bronze não mostrou
-  diferenças de valor, permanência ou desfecho. O banco original recalculado
-  chegou ao mesmo total novo, diferindo de sua Prata gravada. O histórico exato
-  dos artefatos antigos não está demonstrado; os novos agregados foram enviados
-  ao PR e aguardam merge final para substituir a publicação anterior.
+## Onde a IA errou
 
-Para reproduzir a execução nacional, mantenha `UFS = None` e ajuste `ANO`/`MES`
-em `baixar_dados.py`. Qualquer amostra parcial exige `PERMITIR_PARCIAL=1` e não
-pode ser apresentada como Brasil inteiro. Não versione arquivos brutos ou credenciais.
+- **Dicionário incompleto:** a sugestão inicial baixava apenas subcategorias.
+  Conferi os 7.928 diagnósticos publicados e encontrei 1.055 sem nome, cobrindo
+  36.736 internações. Incluí as categorias e conferi cada código: restaram sete
+  códigos e 76 internações sem descrição, com as mesmas 1.238.234 internações totais.
+- **Deduplicação:** uma linha mais recente sem valor podia eliminar uma válida.
+  Reproduzi com duas linhas da mesma AIH: antes, nenhuma sobrevivia; agora,
+  preservo uma linha válida e classifico a outra como duplicada.
+- **Cobertura parcial:** o escopo omitia três scripts auxiliares. Ao incluí-los,
+  medi 86,88%, abaixo do mínimo. Acrescentei testes de falhas, rede simulada,
+  conversão e orquestração, alcançando 97,01% sem baixar o limite de 95%.
+- **Documentação e período:** a descrição do `COALESCE` não correspondia ao SQL,
+  e `mode(data_internacao)` não escolhe o mês com maior volume. Corrigi os textos
+  e mantive os SQLs da série até conferir os microdados; seus 703.067 registros
+  continuam publicados, sem forçar igualdade com o consolidado.
 
 ## Fonte dos dados
 

@@ -1,6 +1,6 @@
 {
+  "natureza": "Registro histórico anterior à atualização das descrições CID; não comprova reprocessamento da versão corrigida.",
   "fonte": "saida de terminal fornecida pelo usuario",
-  "execucao_remota_pelo_agente": false,
   "commit_executado": "99d5eb92ba37db87484d91205e70b1f9a685834c",
   "plataforma": "macOS / Python 3.11.4",
   "bronze": {
@@ -73,7 +73,6 @@
   },
   "causa_historica_dos_artefatos_antigos": "nao determinada; resultados gravados nao correspondem a recomputacao atual",
   "commit_envio_arquivos": "2dfed2944bdc85d55a0309ddbd2d8821e005e3b8",
-  "hashes_csv_conferidos_pelo_agente": 10,
   "verificacoes_agregados_recebidos": 27,
   "competencias_registradas": [
     [
@@ -82,5 +81,7 @@
     ]
   ],
   "manifesto_proveniencia": "docs/proveniencia-extracao.json",
-  "merge_final_realizado": false
+  "merge_final_realizado": false,
+  "reprocessamento_remoto": false,
+  "hashes_csv_conferidos_na_revisao": 10
 }

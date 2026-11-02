@@ -28,9 +28,9 @@ Levantamento dos **10 indicadores** desenhados na Aula 1 a partir da exploraçã
 
 ### Pilha 2 · "Dá, mas..." (exige decodificação ou recorte explícito)
 - **Indicador 5 (Mortalidade por CID):** calcular letalidade bruta sem filtro de volume coloca doenças com 1 caso e 1 óbito (100%) no topo. Exige `HAVING count(*) >= 100` no mart `09_mortalidade_por_cid`.
-- **Indicador 6 (Diagnósticos):** `DIAG_PRINC` vem sem ponto (`O800`) e pode trazer subcategorias ausentes na tabela oficial da OMS. Exige `LEFT JOIN prata.cid10` com `COALESCE(c.doenca, 'CID ' || i.cid_principal)`.
-- **Indicador 7 (Idade em anos):** a coluna `IDADE` não está sempre em anos — `COD_IDADE` define a unidade (`0` a `3` são minutos/horas/dias/meses, `4` é anos e `5` soma 100 anos). Sem combinar `IDADE` + `COD_IDADE` na camada `prata`, recém-nascidos de 5 meses entrariam na faixa `1-14`.
-- **Indicador 8 (Série diária):** o arquivo mensal do SIH é fechado por **competência de apresentação**, não por data de entrada. Há pacientes admitidos em meses anteriores que tiveram alta em abril/2026. Exige recortar `data_internacao` ao mês de referência nos marts `05` e `07` (o SQL deriva o mês da data mais frequente, via `mode()`; em abril/2026, de 01/04 a 30/04).
+- **Indicador 6 (Diagnósticos):** `DIAG_PRINC` vem sem ponto (`O800`) e pode trazer subcategorias ausentes na tabela oficial da OMS. Exige `LEFT JOIN prata.cid10` com `COALESCE(c.doenca, 'nao classificado')`.
+- **Indicador 7 (Idade em anos):** a coluna `IDADE` não está sempre em anos : `COD_IDADE` define a unidade (`0` a `3` são minutos/horas/dias/meses, `4` é anos e `5` soma 100 anos). Sem combinar `IDADE` + `COD_IDADE` na camada `prata`, recém-nascidos de 5 meses entrariam na faixa `1-14`.
+- **Indicador 8 (Série diária):** o arquivo mensal do SIH é fechado por **competência de apresentação**, não por data de entrada. A série de entradas pode ter um recorte diferente do consolidado; a distribuição das entradas fora do mês ainda precisa ser conferida nos microdados. Exige recortar `data_internacao` ao mês de referência nos marts `05` e `07` (o SQL deriva o mês da data mais frequente, via `mode()`; em abril/2026, de 01/04 a 30/04).
 - **Indicador 9 (Municípios):** o SIH grava o código IBGE com **6 dígitos** (sem dígito verificador), enquanto a API do IBGE entrega 7 dígitos. Exige padronizar `substr(codigo, 1, 6)` na camada `prata`.
 
 ### Pilha 3 · "Não dá" (o dado público não sustenta)
@@ -40,7 +40,7 @@ Levantamento dos **10 indicadores** desenhados na Aula 1 a partir da exploraçã
 
 ## 3. Definições fechadas antes do SQL (Aula 3)
 
-1. **Grão da tabela-fato (`prata.internacoes`):** 1 linha = 1 AIH aprovada (`aih` único). Após a seleção por AIH, registros sem valor financeiro são excluídos; entradas não numéricas interrompem a conversão estrita. A deduplicação prioriza a alta mais recente, depois o maior valor normalizado em `DECIMAL(12,2)`, com desempates estáveis definidos em `pipeline/transformacao.py`. Na execução local validada, foram excluídas 529 AIHs duplicadas e zero linhas por ausência de valor.
+1. **Grão da tabela-fato (`prata.internacoes`):** 1 linha = 1 AIH aprovada (`aih` único). Após a seleção por AIH, registros sem valor financeiro são excluídos; entradas não numéricas interrompem a conversão estrita. A deduplicação prioriza registros com valor preenchido, depois a alta mais recente e o maior valor normalizado em `DECIMAL(12,2)`, com desempates estáveis definidos em `pipeline/transformacao.py`. Na execução local validada, foram excluídas 529 AIHs duplicadas e zero linhas por ausência de valor.
 
 2. **Custo médio e mediana:** calculados sobre `valor_total` (`DECIMAL(12,2)`) de todas as AIH válidas da UF ou do país (`AVG(valor_total)` e `MEDIAN(valor_total)`).
 3. **Taxa de mortalidade hospitalar:** `100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*)`, onde `morte = TRUE` corresponde exclusivamente a `MORTE = '1'` no SIH (óbito ocorrido durante a internação).

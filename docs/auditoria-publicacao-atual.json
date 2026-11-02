@@ -1,7 +1,8 @@
 {
+  "natureza": "Registro histórico anterior à atualização das descrições CID; não comprova reprocessamento da versão corrigida.",
   "data_utc": "2026-11-01T20:04:00.625646+00:00",
   "commit_dados_recebidos": "2dfed2944bdc85d55a0309ddbd2d8821e005e3b8",
-  "escopo": "Dez CSVs exportados localmente e enviados ao PR; hashes e agregados verificados pelo agente, sem acesso aos microdados",
+  "escopo": "Dez CSVs exportados localmente; hashes e agregados conferidos na revisão técnica, sem acesso aos microdados",
   "kpi": {
     "internacoes": "1238234",
     "ufs": "27",
@@ -93,7 +94,7 @@
     }
   },
   "limites": [
-    "Hashes dos arquivos brutos foram informados na origem e nao recalculados pelo agente",
+    "Hashes dos arquivos brutos foram informados na origem e não recalculados na revisão remota",
     "Nao confirma novo download DATASUS",
     "Historico exato dos artefatos antigos nao determinado"
   ]
