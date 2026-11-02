@@ -1,0 +1,3 @@
+*.sql linguist-language=SQL linguist-detectable=true linguist-vendored=false linguist-documentation=false linguist-generated=false
+docs/index.html linguist-language=HTML linguist-detectable=true linguist-documentation=false linguist-generated=false
+docs/relatorio.html linguist-generated=true
