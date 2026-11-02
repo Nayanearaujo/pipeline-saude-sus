@@ -69,7 +69,7 @@ def test_ids_de_grafico_sao_fixos():
     assert "Mapa completo das 27 UFs" in html
     assert 'class="mapa-relatorio"' in html
     assert "referência de concentração" in html
-    assert '"height":820' in html
+    assert '"height":722' in html
     assert 'height:100%!important' not in html
     assert 'overflow:hidden' in html
 

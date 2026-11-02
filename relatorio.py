@@ -185,6 +185,9 @@ def construir_html(dados: dict) -> str:
             (painel.fig_mortalidade_por_cid(dados["mortalidade_por_cid"]), True),
             (painel.fig_municipios_pareto(dados["municipios_pareto"]), True),
         ])
+    # Compactação exclusiva do HTML, preservando espaço para rótulos e legendas.
+    for figura, _ in blocos:
+        figura.update_layout(height=max(360, round((figura.layout.height or 380) * 0.88)))
     graficos = "".join(
         _grafico(f, incluir_js=(i == 0), div_id=f"g{i:02d}", largo=largo)
         + (
@@ -236,7 +239,7 @@ _PAGINA = """<!doctype html>
   *{{box-sizing:border-box}}
   body{{margin:0;background:var(--paper);color:var(--ink);
     font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.6;}}
-  .wrap{{max-width:1100px;margin:0 auto;padding:28px 18px 56px;}}
+  .wrap{{max-width:1000px;margin:0 auto;padding:28px 18px 56px;}}
   .banner{{background:linear-gradient(135deg,#1a6b52,#2e9e74);color:#fff;
     border-radius:16px;padding:28px 26px;box-shadow:var(--shadow);margin-bottom:22px;}}
   .banner h1{{margin:0 0 6px;font-size:clamp(22px,4vw,30px);}}
