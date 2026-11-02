@@ -4,7 +4,7 @@
 ![Testes aprovados](https://img.shields.io/badge/testes-147%20aprovados-brightgreen)
 ![Cobertura](https://img.shields.io/badge/cobertura-97%2C05%25-brightgreen)
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
-![Licença](https://img.shields.io/badge/c%C3%B3digo-MIT-green)
+![DuckDB](https://img.shields.io/badge/DuckDB-SQL-FFF000?logo=duckdb&logoColor=000000)
 
 Pipeline de engenharia de dados sobre os registros de internação do SIH/SUS,
 com Python, DuckDB e SQL. O projeto transforma arquivos públicos do DATASUS
@@ -25,7 +25,7 @@ A distribuição geográfica considera a residência registrada, não o hospital
 
 ## Demonstração
 
-As duas primeiras imagens são capturas do painel em Streamlit. A última mostra o relatório executivo, que usa os mesmos marts.
+As imagens são capturas do painel em Streamlit. O relatório executivo usa os mesmos marts.
 
 **Distribuição nacional e participação das regiões**
 
@@ -130,7 +130,7 @@ depende de WebGL. O relatório inclui a tabela expansível do perfil, com filtro
 de sexo e faixa etária. A biblioteca dos demais gráficos exige JavaScript.
 
 O [rascunho](design/rascunho.png) é um planejamento identificado, não uma captura
-do painel em funcionamento. As capturas da seção Demonstração mostram o relatório publicado.
+do painel em funcionamento. As capturas da seção Demonstração mostram o painel em funcionamento.
 
 ## Indicadores e limites
 
