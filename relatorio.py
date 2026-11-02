@@ -375,7 +375,7 @@ como número de pessoas distintas ou prevalência populacional.</p>
 
     <article class="nota-card">
 <h3>
-Valores pagos, não custos assistenciais</h3>
+Valor registrado na AIH</h3>
 <p>
 O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico
 integral da assistência.</p>
@@ -401,7 +401,7 @@ atendimento. Comparações entre regiões não são taxas ajustadas por populaç
 <h3>
 Limites e reprodutibilidade</h3>
 <p>
-Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e
+Os números são lidos dos marts da camada Ouro. Consulte o código SQL e
 as verificações de qualidade no repositório para rastrear as regras de cálculo.</p>
 </article>
 
@@ -409,7 +409,7 @@ as verificações de qualidade no repositório para rastrear as regras de cálcu
   <footer>
     Nayane Araújo · Desafio Final : Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
-    Números lidos direto dos marts, sem cálculo na página.<br>
+    Indicadores lidos dos marts da camada Ouro.<br>
     Relatório gerado em {gerado}.
   </footer>
 </div>
