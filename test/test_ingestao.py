@@ -1,5 +1,5 @@
 """
-Testes de pipeline/ingestão.py.
+Testes de pipeline/ingestao.py.
 
 Escreve um parquet e dois CSVs pequenos em tmp_path, aponta o pipeline para la e
 confere que viram tabelas bronze como texto. Nunca le data/raw/ nem o banco real.

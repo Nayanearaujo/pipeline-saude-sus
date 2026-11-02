@@ -50,3 +50,16 @@ def test_ler_informa_csv_complementar_ausente(tmp_path, monkeypatch):
             marts=["mortalidade_por_cid", "municipios_pareto"],
             banco=str(tmp_path / "inexistente.duckdb"),
         )
+
+
+def test_pareto_completo_nao_depende_de_webgl():
+    n = 1500
+    df = pd.DataFrame({
+        'posicao': range(1, n + 1), 'pct_acumulado': [i * 100 / n for i in range(1, n + 1)],
+        'municipio': ['Município de teste'] * n, 'uf': ['SP'] * n,
+        'internacoes': [1] * n, 'valor_total': [10.0] * n,
+    })
+    fig = painel.fig_municipios_pareto(df)
+    assert fig.data[0].type == 'scatter'
+    assert list(fig.data[0].y) == df.pct_acumulado.tolist()
+    assert len(fig.data[0].x) == n

@@ -30,7 +30,7 @@ na comparação, suficiente para detectar diferença de centavos.
 ## O que conferir na saída
 
 - Ruff sem erros e cobertura de pelo menos 95%.
-- 145 testes aprovados e cobertura de 97,01% no ambiente usado na revisão.
+- 147 testes aprovados e cobertura de 97,05% no ambiente usado nesta revisão.
 - 37 regras de qualidade aprovadas.
 - 1.238.234 AIHs na Prata e valor exato de R$ 2.258.865.118,36.
 - Dez marts com resultado `OK`.
@@ -56,7 +56,8 @@ Escolha Brasil e uma UF. Mortalidade por CID e concentração municipal devem
 continuar identificadas como análises do Brasil.
 
 Abra também o `docs/relatorio.html` gerado. Confira o mapa completo, os nove
-gráficos, as legendas e a leitura em uma janela menor.
+gráficos, as legendas, a curva municipal e a leitura em uma janela menor.
+Abra a tabela de perfil e teste os filtros de sexo e faixa etária.
 
 ## Instância pública do Streamlit
 

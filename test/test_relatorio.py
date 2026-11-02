@@ -1,5 +1,5 @@
 """
-Testes de relatório.py: o gerador do relatório HTML estático.
+Testes de relatorio.py: o gerador do relatório HTML estático.
 
 Monta um dict de marts inventado (no formato que painel.ler() devolveria) e
 chama construir_html direto, sem banco e sem rede. Confere que os cartões
@@ -92,7 +92,7 @@ def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
 
 
 def test_main_grava_os_dois_arquivos(tmp_path, monkeypatch):
-    """main() le os marts, monta o HTML e grava relatório.html na raiz e em docs/."""
+    """main() le os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
     monkeypatch.setattr(relatorio.painel, "ler", lambda **kwargs: _dados_inventados())
     monkeypatch.setattr(relatorio, "RAIZ", tmp_path)
     relatorio.main()
@@ -122,3 +122,15 @@ def test_relatorio_deriva_periodo_da_serie_sem_inferir_competencia():
     assert "Série diária: julho/2027" in html
     assert "abril/2026" not in html
     assert "não comprova a competência" in html
+
+
+def test_detalhamento_perfil_com_filtros_e_texto_escapado():
+    dados = _dados_inventados()
+    dados['perfil_demografico_brasil'].loc[0, 'sexo'] = '<script>alert(1)</script>'
+    html = relatorio.construir_html(dados)
+    assert '<details class="detalhe-perfil" id="perfil-detalhado">' in html
+    assert 'Ver perfil detalhado por sexo e faixa etária' in html
+    assert 'id="filtro-sexo"' in html and 'id="filtro-faixa_etaria"' in html
+    assert 'id="tabela-perfil"' in html
+    assert '<script>alert(1)</script>' not in html
+    assert '&lt;script&gt;alert(1)&lt;/script&gt;' in html
