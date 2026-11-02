@@ -1,27 +1,27 @@
 """
-Etapa 2: transformacao (bronze -> prata).
+Etapa 2: transformação (bronze -> prata).
 
 Pega a tabela-fato de internacoes (SIH-RD) e os dois dicionarios, da a cada
-coluna o tipo do que ela realmente e, decodifica os codigos cripticos do SIH
-(sexo, UF, morte) e renomeia tudo para portugues legivel. Uma linha = uma
-internacao (AIH): a dedup e por aih (QUALIFY), nao DISTINCT da linha inteira.
+coluna o tipo do que ela realmente e, decodifica os códigos cripticos do SIH
+(sexo, UF, morte) e renomeia tudo para português legivel. Uma linha = uma
+internacao (AIH): a dedup e por aih (QUALIFY), não DISTINCT da linha inteira.
 Mantem os dicionarios como tabelas de apoio para o JOIN da camada ouro.
 
-Decisoes de dado (resumo; cada uma com o motivo no codigo):
+Decisoes de dado (resumo. Cada uma com o motivo no código):
 - Valor (VAL_TOT) vira DECIMAL(12,2): e dinheiro, nunca DOUBLE.
 - Datas (DT_INTER, DT_SAIDA) viram DATE a partir do formato AAAAMMDD do SIH.
 - Dias de permanencia viram INTEGER.
 - Idade: idade_anos combina IDADE com COD_IDADE (a unidade do SIH). COD_IDADE
-  0/1/2/3 (minutos/horas/dias/meses) -> menos de 1 ano, entra como 0; 4 ->
-  IDADE em anos; 5 -> IDADE + 100 (centenarios). Sem isso, um bebe de 5 meses
+  2/3 (dias/meses) -> menos de 1 ano, entra como 0. Unidade ignorada vira NULL. 4 ->
+  IDADE em anos; 5 -> IDADE + 100 (centenários). Sem isso, um bebê de 5 meses
   (IDADE=5, COD_IDADE=3) seria lido como 5 anos.
-- Codigo do municipio e o prefixo de 6 digitos do IBGE; fica VARCHAR (e id).
-- Sexo: '1'->Masculino, '3'->Feminino (codificacao do SIH); outros -> NULL.
-- MORTE: '1' indica obito na internacao; vira BOOLEAN morte.
-- UF sai do codigo IBGE do municipio (2 primeiros digitos) via tabela de UFs.
+- Código do município e o prefixo de 6 digitos do IBGE. Fica VARCHAR (e id).
+- Sexo: '1'->Masculino, '3'->Feminino (codificacao do SIH). Outros -> NULL.
+- MORTE: '1' indica óbito na internacao. Vira BOOLEAN morte.
+- UF sai do código IBGE do município (2 primeiros digitos) via tabela de UFs.
 
 Reexecucao: CREATE OR REPLACE TABLE, nunca append. Rodar com:
-    uv run python -m pipeline.transformacao
+    uv run python -m pipeline.transformação
 """
 import sys
 
@@ -29,7 +29,7 @@ from pipeline.db import conectar, criar_schema
 
 sys.stdout.reconfigure(encoding="utf-8")
 
-# Codigo IBGE da UF (2 digitos) -> sigla e regiao. Tabela pequena e estavel.
+# Código IBGE da UF (2 digitos) -> sigla e regiao. Tabela pequena e estavel.
 UFS = {
     "11": ("RO", "Norte"), "12": ("AC", "Norte"), "13": ("AM", "Norte"),
     "14": ("RR", "Norte"), "15": ("PA", "Norte"), "16": ("AP", "Norte"),
@@ -54,8 +54,8 @@ def _tabela_ufs(con):
     )
 
 
-# A transformacao da tabela-fato. Os nomes a esquerda sao os do SIH-RD; os da
-# direita sao o vocabulario legivel que vou usar nos JOINs da camada ouro.
+# A transformação da tabela-fato. Os nomes a esquerda são os do SIH-RD. Os da
+# direita são o vocabulario legivel que vou usar nos JOINs da camada ouro.
 # Critério compartilhado pela seleção, contagem de exclusões e reconciliação.
 ORDEM_AIH = """(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') IS NULL) ASC,
                  DT_SAIDA DESC NULLS LAST,
@@ -79,15 +79,13 @@ WITH base AS (
         CAST(NULLIF(TRIM(CAST(VAL_TOT AS VARCHAR)), '') AS DECIMAL(12,2))  AS valor_total,
         CAST(NULLIF(TRIM(CAST(DIAS_PERM AS VARCHAR)), '') AS INTEGER)      AS dias_permanencia,
         -- idade em ANOS, combinando IDADE com COD_IDADE (a unidade no SIH):
-        -- 0/1/2/3 = minutos/horas/dias/meses -> < 1 ano (0); 4 = anos; 5 = 100+.
+        -- 2/3 = dias/meses. 4 = anos. 5 = 100+. Unidade desconhecida vira NULL.
         CASE CAST(COD_IDADE AS VARCHAR)
             WHEN '5' THEN CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER) + 100
             WHEN '4' THEN CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER)
-            WHEN '0' THEN 0
-            WHEN '1' THEN 0
             WHEN '2' THEN 0
             WHEN '3' THEN 0
-            ELSE CAST(NULLIF(TRIM(CAST(IDADE AS VARCHAR)), '') AS INTEGER)
+            ELSE NULL
         END                                                AS idade,
         CASE CAST(SEXO AS VARCHAR)
             WHEN '1' THEN 'Masculino'
@@ -164,7 +162,7 @@ def _resumo_nulos_internacoes(con) -> str:
 
 
 def _motivos_exclusao_internacoes(con) -> tuple[int, int]:
-    """Conta AIHs duplicadas e sem valor apos a mesma deduplicacao da prata."""
+    """Conta AIHs duplicadas e sem valor após a mesma deduplicacao da prata."""
     sem_valor, duplicadas = con.execute(f"""
         WITH classificadas AS (
             SELECT
@@ -189,8 +187,8 @@ def main():
 
     try:
         con.execute("BEGIN")
-        # Pre-requisito: a bronze tem que existir. Se faltar alguma tabela (ingestao
-        # nao rodou), para antes de transformar em vez de estourar um erro criptico.
+        # Pre-requisito: a bronze tem que existir. Se faltar alguma tabela (ingestão
+        # não rodou), para antes de transformar em vez de estourar um erro criptico.
         existentes = {
             r[0] for r in con.execute("""
                 SELECT table_name FROM information_schema.tables

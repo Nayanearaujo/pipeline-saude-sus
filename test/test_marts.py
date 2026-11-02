@@ -1,8 +1,8 @@
 """
 Testes de pipeline/marts.py (executor) e dos marts ouro 01 a 10 em SQL.
 
-O executor roda sobre uma pasta de marts inventada; os marts SQL rodam
-sobre uma prata minima montada a mao, para provar as regras com entrada conhecida.
+O executor roda sobre uma pasta de marts inventada. Os marts SQL rodam
+sobre uma prata mínima montada a mao, para provar as regras com entrada conhecida.
 """
 from pathlib import Path
 
@@ -13,9 +13,9 @@ from pipeline import db, marts
 
 
 def _prata_minima(con):
-    """prata.* minima: as 4 tabelas que o executor exige, com dado util no fato."""
+    """prata.* mínima: as 4 tabelas que o executor exige, com dado util no fato."""
     con.execute("CREATE SCHEMA prata")
-    # 3 internacoes: 2 no RJ (uma com obito), 1 em SP
+    # 3 internacoes: 2 no RJ (uma com óbito), 1 em SP
     con.execute("""
         CREATE TABLE prata.internacoes AS SELECT * FROM (VALUES
             ('a1','330455','RJ','Sudeste','A001','p1',1000.00, 4, 40,'Masculino',
@@ -71,7 +71,7 @@ def test_mart_vazio_encerra(tmp_path, monkeypatch):
 
 
 def test_falta_tabela_prata_encerra(tmp_path, monkeypatch):
-    """Se uma tabela esperada da prata nao existir, o executor para antes de rodar."""
+    """Se uma tabela esperada da prata não existir, o executor para antes de rodar."""
     banco, pasta = _preparar(tmp_path, monkeypatch)
     con = duckdb.connect(str(banco))
     con.execute("DROP TABLE prata.cid10")  # derruba uma das 4 exigidas
@@ -91,14 +91,14 @@ def test_dois_arquivos_mesma_tabela_encerra(tmp_path, monkeypatch):
 
 
 def test_sem_nenhum_sql_encerra(tmp_path, monkeypatch):
-    """Pasta de marts vazia: nao ha o que executar, encerra."""
+    """Pasta de marts vazia: não ha o que executar, encerra."""
     _preparar(tmp_path, monkeypatch)  # pasta criada, mas sem .sql
     with pytest.raises(SystemExit):
         marts.main()
 
 
 def test_erro_sql_faz_rollback_e_encerra(tmp_path, monkeypatch):
-    """SQL invalido dispara ROLLBACK na transacao e encerra com codigo 1."""
+    """SQL inválido dispara ROLLBACK na transação e encerra com código 1."""
     banco, pasta = _preparar(tmp_path, monkeypatch)
     (pasta / "01_bom.sql").write_text("SELECT 1 AS x", encoding="utf-8")
     (pasta / "02_quebrado.sql").write_text("SELECT * FROM tabela_que_nao_existe", encoding="utf-8")
@@ -145,7 +145,7 @@ def test_mart01_kpis_bate_com_a_entrada(tmp_path):
     assert int(r["ufs"]) == 2
     assert float(r["valor_total"]) == 1800.0          # 1000 + 500 + 300
     assert float(r["custo_medio"]) == 600.0           # 1800 / 3
-    # 1 obito em 3 internacoes = 33,33%
+    # 1 óbito em 3 internacoes = 33,33%
     assert float(r["taxa_mortalidade_pct"]) == 33.33
 
 
@@ -158,14 +158,14 @@ def test_mart02_por_estado_agrupa_certo(tmp_path):
     rj = r[r["uf"] == "RJ"].iloc[0]
     assert int(rj["internacoes"]) == 2
     assert float(rj["valor_total"]) == 1500.0         # 1000 + 500
-    assert float(rj["taxa_mortalidade_pct"]) == 50.0  # 1 obito em 2
+    assert float(rj["taxa_mortalidade_pct"]) == 50.0  # 1 óbito em 2
 
 
 def test_mart06_brasil_ranqueia_com_desempate(tmp_path):
     """O mart nacional traz posicao (window) e desempata por cid.
 
-    Na prata minima ha 2 internacoes com cid A001 e 1 com B002, entao A001 fica
-    em 1o. A posicao vem de ROW_NUMBER, nao da ordem de leitura."""
+    Na prata mínima ha 2 internacoes com cid A001 e 1 com B002, entao A001 fica
+    em 1o. A posicao vem de ROW_NUMBER, não da ordem de leitura."""
     con = duckdb.connect(str(tmp_path / "t.duckdb"))
     _prata_minima(con)
     r = con.execute(_ler_sql("06_top_diagnosticos_brasil.sql")).df()
@@ -180,12 +180,12 @@ def test_mart06_brasil_ranqueia_com_desempate(tmp_path):
 
 
 def test_mart03_por_uf_limita_a_dez_e_ordena(tmp_path):
-    """O mart 03 ja entrega o top 10 por UF (posicao <= 10), ordenado."""
+    """O mart 03 já entrega o top 10 por UF (posicao <= 10), ordenado."""
     con = duckdb.connect(str(tmp_path / "t.duckdb"))
     _prata_minima(con)
     r = con.execute(_ler_sql("03_top_diagnosticos.sql")).df()
     con.close()
-    # a prata minima tem poucos CIDs, entao nenhuma UF passa de 10 linhas
+    # a prata mínima tem poucos CIDs, entao nenhuma UF passa de 10 linhas
     assert (r.groupby("uf").size() <= 10).all()
     # dentro de cada UF, posicao comeca em 1 e cresce
     for _uf, grupo in r.groupby("uf"):
@@ -193,10 +193,10 @@ def test_mart03_por_uf_limita_a_dez_e_ordena(tmp_path):
 
 
 def test_mart09_mortalidade_filtra_volume_e_ranqueia(tmp_path):
-    """O mart 09 so mantem CID com 100+ internacoes (HAVING) e ordena por RANK.
+    """O mart 09 só mantem CID com 100+ internacoes (HAVING) e ordena por RANK.
 
-    Monta 101 internacoes do CID A (1 obito) e 2 do CID B (1 obito): o CID B,
-    apesar de 50% de letalidade, fica de fora por nao atingir o volume minimo."""
+    Monta 101 internacoes do CID A (1 óbito) e 2 do CID B (1 óbito): o CID B,
+    apesar de 50% de letalidade, fica de fora por não atingir o volume mínimo."""
     con = duckdb.connect(str(tmp_path / "t.duckdb"))
     con.execute("CREATE SCHEMA prata")
     con.execute("""
@@ -235,7 +235,7 @@ def test_mart10_pareto_fecha_em_cem_por_cento(tmp_path):
     assert r.iloc[0]["cod_municipio"] == "330455"          # maior gasto em 1o
     assert float(r.iloc[0]["pct_acumulado"]) == 60.0       # 600 de 1000
     assert round(float(r.iloc[-1]["pct_acumulado"])) == 100  # fecha em 100%
-    # municipio sem cadastro no dicionario vira 'nao identificado'
+    # município sem cadastro no dicionario vira 'não identificado'
     assert r.iloc[-1]["municipio"] == "nao identificado"
 
 
@@ -277,4 +277,17 @@ def test_join_cid_categoria_subcategoria_e_inexistente():
     assert dict(con.execute('SELECT cid,doenca FROM ouro.top_diagnosticos_brasil').fetchall()) == {
         'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'nao classificado'}
     assert con.execute('SELECT sum(internacoes) FROM ouro.top_diagnosticos_brasil').fetchone()[0] == 3
+    con.close()
+
+
+def test_perfil_preserva_idade_desconhecida_sem_classificar_como_idoso():
+    con = duckdb.connect()
+    _prata_minima(con)
+    con.execute("UPDATE prata.internacoes SET idade = NULL WHERE aih = 'a1'")
+    pasta = Path(__file__).resolve().parents[1] / 'sql/marts'
+    for nome in ['04_perfil_demografico.sql', '08_perfil_demografico_brasil.sql']:
+        linhas = con.execute((pasta / nome).read_text()).df()
+        assert linhas.internacoes.sum() == 3
+        assert linhas.loc[linhas.faixa_etaria == 'nao informado', 'internacoes'].sum() == 1
+        assert not (linhas.faixa_etaria == '65+').any()
     con.close()
