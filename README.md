@@ -71,7 +71,7 @@ alta mais recente e valor numérico, com critérios de desempate estáveis.
 A mesma prioridade é usada na contagem de exclusões e na reconciliação.
 
 O código CID é ligado às categorias e subcategorias de uma fonte versionada.
-A revisão completou 1.048 descrições nacionais e reduziu as internações sem nome
+Completei 1.048 descrições nacionais e reduziu as internações sem nome
 de 36.736 para 76. Depois, os sete códigos ausentes no espelho foram completados
 com fontes oficiais complementares. A auditoria local confirmou zero internações
 sem descrição. O limite de qualidade é de 0,1% das internações,
@@ -110,7 +110,7 @@ orquestração, transformação, qualidade, exportação e relatório. Apenas as
 interfaces `app.py` e `ui.py`, os próprios testes e o ambiente virtual ficam fora.
 Os testes usam dados sintéticos e simulações de rede, sem consultar o banco real.
 
-**Resultado desta revisão: 156 testes e cobertura de 97,06%.**
+**Resultado atual: 156 testes e cobertura de 97,06%.**
 
 Para repetir a validação completa com os arquivos locais, consulte
 [CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md). O procedimento usa uma pasta

@@ -5,17 +5,21 @@ que será entregue. Ele não altera a pasta original nem publica dados no GitHub
 
 ## Preparação
 
-Se a revisão ainda estiver em um pedido de alteração, use a referência indicada
-na resposta de entrega. Após a aprovação e incorporação, use `main`.
+Use a pasta que contém a cópia original do projeto, com os arquivos em
+`data/raw/`. A partir da pasta imediatamente acima dela, execute:
 
 ```bash
-cd /Users/nayane/pipeline-saude-sus
+cd pipeline-saude-sus
+ORIGEM_DADOS="$(pwd -P)"
 git fetch origin main
-CONFERENCIA="$(mktemp -d /Users/nayane/pipeline-sus-final.XXXXXX)"
+CONFERENCIA="$(mktemp -d "${TMPDIR:-/tmp}/pipeline-sus-final.XXXXXX")"
 git worktree add --detach "$CONFERENCIA" FETCH_HEAD
 cd "$CONFERENCIA"
-bash scripts/conferir_entrega.sh /Users/nayane/pipeline-saude-sus
+bash scripts/conferir_entrega.sh "$ORIGEM_DADOS"
 ```
+
+A variável `ORIGEM_DADOS` guarda o caminho da pasta original antes da mudança
+para a cópia isolada. O procedimento funciona sem um nome de conta específico.
 
 O script instala as dependências versionadas e executa Ruff e pytest com cobertura.
 Ele confere os hashes publicados, reutiliza o Parquet original apenas para leitura,
@@ -30,7 +34,7 @@ na comparação, suficiente para detectar diferença de centavos.
 ## O que conferir na saída
 
 - Ruff sem erros e cobertura de pelo menos 95%.
-- 156 testes aprovados e cobertura de 97,06% no ambiente usado nesta revisão.
+- 156 testes aprovados e cobertura de 97,06% no ambiente registrado na validação atual.
 - 37 regras de qualidade aprovadas.
 - 1.238.234 AIHs na Prata e valor exato de R$ 2.258.865.118,36.
 - Dez marts com resultado `OK`.
@@ -65,7 +69,7 @@ Confira os nove gráficos, o detalhamento do perfil e os valores atuais na
 instância pública. Se uma versão anterior persistir, use `Manage app` e
 `Reboot app` na conta proprietária. Nunca compartilhe credenciais no repositório.
 
-## Auditoria nova
+## Auditoria de descrições e datas
 
 A execução cria três CSVs em `data/auditoria/`. Confira os códigos ainda sem
 nome, o histograma mensal e os grupos com datas ou permanências sinalizadas.
@@ -75,7 +79,7 @@ As fontes oficiais complementares devem completar os sete códigos que antes
 somavam 76 internações sem descrição. Preserve os arquivos de auditoria e a
 saída do Terminal para confirmar o resultado sobre os microdados.
 
-## Resultado já obtido
+## Resultado histórico
 
 A conferência do commit `24e781e` foi aprovada no macOS com Python 3.11.4.
 Passaram 145 testes, cobertura de 97,01% e as 37 regras. O valor exato foi
@@ -85,11 +89,14 @@ permanece disponível para repetir a verificação.
 
 ## Conferência da atualização de competência
 
-A saída recebida confirma duas execuções completas do commit `4510595` no macOS,
+Executei duas conferências completas do commit `4510595` no macOS,
 com Python 3.11.4. Passaram 156 testes, cobertura de 97,06%, as 37 regras e a
 comparação dos dez marts, sem linhas exclusivas. O valor exato permaneceu em
 R$ 2.258.865.118,36. O dicionário passou a 14.240 códigos, sem CID sem descrição.
 A Prata preservou a competência abril de 2026. O HTML foi gerado com nove figuras.
-A auditoria listou 6.336 grupos para investigação. As 617 entradas de 01/01/2008
-continuam confirmadas, mas o log não traz a análise de saídas e permanências
-desses registros. Os arquivos originais foram preservados.
+A auditoria listou 6.336 grupos para investigação. A consulta ao campo `IDENT`
+confirmou tipo 5 nas 617 entradas de 01/01/2008. Uma tem saída em 20/04/2026
+e 20 dias registrados, uma tem saída em 26/04/2026 e 26 dias, e 615 têm saída
+em 30/04/2026 e 30 dias. Esse padrão é compatível com a permanência por
+competência das AIHs de continuidade. Os demais alertas continuam sujeitos
+a investigação. Os arquivos originais foram preservados.

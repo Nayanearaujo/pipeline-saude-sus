@@ -2,11 +2,12 @@
 
 ## Escopo
 
-A revisão usa os dez CSVs publicados, o código do repositório e a saída agregada
-da conferência local do commit `4510595`, repetida em duas execuções. Os arquivos brutos e o banco permanecem
-fora do GitHub. Não houve confirmação de novo download de microdados.
+A validação reúne os dez CSVs publicados, o código do repositório e os resultados
+de duas execuções locais do commit `4510595`. Os arquivos brutos e o banco
+não são versionados. As execuções reutilizaram os arquivos locais, sem novo
+download de microdados.
 
-## Evidência local recebida
+## Resultados da execução local
 
 | Item | Resultado |
 |---|---:|
@@ -49,7 +50,7 @@ registradas em `docs/cid-complementar.csv`, deixando zero ausências nos CSVs. A
 Códigos, posições, contagens, valores e demais campos foram preservados.
 As três regras de descrição passaram nos CSVs e na execução local registrada.
 
-## Revisão final do código
+## Testes e verificações
 
 - 156 testes automatizados aprovados, com cobertura de 97,06%.
 - Ruff aprovado e cobertura mínima de 95% preservada.
@@ -76,14 +77,14 @@ O dicionário identifica `COD_IDADE = 0` como idade ignorada.
 
 O relatório mantém nove figuras e o mapa SVG completo, com dimensões compactas.
 A curva municipal usa SVG para funcionar sem WebGL. A tabela expansível do
-perfil oferece filtros de sexo e faixa etária. Duas regressões novas verificam
+perfil oferece filtros de sexo e faixa etária. Dois testes de regressão verificam
 a renderização da curva completa e o escape dos textos da tabela. A execução
 local anterior permaneceu registrada com seus 145 testes e cobertura de 97,01%.
 O Streamlit mantém os filtros de estado e métrica, o detalhamento do perfil e as
 análises nacionais de mortalidade por CID e concentração municipal.
-O código atual contém esses recursos, mas a instância pública observada ainda
-apresentou uma interface anterior. A verificação após o reinício do aplicativo
-é necessária antes de considerar o deploy confirmado.
+A conferência visual do painel e do relatório inclui os nove gráficos, os
+seletores, o perfil expansível e a curva municipal. O funcionamento público
+deve ser conferido novamente após alterações na publicação.
 
 ## Limites preservados
 
@@ -111,11 +112,13 @@ nem uma comparação ajustada por gravidade. A geografia é a residência regist
 ## Arquivos de evidência
 
 - [Manifesto de extração e hashes dos CSVs](docs/proveniencia-extracao.json)
-- [Evidência agregada da execução local](docs/validacao-local-corrigida.json)
+- [Resultado atual da execução local](docs/validacao-competencia-local.json)
+- [Registro histórico da execução de 24e781e](docs/validacao-local-corrigida.json)
 - [Procedimento de conferência final](CONFERENCIA_LOCAL.md)
 
-As auditorias intermediárias e as capturas antigas foram retiradas da entrega
-para evitar números concorrentes. O histórico Git preserva as versões anteriores.
+Os resultados históricos permanecem associados aos respectivos commits.
+O registro de `4510595` contém a validação da competência explícita e dos
+diagnósticos completados com fontes oficiais.
 
 ## Confirmação das AIHs de continuidade
 
