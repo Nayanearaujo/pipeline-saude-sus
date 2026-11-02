@@ -152,8 +152,9 @@ futuras recebem “Descrição não localizada na fonte” e entram na auditoria
 A conferência local do commit `4510595` foi aprovada em duas execuções no macOS.
 Os dez marts coincidiram com os CSVs publicados, e a auditoria não encontrou CID
 sem descrição. Foram gerados 6.336 grupos para investigação de datas e permanências.
-Esses grupos não equivalem ao número de internações com erro. A causa das datas
-antigas ainda não foi comprovada.
+Esses grupos não equivalem ao número de internações com erro. A investigação confirmou que as 617 entradas de 01/01/2008 são AIHs tipo 5,
+de continuidade, com permanência referente à competência. Os demais alertas
+continuam sujeitos a investigação.
 
 ## Indicadores e limites
 
@@ -167,7 +168,8 @@ esse acompanhamento na base usada.
 - O SQL usa a competência de processamento preservada na Prata. Cada execução exige
   uma única competência. Arquivos de meses diferentes devem ser processados separadamente.
 - Há 14.538 entradas registradas antes de 2026, incluindo 617 em 1º de janeiro de 2008.
-  Não foram classificadas como datas padrão ou internações prolongadas sem investigação.
+  As 617 AIHs são de continuidade, tipo 5, com 20, 26 ou 30 dias registrados na competência.
+  A data original de entrada não foi validada em prontuário.
 - Idade ignorada é mantida como desconhecida. Dias e meses são convertidos para
   a faixa de menos de um ano. A conferência final confirmou que os perfis deste conjunto permaneceram iguais.
 - `VAL_TOT` é o valor registrado na AIH, não o custo econômico integral da assistência.

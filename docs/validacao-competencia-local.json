@@ -28,7 +28,30 @@
   "limites": [
     "O log não contém o detalhamento de saídas e permanências dos 6.336 grupos.",
     "Grupos de auditoria não equivalem à quantidade de internações com erro.",
-    "A causa das datas antigas não foi comprovada.",
-    "A evidência foi recebida da execução no computador da autora, sem acesso aos microdados neste ambiente."
-  ]
+    "A evidência foi recebida da execução no computador da autora, sem acesso aos microdados neste ambiente.",
+    "A consulta confirma o tipo 5 nas 617 linhas de 2008, mas não valida prontuários nem resolve os demais grupos de auditoria."
+  ],
+  "confirmacao_tipo_aih_2008": {
+    "campo": "IDENT",
+    "tipo": "5",
+    "linhas_bronze": 617,
+    "grupos": [
+      {
+        "saida": "2026-04-20",
+        "dias_permanencia": 20,
+        "linhas": 1
+      },
+      {
+        "saida": "2026-04-26",
+        "dias_permanencia": 26,
+        "linhas": 1
+      },
+      {
+        "saida": "2026-04-30",
+        "dias_permanencia": 30,
+        "linhas": 615
+      }
+    ],
+    "interpretacao": "Padrão de permanência por competência compatível com a documentação de AIH tipo 5. Não valida a exatidão da data original nem os demais alertas."
+  }
 }
