@@ -199,8 +199,7 @@ def construir_html(dados: dict) -> str:
         _card("Mortalidade hospitalar", painel.pct(k["taxa_mortalidade_pct"], 2)),
     ])
 
-    # o mapa centralizado e sem margem lateral sobrando (o Brasil e estreito e
-    # alto. Sem isso sobra muito branco dos lados no relatório).
+    # As margens reservam espaço para a escala do mapa.
     mapa = painel.fig_mapa(por_estado, METRICA)
     limites = mapa.layout.map.bounds
     mapa.update_layout(
@@ -209,8 +208,8 @@ def construir_html(dados: dict) -> str:
                         south=limites.south - 2, north=limites.north + 2),
     )
 
-    # grade de 2 colunas: mapa + ranking no topo. Rosca + custo. Top diagnósticos
-    # emparelhado. Serie e perfil ocupam a linha inteira (são series temporais).
+    # Mapa e composição regional têm formatos semelhantes.
+    # Os dois rankings estaduais compartilham a linha seguinte.
     blocos = [
         (mapa, False),
         (painel.fig_ranking_estados(por_estado, METRICA), False),
@@ -221,7 +220,7 @@ def construir_html(dados: dict) -> str:
         (painel.fig_serie_diaria(serie, "Brasil"), True),
     ]
     # Os pares compartilham a altura, evitando vazios abaixo do mapa e da rosca.
-    for esquerda, direita in ((0, 1), (2, 3)):
+    for esquerda, direita in ((0, 2), (1, 3)):
         altura = max(blocos[esquerda][0].layout.height or 380,
                      blocos[direita][0].layout.height or 380)
         blocos[esquerda][0].update_layout(height=altura)
@@ -247,7 +246,8 @@ def construir_html(dados: dict) -> str:
             'de qualidade. Os botões mostram todos os municípios ou os primeiros 30.</p>' if i == 8 else ''
         )
         + (_perfil_detalhado(perfil) if i == 5 else "")
-        for i, (f, largo) in enumerate(blocos)
+        for i in (0, 2, 1, 3, 4, 5, 6, *range(7, len(blocos)))
+        for f, largo in [blocos[i]]
     )
 
     gerado = datetime.now().strftime("%d/%m/%Y às %H:%M")
@@ -375,7 +375,7 @@ como número de pessoas distintas ou prevalência populacional.</p>
 
     <article class="nota-card">
 <h3>
-Valores pagos, não custos assistenciais</h3>
+Valor registrado na AIH</h3>
 <p>
 O valor total representa o valor registrado na AIH. O indicador monetário não mede o custo econômico
 integral da assistência.</p>
@@ -401,7 +401,7 @@ atendimento. Comparações entre regiões não são taxas ajustadas por populaç
 <h3>
 Limites e reprodutibilidade</h3>
 <p>
-Os números são lidos dos marts da camada ouro, sem reconciliação artificial. Consulte o código SQL e
+Os números são lidos dos marts da camada Ouro. Consulte o código SQL e
 as verificações de qualidade no repositório para rastrear as regras de cálculo.</p>
 </article>
 
@@ -409,7 +409,7 @@ as verificações de qualidade no repositório para rastrear as regras de cálcu
   <footer>
     Nayane Araújo · Desafio Final : Engenharia de Dados · dados públicos do SIH/SUS.<br>
     A série diária é por data de entrada e não soma o total (que é por competência).
-    Números lidos direto dos marts, sem cálculo na página.<br>
+    Indicadores lidos dos marts da camada Ouro.<br>
     Relatório gerado em {gerado}.
   </footer>
 </div>
