@@ -1,418 +1,187 @@
-# Internações do SUS · pipeline e dashboard por estado
+# Internações do SUS: pipeline de dados e painel por estado
 
-[![CI · Testes e Qualidade](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Cobertura](https://img.shields.io/badge/cobertura-97.01%25-brightgreen)
-![Python](https://img.shields.io/badge/python-3.11+-blue)
-![DuckDB](https://img.shields.io/badge/DuckDB-1.0+-yellow)
-![Licença](https://img.shields.io/badge/uso-estudo%20%C2%B7%20dados%20p%C3%BAblicos-lightgrey)
+[![Testes](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
+![Licença](https://img.shields.io/badge/c%C3%B3digo-MIT-green)
 
-Pipeline de dados de ponta a ponta sobre as **internações hospitalares do SUS**
-(SIH/SUS, DATASUS), em **Python + DuckDB**, com um **dashboard interativo por
-estado** em Streamlit. Parte dos microdados oficiais e chega a um painel que
-compara os 27 estados em volume, gasto, permanência e mortalidade.
+Pipeline de engenharia de dados sobre os registros de internação do SIH/SUS,
+com Python, DuckDB e SQL. O projeto transforma arquivos públicos do DATASUS
+em dez marts, um painel em Streamlit e um relatório HTML.
 
-> Recorte: internações de **abril de 2026**, Brasil inteiro, com visão nacional
-> e recorte por estado. Dados públicos do Ministério da Saúde.
+**Competência de processamento: abril de 2026. Abrangência: Brasil.**
+Uma AIH é uma autorização de internação hospitalar. Não representa uma pessoa única.
+A distribuição geográfica considera a residência registrada, não o hospital.
 
-## Links
+## Acessos
 
-- 📊 **Dashboard ao vivo (Streamlit):** https://pipeline-saude-sus.streamlit.app/
-- 📖 **Guia do projeto (GitHub Pages):** https://nayanearaujo.github.io/pipeline-saude-sus/
-- 📄 **Relatório executivo (estático):** https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html
-- 💻 **Repositório:** https://github.com/Nayanearaujo/pipeline-saude-sus
+- [Painel interativo em Streamlit](https://pipeline-saude-sus.streamlit.app/)
+- [Relatório executivo em HTML](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html)
+- [Guia do projeto](https://nayanearaujo.github.io/pipeline-saude-sus/)
+- [Definições dos indicadores](indicadores.md)
+- [Validação e limites](VALIDACAO.md)
+- [Planejamento do painel](design/rascunho.png)
 
 ## Demonstração
 
-O dashboard interativo tem seletor de estado e métricas, construído com Streamlit e Plotly.
+As imagens são capturas do relatório executivo. O painel interativo usa os mesmos marts.
 
-👉 **Acesse o dashboard ao vivo:** https://pipeline-saude-sus.streamlit.app/
+**Distribuição nacional e ranking das 27 unidades federativas**
 
-As imagens abaixo são capturas atuais do [relatório executivo publicado](https://nayanearaujo.github.io/pipeline-saude-sus/relatorio.html), alimentado pelos mesmos marts do dashboard. Competência: abril/2026.
+![Mapa completo do Brasil e ranking de internações](assets/relatorio-nacional.jpg)
 
-**Relatório: mapa completo do Brasil e ranking dos 27 estados**
+**Participação regional, valor médio e mediana por estado**
 
-![Mapa completo e ranking nacional no relatório executivo](assets/relatorio-nacional.jpg)
+![Participação regional e comparação entre média e mediana](assets/relatorio-regioes.jpg)
 
-**Relatório: participação regional e valor médio e mediano por UF**
+**Mortalidade hospitalar por diagnóstico, com códigos e descrições**
 
-![Participação por região, média e mediana por estado](assets/relatorio-regioes.jpg)
+![Mortalidade hospitalar por diagnóstico e código CID](assets/relatorio-mortalidade.jpg)
 
-**Relatório: mortalidade hospitalar com nomes dos diagnósticos e códigos CID**
+## Resultados publicados
 
-![Mortalidade hospitalar por diagnóstico, com nomes e códigos CID](assets/relatorio-mortalidade.jpg)
+| Medida | Resultado |
+|---|---:|
+| Registros brutos de internação | 1.238.763 |
+| AIHs após a transformação | 1.238.234 |
+| AIHs duplicadas excluídas | 529 |
+| Exclusões por ausência de valor | 0 |
+| Valor total registrado | R$ 2.258.865.118,36 |
+| Dicionário CID na execução local corrigida | 14.233 códigos únicos |
+| Dicionário de municípios | 5.571 códigos únicos |
+| Marts da camada Ouro | 10 |
+| Linhas nos dez CSVs publicados | 16.400 |
+| Regras de qualidade aprovadas na execução local | 37 |
 
----
+A conferência local final confirmou o valor exato com centavos, as 37 regras,
+os 145 testes e a igualdade de todos os campos dos dez marts com os CSVs publicados.
+A correção de idade ignorada não alterou os resultados deste conjunto.
 
-## Achados
+## Arquitetura
 
-Os dez CSVs publicados reconciliam **1.238.234 internações** e
-**R$ 2.258.865.118,36**. A competência registrada na extração é abril/2026.
-
-1. **Datas têm recortes diferentes.** A série de entradas de abril soma 703.067
-   internações. A execução local confirmou outras 535.167 entradas anteriores:
-   343.386 em março/2026, 100.989 em fevereiro, 76.254 em janeiro e 14.538 antes
-   de 2026. Todas as 1.238.763 linhas da Bronze têm competência abril/2026.
-   O SQL ainda usa o mês da data mais frequente, uma heurística mantida nesta versão.
-2. **Idade depende da unidade.** A transformação combina `IDADE` e `COD_IDADE`.
-   O perfil publicado contém 60.839 internações com menos de um ano.
-3. **Diagnósticos precisam de categorias e subcategorias.** Completei os nomes
-   por correspondência exata com o dicionário consultado: de 36.736 para 76
-   internações sem descrição (de 2,97% para aproximadamente 0,0061%). Os sete
-   códigos restantes não constam nessa fonte e não receberam nomes inventados.
-4. **Uma linha por AIH.** O desempate prioriza valor preenchido, alta mais
-   recente e valor numérico, seguido de critérios estáveis. Os testes cobrem
-   uma duplicata recente sem valor, que antes eliminava a linha válida.
-
----
-
-## As quatro etapas do pipeline
-
-Este projeto refaz, do zero e com um dataset novo (SUS), o caminho das quatro
-aulas do curso: da ingestão ao dashboard.
-
-| Etapa | O que faz | Arquivo |
+| Etapa | Responsabilidade | Implementação |
 |---|---|---|
-| **1 · Ingestão** | lê os `.dbc` do SIH para a camada bronze, tudo texto | `pipeline/ingestao.py` |
-| **2 · Transformação** | tipa e decodifica os códigos do SIH (camada prata) | `pipeline/transformacao.py` |
-| **3 · SQL / Marts** | 10 indicadores em **SQL puro** (camada ouro), com CTE, window function, `RANK` e `HAVING` | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **4 · Dashboard + testes + qualidade** | painel interativo, testes com cobertura de 97,01% e checagens que travam o build | `app.py`, `painel.py`, `pipeline/qualidade.py`, `test/` |
+| Preparação | Converter os arquivos `.dbc` e obter os dicionários | `baixar_dados.py`, `gerar_dicionarios.py` |
+| Bronze | Ler os três arquivos com todas as colunas como texto | `pipeline/ingestao.py` |
+| Prata | Declarar tipos, decodificar campos e manter uma linha por AIH | `pipeline/transformacao.py` |
+| Ouro | Construir dez marts com grão explícito e regras em SQL | `pipeline/marts.py`, `sql/marts/` |
+| Qualidade | Verificar domínio, unicidade, reconciliação e descrições | `pipeline/qualidade.py` |
+| Publicação | Exportar os marts, montar o painel e gerar o HTML | `exportar_painel.py`, `app.py`, `relatorio.py` |
 
----
+O valor financeiro usa `DECIMAL(12,2)`. A deduplicação prioriza valor preenchido,
+alta mais recente e valor numérico, com critérios de desempate estáveis.
+A mesma prioridade é usada na contagem de exclusões e na reconciliação.
 
-## Arquitetura: três camadas
+O código CID é ligado às categorias e subcategorias de uma fonte versionada.
+A revisão completou 1.048 descrições nacionais e reduziu as internações sem nome
+de 36.736 para 76, aproximadamente 0,0061% do total. Os sete códigos ausentes na
+fonte continuam sem descrição. O limite de qualidade é de 0,1% das internações,
+com nomes obrigatórios nos 20 primeiros diagnósticos nacionais e de mortalidade.
 
-```
-data/raw/ (.parquet + .csv)  ──ingestao.py──▶  bronze.*   espelho do arquivo, tudo texto
-                                                 │
-                                          transformacao.py
-                                                 ▼
-                                              prata.*     tipado, códigos do SIH decodificados
-                                                 │
-                                          marts.py + sql/marts/*.sql
-                                                 ▼
-                                              ouro.*      indicadores por estado
-                                                 │
-                                          painel.py ──▶ app.py (Streamlit)
-```
+## Execução
 
-| Camada | O que é | Quem constrói |
-|---|---|---|
-| **bronze** | os 3 arquivos como vieram, todas as colunas texto | `pipeline/ingestao.py` |
-| **prata** | tipado (valor→`DECIMAL`, data→`DATE`), códigos do SIH decodificados (sexo, UF, óbito), nomes legíveis. 1 linha = 1 internação | `pipeline/transformacao.py` |
-| **ouro** | uma tabela por pergunta: KPIs, por estado, diagnósticos, perfil, série diária | `pipeline/marts.py` + `sql/marts/*.sql` |
-| **dashboard** | a tela. Nunca calcula: todo número sai de um mart | `painel.py`, `app.py` |
-
----
-
-## Como baixar os dados
-
-Os microdados do SIH vêm em `.dbc` (formato legado do DATASUS). Dois scripts
-geram tudo em `data/raw/` (precisam de internet; a pasta não vai para o Git):
+Requisitos: Python 3.11 ou superior e `uv`. Execute os comandos na raiz do projeto.
 
 ```bash
 uv sync --frozen
-uv run python baixar_dados.py        # baixa os .dbc do DATASUS direto (HTTPS,
-                                      # converte com pyreaddbc) -> internacoes.parquet
-uv run python gerar_dicionarios.py   # baixa IBGE + CID-10 -> cid10.csv, municipios.csv
+uv run python baixar_dados.py
+uv run python gerar_dicionarios.py
+uv run python executar.py
+uv run python exportar_painel.py
+uv run python relatorio.py
+uv run streamlit run app.py
 ```
 
-- **`internacoes.parquet`** : microdados do SIH-RD, uma linha por AIH.
-  `baixar_dados.py` baixa os `.dbc` por UF e converte com `pyreaddbc` + `dbfread`
-  (não usa o PySUS).
-- **`cid10.csv`** : `codigo,descricao` (CID-10 → nome da doença). Fonte: DATASUS.
-- **`municipios.csv`** : `codigo,municipio,uf` (código IBGE → município, UF).
-  Fonte: IBGE.
+O download cobre as 27 UFs por padrão. Uma UF ausente bloqueia a publicação do
+Parquet. Amostras parciais exigem `PERMITIR_PARCIAL=1` e não representam o Brasil.
+Os arquivos brutos e o banco não são versionados.
 
-> `gerar_dicionarios.py` consulta o IBGE e espelhos públicos de dicionários. Sem internet ele cai num
-> **modo neutro** (nome = `CID <codigo>` / `Municipio <codigo>`). O
-> processamento pode avançar, mas a qualidade pode bloquear rótulos neutros predominantes. Rode-o com internet
-> antes de publicar, ou os gráficos mostram o código cru no lugar da doença.
+A publicação do Parquet é atômica. A ingestão e a construção dos marts usam
+transações. Os testes verificam falhas de escrita e preservação da versão anterior.
 
-> Para outro recorte, ajuste `ANO`/`MES` em `baixar_dados.py` a um período
-> cuja disponibilidade tenha sido conferida no DATASUS.
-
----
-
-## Como rodar
+## Testes e conferência final
 
 ```bash
-# baixar os dados (gera data/raw/, não vai para o Git)
-uv run python baixar_dados.py             # baixa o SIH-RD de abril/2026 (27 UFs)
-uv run python gerar_dicionarios.py        # gera cid10.csv e municipios.csv
-
-# pipeline, do arquivo ao indicador
-uv run python -m pipeline.ingestao        # data/raw -> bronze
-uv run python -m pipeline.transformacao   # bronze   -> prata
-uv run python -m pipeline.marts           # prata    -> ouro
-uv run python -m pipeline.qualidade       # checagens de qualidade (falha se nao fechar)
-
-# (alternativa) tudo numa tacada: bronze -> prata -> ouro -> qualidade
-uv run python executar.py
-
-# dashboard interativo
-uv run streamlit run app.py               # abre em localhost:8501
-
-# relatório estático em HTML (gera relatorio.html e docs/relatorio.html)
-uv run python relatorio.py
-
-# testes e lint
-uv run pytest --cov                        # unitários, dado inventado, cobertura >= 95% no CI
-uv run ruff check .                        # estilo e imports
+uv run ruff check .
+uv run pytest --cov
 ```
 
-### Resultado de uma execução (abril/2026, Brasil)
+O CI exige cobertura mínima de 95%. A medição inclui download, dicionários,
+orquestração, transformação, qualidade, exportação e relatório. Apenas as
+interfaces `app.py` e `ui.py`, os próprios testes e o ambiente virtual ficam fora.
+Os testes usam dados sintéticos e simulações de rede, sem consultar o banco real.
 
-As quantidades foram confirmadas no reprocessamento local do PR final: as
-529 exclusões são AIHs duplicadas, sem exclusões por ausência de valor.
-O bloco abaixo preserva as contagens da execução original; a nova execução
-produziu o total financeiro reproduzível de R$ 2.258.865.118,36, detalhado na auditoria:
+**Resultado desta revisão: 145 testes e cobertura de 97,01%.**
 
-```
-ingestao      bronze.internacoes  1.238.763 · cid10 12.451 · municipios 5.571
-transformacao prata.internacoes   1.238.234 linhas (-529 AIHs duplicadas; 0 sem valor)
-marts         10 marts, 16.400 linhas na camada ouro
-```
+Para repetir a validação completa com os arquivos locais, consulte
+[CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md). O procedimento usa uma pasta
+isolada, preserva os originais e compara os dez marts por conteúdo, não apenas
+por quantidade de linhas.
 
-A camada bronze tem 1.238.763 AIH processadas em abril/2026; a prata mantém
-1.238.234 (529 AIHs duplicadas excluídas; nenhuma exclusão por ausência de valor). O mart `por_estado` conta só as com UF
-e valor válidos: **SP** lidera com 249.866, seguido de **MG** (135.542), **PR**
-(85.435), **BA** (83.953) e **RJ** (78.503).
-*(Os dados brutos não ficam no repositório; rode `baixar_dados.py` para gerá-los.)*
+## Painel e relatório
 
----
+O painel abre na visão Brasil. O seletor de UF altera os cartões e o detalhe de
+diagnósticos, datas de entrada e perfil demográfico. As análises complementares
+de mortalidade por CID e concentração municipal permanecem nacionais e são
+identificadas como Brasil. O painel não calcula novos indicadores.
 
-## O que uma linha representa (grão)
+São cinco cartões executivos e nove figuras. Média e mediana são distintas.
+O gráfico regional usa apenas medidas aditivas. O mapa interativo usa geometria
+local, fundo branco e WebGL. O HTML usa um mapa SVG completo e centralizado,
+sem câmera nem dependência de WebGL. A biblioteca dos demais gráficos exige JavaScript.
 
-| Tabela prata | Uma linha é… |
-|---|---|
-| `internacoes` | uma internação (AIH): município, UF, diagnóstico, procedimento, valor, dias, idade, sexo, óbito, datas |
-| `cid10` | um código CID-10 e o nome da doença |
-| `municipios` | um município do IBGE |
-| `ufs` | uma unidade federativa (código, sigla, região) |
+O [rascunho](design/rascunho.png) é um planejamento identificado, não uma captura
+do painel em funcionamento. As capturas da seção Demonstração mostram o relatório publicado.
 
-A camada prata decodifica os códigos crípticos do SIH: `SEXO` 1/3 → Masculino/
-Feminino, `MORTE` → booleano, `DT_INTER` (AAAAMMDD) → data, `VAL_TOT` →
-`DECIMAL`, e deriva a UF/região a partir do código IBGE do município.
+## Indicadores e limites
 
----
+As dez perguntas planejadas estão em [indicadores.md](indicadores.md).
+Nove são viáveis com a base pública e deram origem aos dez marts. A reinternação
+por paciente ficou fora do escopo, pois não há identificador pessoal que sustente
+esse acompanhamento na base usada.
 
-## Indicadores (camada ouro)
-
-Cada mart tem o grão declarado na primeira linha do `.sql`.
-
-| Mart | Pergunta | SQL em destaque |
-|---|---|---|
-| `kpis_gerais` | os números de topo do painel (Brasil) | agregações + `FILTER` |
-| `por_estado` | volume, gasto, custo médio/mediano, permanência e mortalidade por UF | `MEDIAN`, `SUM() OVER ()` |
-| `top_diagnosticos` / `_brasil` | as 10 doenças que mais internam, por UF e nacional | `ROW_NUMBER() OVER (PARTITION BY uf)` |
-| `perfil_demografico` / `_brasil` | internações por faixa etária e sexo | `CASE WHEN` |
-| `internacoes_diarias` / `_brasil` | série diária ao longo do mês | `GROUP BY` data |
-| `mortalidade_por_cid` | doenças de maior letalidade (100+ internações) | CTE + `HAVING` + `RANK()` |
-| `municipios_pareto` | curva completa do valor acumulado por município; referência de 80% | soma acumulada `SUM() OVER (ORDER BY)` |
-
----
-
-## O dashboard
-
-Antes de escrever o código da tela, o painel foi estruturado respondendo às
-**três perguntas de negócio da Aula 4**:
-
-1. **Para quem é?** Gestores públicos de saúde, analistas e auditores do SUS que
-   precisam comparar rapidamente o desempenho hospitalar dos estados.
-2. **O que precisa saber primeiro (teste dos 5 segundos)?** Se o volume, o gasto
-   e os desfechos estão dentro do esperado : respondido imediatamente pelos
-   **5 cartões executivos no topo** (com subtítulo explicativo da métrica).
-3. **O que a pessoa pergunta depois do primeiro olhar?** *"Onde está concentrado?"*
-   (visão nacional: mapa coroplético, ranking de UFs, participação por região e
-   desigualdade de custo médio) e *"Em quais doenças, quando e em qual público?"*
-   (detalhe recortado por UF: top 10 diagnósticos, série diária de entradas e
-   perfil demográfico por idade e sexo).
-
-Abre com a **visão Brasil** e tem um **seletor de estado** que recorta tudo:
-
-- **5 cartões:** internações, gasto total (compacto e valor integral), custo
-  médio, permanência média e mortalidade. No "Brasil" vêm do `kpis_gerais`; numa
-  UF, da linha do `por_estado`.
-- **Mapa do Brasil** (coroplético por UF) e **ranking de estados**, com métrica
-  escolhível e subtítulo-resposta automático (*"SP lidera: 249.866 (20,2% do total)"*).
-- **Custo médio por UF** (desigualdade regional entre estados).
-- **Top 10 diagnósticos**, **série diária** e **perfil por idade/sexo**,
-  recortados pelo estado selecionado.
-- **Zero cálculo na tela:** `painel.py` e `app.py` não usam `groupby`, `sum`,
-  `mean` nem `merge`; toda participação percentual e posição de ranking já vem
-  calculada dos marts via *window functions*.
-
-> **Para abrir no Power BI ou Tableau:** os CSVs da camada ouro ficam prontos em
-> `dados_painel/`. Ao importar no Power BI em português, defina a localidade da
-> coluna decimal como **Inglês (Estados Unidos)** (para que o ponto decimal não
-> seja lido como separador de milhar) e use **Não resumir** nos cartões de taxa
-> e custo médio (média de médias não é a média nacional).
-
----
-
-## Testes automatizados e qualidade de dados
-
-O projeto separa **testes unitários de código** (`test/`, com `pytest` e dados
-inventados em `tmp_path`) das **regras de qualidade de dados** (`pipeline/qualidade.py`,
-37 asserções SQL que rodam sobre o banco real e travam o pipeline se algum
-número não fechar):
-
-| Módulo testado | Escopo dos testes unitários | Cobertura |
-|---|---|---|
-| `pipeline/db.py` | conexão isolada em `tmp_path`, `criar_schema` idempotente e carga `gravar()` | **100%** |
-| `pipeline/ingestao.py` | leitura em texto (`VARCHAR`), idempotência e falha rápida sem criar banco vazio quando falta arquivo | **97%** |
-| `pipeline/transformacao.py` | `CAST` estrito (sem `TRY_CAST` silencioso), decodificação de `COD_IDADE`/`SEXO`/`MORTE`, dedup determinística por AIH e dicionários | **96%** |
-| `pipeline/marts.py` + `sql/marts/*.sql` | transação com `ROLLBACK` em erro SQL, validação de prefixo, marts 01 a 10 (incluindo fronteiras de `faixa_etaria`, `HAVING >= 100` e Pareto 100%) | **93%** |
-| `pipeline/qualidade.py` | aprovação, reconciliação, descrições e bloqueio em divergência | **97%** |
-| `painel.py` / `exportar_painel.py` | formatadores BR, figuras Plotly, fallback DuckDB/CSV e publicação com rollback | **99%** / **98%** |
-| `relatorio.py` | HTML determinístico e mapa SVG centralizado | **99%** |
-| `gerar_dicionarios.py` | categorias e subcategorias CID, API IBGE, fallbacks e arquivo de entrada | **99%** |
-| `baixar_dados.py` | espelhos, conversão e limpeza de temporários, completude e publicação atômica | **96%** |
-| `executar.py` | ordem das etapas e interrupção em falha | **64%** |
-| **TOTAL (138 testes)** | **Meta do desafio: 70%** · **Alcançado:** | **97,01%** |
-
----
-
-## Estrutura do projeto
-
-```
-pipeline-saude-sus/
-├── pipeline/            db.py, ingestao.py, transformacao.py, marts.py, qualidade.py
-├── executar.py          roda bronze -> prata -> ouro -> qualidade numa tacada
-├── ui.py                abre o DuckDB UI local (http://localhost:4213) sobre o sih.duckdb
-├── indicadores.md       10 indicadores, as 3 pilhas da Aula 2 e definicoes de grao
-├── design/rascunho.png  wireframe 1440x1024 em grade de 12 colunas (Aula 4)
-├── .github/workflows/   ci.yml (pytest + ruff) e keepalive.yml (acorda o Streamlit)
-├── sql/marts/           10 marts .sql, grão declarado no topo de cada arquivo
-├── painel.py            lê os marts, formata e desenha (zero cálculo na tela)
-├── app.py               dashboard Streamlit interativo por estado
-├── baixar_dados.py      baixa os .dbc do SIH (DATASUS) para data/raw/
-├── gerar_dicionarios.py consulta API oficial do IBGE + DATASUS -> data/raw/
-├── dados_painel/        camada ouro exportada em CSV (lida pelo app na nuvem)
-├── exportar_painel.py   exporta a camada ouro para dados_painel/
-├── relatorio.py         gera o relatório estático (relatorio.html) da camada ouro
-├── docs/                GitHub Pages: index.html (guia) e relatorio.html (executivo)
-├── test/                138 testes pytest com dado inventado e mocks de rede
-├── data/raw/            os arquivos baixados (não versionados)
-└── pyproject.toml
-```
-
----
-
-## Decisões de engenharia e controle de grão
-
-As decisões de transformação (o que é descartado, como cada código é
-decodificado, por que o valor é `DECIMAL(12,2)` e o código IBGE é texto) estão
-documentadas em `indicadores.md`, nos comentários de `transformacao.py` e no
-topo de cada `.sql`. Como em SQL um `JOIN` mal especificado não gera erro de
-sintaxe : apenas multiplica linhas silenciosamente :, cada mart declara
-explicitamente o seu grão e é validado pelas 37 regras de `pipeline/qualidade.py`
-contando linhas e somas antes e depois.
-
-## Limitações e notas de dado
-
-Escolhas e limites conhecidos deste recorte, declarados para leitura honesta dos
-indicadores:
-
-- **Série diária não soma o total.** Os marts `internacoes_diarias*` filtram a
-  **data de internação** dentro de abril/2026. Como o arquivo é por competência
-  (mês de processamento), parte das AIH pagas em abril teve entrada em meses
-  anteriores: a série soma ~703 mil internações, não as 1,24 M dos cartões. O
-  filtro é proposital (datas antigas esticariam o eixo), mas a diferença é
-  grande; o gráfico mostra "entradas de abril", não o faturamento do mês.
-- **UF é a de residência do paciente** (`MUNIC_RES`), não a do hospital. "Gasto
-  por estado" aqui é por onde o paciente mora. O arquivo também traz a UF de
-  internação (`UF_ARQUIVO`); trocar a referência muda o resultado.
-- **Valor = valor pago pelo SUS** (`VAL_TOT`), não o custo real do hospital. O
-  rótulo "custo médio" significa o valor médio pago por AIH.
-- **Idade em anos, derivada de `COD_IDADE`.** O SIH guarda a idade com uma
-  unidade (`COD_IDADE`): a transformação converte 0/1/2/3 (minutos/horas/dias/
-  meses) para 0 anos (faixa "< 1 ano") e 5 para a idade + 100. Sem isso, bebês
-  medidos em dias ou meses poderiam cair em faixas etárias superiores (ver Achado nº 2).
-- **Um único mês (abril/2026).** Não há base para falar de sazonalidade ou
-  tendência; a série mostra só a variação dentro do mês.
-
-### O que ficou no dado de propósito
-
-A camada Prata preserva os registros após tipagem, deduplicação e exclusão de
-valores ausentes. As situações abaixo descrevem o tratamento do código; sua
-frequência precisa ser verificada nos microdados de cada execução.
-
-- **Entradas fora do recorte diário.** A diferença entre o consolidado e a série
-  publicada é de 535.167 AIHs. A distribuição mensal da execução local soma
-  exatamente essa diferença, com entradas anteriores a abril/2026. A transformação
-  não exclui AIHs apenas pela data de entrada.
-- **Internações com `dias_permanencia` = 0.** Entrada e saída no mesmo dia
-  existem no SIH (procedimento de day clinic, óbito no primeiro dia); são dado
-  válido, não erro.
-- **Datas de internação antigas.** Se presentes e válidas, permanecem na
-  Prata; a série diária as deixa de fora quando estão fora do mês selecionado.
-  A execução local contém 14.538 entradas anteriores a 2026, desde 2008.
-  A contagem confirma as datas registradas, não a causa nem sua validade clínica.
-
-## Validação e limites atuais
-
-- **138 testes aprovados**, cobertura de **97,01%**, incluindo download,
-  dicionários e orquestração. O mínimo do CI permanece em 95%.
-- **37 regras de qualidade** no código: as três novas verificam descrições
-  ausentes, com limite ponderado de 0,1% das internações e nomes obrigatórios
-  nos 20 primeiros diagnósticos nacionais e de mortalidade.
-- A execução local da versão corrigida passou nas **37 regras**: 1.238.763 linhas
-  na Bronze, 1.238.234 na Prata, 529 duplicadas e zero exclusões por ausência de
-  valor. O dicionário tem 14.233 códigos únicos; os dez marts somam 16.400 linhas.
-  A [evidência local](docs/validacao-local-corrigida.json) registra a saída recebida.
-- Os dez CSVs somam 16.400 linhas. Nesta revisão alterei somente descrições em
-  três CSVs, sem mudar códigos, posições, quantidades, valores ou demais campos.
-  O [manifesto](docs/proveniencia-extracao.json) registra hashes anteriores e atuais.
-- Os arquivos brutos e o banco não são publicados. Não houve novo download de
-  microdados nesta revisão. `ANO_CMPT` e `MES_CMPT` confirmaram abril/2026 para
-  toda a Bronze, e o histograma da Prata fecha as 1.238.234 internações.
-  A troca de `mode()` por uma referência explícita de competência não faz parte
-  desta validação; a série publicada permanece igual.
-- [Resumo técnico da revisão](AUDITORIA_FINAL.md). Os JSONs de auditorias
-  anteriores permanecem como registros históricos, não como resultados desta execução.
+- A série de abril contém 703.067 entradas. As outras 535.167 têm datas anteriores,
+  conforme o histograma local. Toda a Bronze tem competência abril de 2026.
+- O SQL escolhe o mês da data de entrada mais frequente com `mode()`. Neste conjunto,
+  ele coincide com a competência. Isso não garante o mesmo resultado em outro conjunto.
+- Há 14.538 entradas registradas antes de 2026, incluindo 617 em 1º de janeiro de 2008.
+  Não foram classificadas como datas padrão ou internações prolongadas sem investigação.
+- Idade ignorada é mantida como desconhecida. Dias e meses são convertidos para
+  a faixa de menos de um ano. A conferência final confirmou que os perfis deste conjunto permaneceram iguais.
+- `VAL_TOT` é o valor registrado na AIH, não o custo econômico integral da assistência.
+- Mortalidade hospitalar usa internações como denominador. Não mede mortalidade
+  populacional e não é ajustada por gravidade, população ou composição dos casos.
+- O recorte cobre uma única competência. Não sustenta análises de sazonalidade.
 
 ## Onde a IA errou
 
-- **Dicionário incompleto:** a sugestão inicial baixava apenas subcategorias.
-  Conferi os 7.928 diagnósticos publicados e encontrei 1.055 sem nome, cobrindo
-  36.736 internações. Incluí as categorias e conferi cada código: restaram sete
-  códigos e 76 internações sem descrição, com as mesmas 1.238.234 internações totais.
-- **Deduplicação:** uma linha mais recente sem valor podia eliminar uma válida.
-  Reproduzi com duas linhas da mesma AIH: antes, nenhuma sobrevivia; agora,
-  preservo uma linha válida e classifico a outra como duplicada.
-- **Cobertura parcial:** o escopo omitia três scripts auxiliares. Ao incluí-los,
-  medi 86,88%, abaixo do mínimo. Acrescentei testes de falhas, rede simulada,
-  conversão e orquestração, alcançando 97,01% sem baixar o limite de 95%.
-- **Documentação e período:** a descrição do `COALESCE` não correspondia ao SQL,
-  e `mode(data_internacao)` não escolhe o mês com maior volume. Corrigi os textos
-  e mantive os SQLs da série. A execução local confirmou abril/2026 e explicou
-  as 535.167 entradas anteriores ao mês, sem forçar igualdade com o consolidado.
+Usei sugestões de código como ponto de partida e conferi os resultados antes de aceitá-las.
 
-## Fonte dos dados
+- O dicionário inicial não cobria todas as categorias. A contagem revelou 1.055
+  diagnósticos sem nome, associados a 36.736 internações. A correção por código
+  exato deixou sete códigos e 76 internações sem descrição, sem mudar os valores.
+- O desempate por data podia escolher uma duplicata sem valor. Um teste com duas
+  linhas da mesma AIH passou de nenhuma linha válida preservada para uma.
+- A cobertura excluía três scripts auxiliares. Com o escopo ampliado, medi 86,88%.
+  Acrescentei testes sem reduzir o mínimo de 95%.
+- A descrição de `mode()` confundia data mais frequente com mês de maior volume.
+  Corrigi o texto e conferi o histograma, sem forçar a série a somar o consolidado.
+- A unidade de idade ignorada era tratada como menos de um ano. Corrigi a
+  transformação e acrescentei testes para preservar a informação desconhecida.
 
-Microdados do **SIH/SUS** (Sistema de Informações Hospitalares), DATASUS /
-Ministério da Saúde, dados públicos. CID-10 e municípios: DATASUS e IBGE.
+## Fontes e licença
 
-- **SIH/SUS (microdados, AIH-RD):** https://datasus.saude.gov.br/transferencia-de-arquivos/
-- **CID-10 (tabela de doenças):** DATASUS
-- **Municípios (código IBGE):** https://servicodados.ibge.gov.br/api/v1/localidades/municipios
+- [Microdados SIH/SUS, DATASUS](https://datasus.saude.gov.br/transferencia-de-arquivos/)
+- [Dicionário CID-10 usado, fonte versionada](https://github.com/cleytonferrari/CidDataSus/tree/b6eb7d0fe8be752307741d156d67eacf539a186c/CIDImport/Repositorio/Resources)
+- [API oficial de municípios do IBGE](https://servicodados.ibge.gov.br/api/v1/localidades/municipios)
+- [Origem e licença da geometria do mapa](assets/LEIA-ME-mapa.md)
 
-Os dados são públicos e usados aqui apenas para fins de estudo, sem finalidade
-comercial.
-
-## Licença
-
-O **código** deste repositório está sob a licença [MIT](LICENSE): você pode usar,
-copiar e adaptar, mantendo o aviso de copyright. Os **dados** do SIH/SUS seguem a
-política de dados abertos do Ministério da Saúde e não são cobertos por esta
-licença.
-
----
+O código usa a [licença MIT](LICENSE). Os dados públicos mantêm suas condições
+de uso de origem. Microdados, banco, credenciais e configurações privadas não
+fazem parte da entrega. Os hashes e os limites de proveniência estão no
+[manifesto da extração](docs/proveniencia-extracao.json).
 
 ## Autora
 
-**Nayane Araújo** Pós-Graduanda em Engenharia de Dados
+**Nayane Araújo**, pós-graduanda em Engenharia de Dados.
 
-[![GitHub Nayanearaujo](https://img.shields.io/badge/GitHub-Nayanearaujo-181717?style=flat&logo=github)](https://github.com/Nayanearaujo)
-[![LinkedIn Conectar](https://img.shields.io/badge/LinkedIn-Conectar-0A66C2?style=flat&logo=linkedin)](https://www.linkedin.com/in/nayane-araujo-548063195/)
+[GitHub](https://github.com/Nayanearaujo) · [LinkedIn](https://www.linkedin.com/in/nayane-araujo-548063195/)

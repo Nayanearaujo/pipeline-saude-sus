@@ -1,7 +1,7 @@
 """
-Testes de gerar_dicionarios.py: a leitura de municipios da API oficial do IBGE.
+Testes de gerar_dicionarios.py: a leitura de municípios da API oficial do IBGE.
 
-Mocka a resposta da API (sem internet) e confere o parse. Testa tambem o
+Mocka a resposta da API (sem internet) e confere o parse. Testa também o
 fallback: quando a API falha, gerar_municipios cai no modo neutro e ainda grava
 o arquivo. Nunca acessa a rede nem data/raw real.
 """
@@ -30,7 +30,7 @@ class _RespostaFake:
 
 
 def test_le_municipios_da_api_ibge(monkeypatch):
-    """_municipios_da_api_ibge parseia o JSON: id de 7 digitos vira codigo de 6, UF do prefixo."""
+    """_municipios_da_api_ibge parseia o JSON: id de 7 digitos vira código de 6, UF do prefixo."""
     payload = json.dumps([
         {"id": 3304557, "nome": "Rio de Janeiro"},
         {"id": 3550308, "nome": "São Paulo"},
@@ -55,14 +55,14 @@ def test_api_vazia_levanta_erro(monkeypatch):
 
 
 def test_gerar_municipios_cai_no_neutro_sem_rede(tmp_path, monkeypatch):
-    """Sem API e sem CSV, gerar_municipios grava nomes neutros e nao quebra."""
+    """Sem API e sem CSV, gerar_municipios grava nomes neutros e não quebra."""
     read_csv_real = pd.read_csv
 
     def _falha_api(*a, **k):
         raise OSError("sem rede")
 
     def _falha_so_url(path, *a, **k):
-        # falha ao baixar o espelho (URL http); le normal um arquivo local
+        # falha ao baixar o espelho (URL http). Le normal um arquivo local
         if str(path).startswith("http"):
             raise OSError("sem rede")
         return read_csv_real(path, *a, **k)

@@ -1,10 +1,10 @@
 """
-Testes de relatorio.py: o gerador do relatorio HTML estatico.
+Testes de relatório.py: o gerador do relatório HTML estático.
 
 Monta um dict de marts inventado (no formato que painel.ler() devolveria) e
-chama construir_html direto, sem banco e sem rede. Confere que os cartoes
-aparecem no HTML, que os ids dos graficos sao fixos (deterministico) e que
-rodar duas vezes muda so a data do rodape.
+chama construir_html direto, sem banco e sem rede. Confere que os cartões
+aparecem no HTML, que os ids dos gráficos são fixos (deterministico) e que
+rodar duas vezes muda só a data do rodape.
 """
 import pandas as pd
 
@@ -12,7 +12,7 @@ import relatorio
 
 
 def _dados_inventados():
-    """Os marts que construir_html le, com poucas linhas e numeros conhecidos."""
+    """Os marts que construir_html le, com poucas linhas e números conhecidos."""
     return {
         "mortalidade_por_cid": pd.DataFrame({
             "cid": ["A00"], "doenca": ["Diagnóstico de teste"], "internacoes": [200],
@@ -50,17 +50,17 @@ def _dados_inventados():
 
 
 def test_html_tem_os_cartoes():
-    """O HTML gerado contem o rotulo e o valor de cada cartao executivo."""
+    """O HTML gerado contem o rótulo e o valor de cada cartão executivo."""
     html = relatorio.construir_html(_dados_inventados())
     assert "Internações" in html
     assert "Gasto total" in html
     assert "Mortalidade hospitalar" in html
-    # o valor do KPI de internacoes aparece formatado em padrao BR
+    # o valor do KPI de internacoes aparece formatado em padrão BR
     assert "100" in html
 
 
 def test_ids_de_grafico_sao_fixos():
-    """Os graficos usam div_id g00, g01... (HTML deterministico, nao aleatorio)."""
+    """Os gráficos usam div_id g00, g01... (HTML deterministico, não aleatorio)."""
     html = relatorio.construir_html(_dados_inventados())
     assert 'id="g00"' in html
     assert 'id="g01"' in html
@@ -78,7 +78,7 @@ def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
     """Sem contar o rodape de data, duas geracoes dao o mesmo HTML."""
     dados = _dados_inventados()
 
-    # congela a data para a 1a geracao
+    # congela a data para a 1a geração
     class _Fixa:
         @staticmethod
         def now():
@@ -92,7 +92,7 @@ def test_rodar_duas_vezes_muda_so_a_data(monkeypatch):
 
 
 def test_main_grava_os_dois_arquivos(tmp_path, monkeypatch):
-    """main() le os marts, monta o HTML e grava relatorio.html na raiz e em docs/."""
+    """main() le os marts, monta o HTML e grava relatório.html na raiz e em docs/."""
     monkeypatch.setattr(relatorio.painel, "ler", lambda **kwargs: _dados_inventados())
     monkeypatch.setattr(relatorio, "RAIZ", tmp_path)
     relatorio.main()

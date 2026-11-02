@@ -1,15 +1,15 @@
 """
-Etapa 4: qualidade de dados (checagens sobre o banco ja gravado).
+Etapa 4: qualidade de dados (checagens sobre o banco já gravado).
 
-Roda depois do pipeline e falha (sys.exit 1) se qualquer regra nao fechar. A
-ideia e a da aula: o erro em dados nao estoura sozinho, aparece como numero
-errado; entao a conferencia que a gente faria na mao vira codigo que trava o
-build. Cada regra e um SELECT que devolve TRUE quando esta tudo certo.
+Roda depois do pipeline e falha (sys.exit 1) se qualquer regra não fechar. A
+ideia e a da aula: o erro em dados não estoura sozinho, aparece como número
+errado. Entao a conferencia que a gente faria na mao vira código que trava o
+build. Cada regra e um SELECT que devolve TRUE quando está tudo certo.
 
-As familias de regra cobertas (Aula 4):
-  1. Nao vazio          todo mart tem pelo menos 1 linha.
-  2. Chave unica        o grao declarado e real (count = count distinct).
-  3. Dentro do dominio   percentual 0..100, idade >= 0, sexo/uf conhecidos.
+As famílias de regra cobertas (Aula 4):
+  1. Não vazio          todo mart tem pelo menos 1 linha.
+  2. Chave única        o grao declarado e real (count = count distinct).
+  3. Dentro do domínio   percentual 0..100, idade >= 0, sexo/uf conhecidos.
   4. Partes somam o todo perfil e por_estado somam o total dos KPIs.
   5. Dois caminhos        o total sai igual por marts diferentes.
   6. Nada some sem aviso  prata vem de bronze sem perda silenciosa.
@@ -35,10 +35,10 @@ MARTS = [
 
 
 def _regras(con) -> list[tuple[str, str]]:
-    """Lista de (descricao, SQL que devolve TRUE quando a regra passa)."""
+    """Lista de (descrição, SQL que devolve TRUE quando a regra passa)."""
     regras: list[tuple[str, str]] = []
 
-    # 1. Nao vazio: cada mart tem ao menos 1 linha.
+    # 1. Não vazio: cada mart tem ao menos 1 linha.
     for m in MARTS:
         regras.append((
             f"Nao vazio: ouro.{m} tem linhas",
@@ -46,19 +46,19 @@ def _regras(con) -> list[tuple[str, str]]:
         ))
 
     regras += [
-        # 2. Chave unica / grao: 1 linha por AIH na prata.
+        # 2. Chave única / grao: 1 linha por AIH na prata.
         ("Grao: prata.internacoes e 1 linha por AIH (count = count distinct)",
          "SELECT count(*) = count(DISTINCT aih) FROM prata.internacoes"),
 
-        # 2. Chave unica: por_estado tem 1 linha por UF.
+        # 2. Chave única: por_estado tem 1 linha por UF.
         ("Chave unica: ouro.por_estado tem 1 linha por UF",
          "SELECT count(*) = count(DISTINCT uf) FROM ouro.por_estado"),
 
-        # 3. Dominio: taxa de mortalidade entre 0 e 100 em todas as UFs.
+        # 3. Domínio: taxa de mortalidade entre 0 e 100 em todas as UFs.
         ("Dominio: taxa_mortalidade_pct entre 0 e 100 em por_estado",
          "SELECT bool_and(taxa_mortalidade_pct BETWEEN 0 AND 100) FROM ouro.por_estado"),
 
-        # Integridade financeira: pagamentos e permanencia nao podem ser negativos.
+        # Integridade financeira: pagamentos e permanencia não podem ser negativos.
         ("Dominio: valor_total da prata e nao negativo e nao nulo",
          """SELECT count(*) FILTER (
                 WHERE valor_total IS NULL OR valor_total < 0
@@ -69,11 +69,11 @@ def _regras(con) -> list[tuple[str, str]]:
                 WHERE dias_permanencia < 0
             ) = 0 FROM prata.internacoes"""),
 
-        # 3. Dominio: nenhuma idade negativa na prata (COD_IDADE bem aplicado).
+        # 3. Domínio: nenhuma idade negativa na prata (COD_IDADE bem aplicado).
         ("Dominio: nenhuma idade negativa em prata.internacoes",
          "SELECT count(*) FILTER (WHERE idade < 0) = 0 FROM prata.internacoes"),
 
-        # 3. Dominio: UF sempre entre as 27 siglas conhecidas (quando nao nula).
+        # 3. Domínio: UF sempre entre as 27 siglas conhecidas (quando não nula).
         ("Dominio: toda UF preenchida esta entre as 27 siglas validas",
          """SELECT count(*) FILTER (
                 WHERE uf IS NOT NULL AND uf NOT IN (
@@ -92,7 +92,7 @@ def _regras(con) -> list[tuple[str, str]]:
          """SELECT (SELECT sum(internacoes) FROM ouro.top_diagnosticos_brasil)
                  = (SELECT internacoes FROM ouro.kpis_gerais)"""),
 
-        # 5. Dois caminhos concordam: o total por por_estado = KPI, e o gasto tambem.
+        # 5. Dois caminhos concordam: o total por por_estado = KPI, e o gasto também.
         ("Dois caminhos concordam: por_estado soma o mesmo total e gasto dos KPIs",
          """SELECT (SELECT sum(internacoes) FROM ouro.por_estado)
                  = (SELECT internacoes FROM ouro.kpis_gerais)
@@ -100,7 +100,7 @@ def _regras(con) -> list[tuple[str, str]]:
                  = round((SELECT valor_total FROM ouro.kpis_gerais), 2)"""),
 
         # 6. Nada some sem aviso: a prata nunca tem mais linhas que a bronze
-        #    (so pode ter removido linhas sem valor, nunca inventado).
+        #    (só pode ter removido linhas sem valor, nunca inventado).
         ("Nada some sem aviso: prata.internacoes <= bronze.internacoes",
          """SELECT (SELECT count(*) FROM prata.internacoes)
                 <= (SELECT count(*) FROM bronze.internacoes)"""),
@@ -135,17 +135,17 @@ def _regras(con) -> list[tuple[str, str]]:
                AND (SELECT valor_total FROM ouro.kpis_gerais)
                    = (SELECT sum(valor_total) FROM prata.internacoes)"""),
 
-        # 2b. Chave unica nos dicionarios: um codigo nao pode ter duas linhas,
+        # 2b. Chave única nos dicionarios: um código não pode ter duas linhas,
         #     senao o LEFT JOIN da camada ouro multiplicaria internacoes.
         ("Chave unica: prata.cid10 tem 1 linha por codigo CID",
          "SELECT count(*) = count(DISTINCT cid) FROM prata.cid10"),
         ("Chave unica: prata.municipios tem 1 linha por codigo de municipio",
          "SELECT count(*) = count(DISTINCT cod_municipio) FROM prata.municipios"),
 
-        # 3b. Nomes reais, nao modo neutro: se o dicionario de CID caiu no
-        #     fallback sem internet, as descricoes viram 'CID <codigo>'. A regra
+        # 3b. Nomes reais, não modo neutro: se o dicionario de CID caiu no
+        #     fallback sem internet, as descrições viram 'CID <código>'. A regra
         #     falha se MAIS da metade das doencas do top nacional estiver nesse
-        #     formato, sinal de que os nomes reais nao foram baixados.
+        #     formato, sinal de que os nomes reais não foram baixados.
         ("Nomes reais: top_diagnosticos_brasil nao esta em modo neutro (CID <codigo>)",
          """SELECT count(*) FILTER (WHERE doenca = 'CID ' || cid) < count(*) / 2
             FROM ouro.top_diagnosticos_brasil"""),
@@ -175,14 +175,14 @@ def _regras(con) -> list[tuple[str, str]]:
          """SELECT (SELECT sum(internacoes) FROM ouro.perfil_demografico)
                  = (SELECT sum(internacoes) FROM ouro.perfil_demografico_brasil)"""),
 
-        # 5c. Dois caminhos concordam: a serie diaria por UF soma o mesmo que a
+        # 5c. Dois caminhos concordam: a serie diária por UF soma o mesmo que a
         #     serie nacional (ambas no mesmo recorte de data de entrada).
         ("Dois caminhos concordam: soma da serie diaria por UF = serie nacional",
          """SELECT (SELECT sum(internacoes) FROM ouro.internacoes_diarias)
                  = (SELECT sum(internacoes) FROM ouro.internacoes_diarias_brasil)"""),
 
-        # 4b. Partes somam o todo no mart de mortalidade: obitos <= internacoes
-        #     em todo CID, e a taxa fica no dominio 0..100.
+        # 4b. Partes somam o todo no mart de mortalidade: óbitos <= internacoes
+        #     em todo CID, e a taxa fica no domínio 0..100.
         ("Dominio: mortalidade_por_cid tem obitos <= internacoes e taxa 0..100",
          """SELECT bool_and(obitos <= internacoes
                             AND taxa_mortalidade_pct BETWEEN 0 AND 100)
@@ -223,7 +223,7 @@ def _regras(con) -> list[tuple[str, str]]:
 
 
 def main():
-    """Roda todas as regras de qualidade; encerra com erro se alguma falhar."""
+    """Roda todas as regras de qualidade. Encerra com erro se alguma falhar."""
     con = conectar()
     regras = _regras(con)
 

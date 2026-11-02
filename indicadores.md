@@ -1,47 +1,88 @@
-# Indicadores de Negócio · SIH/SUS (abril/2026)
+# Definições dos indicadores
 
-Levantamento dos **10 indicadores** desenhados na Aula 1 a partir da exploração da camada `bronze`, classificados nas três pilhas da Aula 2 (*Dá*, *Dá, mas...* e *Não dá*) e com as **definições fechadas** na Aula 3 antes da escrita dos marts SQL.
+## Planejamento
 
----
+Foram avaliadas dez perguntas de negócio. Nove são viáveis com a base pública
+usada e foram implementadas em dez marts. A reinternação por pessoa ficou fora
+do escopo por falta de identificador pessoal adequado ao acompanhamento.
 
-## 1. Os 10 indicadores e as tabelas de origem
+| Pergunta | Origem na Bronze | Implementação na Ouro |
+|---|---|---|
+| Quantas AIHs há no recorte? | `N_AIH` | `kpis_gerais`, `por_estado` |
+| Qual é o valor total registrado? | `VAL_TOT` | `kpis_gerais`, `por_estado` |
+| Qual é o valor médio e a mediana por AIH? | `VAL_TOT`, `MUNIC_RES` | `kpis_gerais`, `por_estado` |
+| Qual é a permanência média? | `DIAS_PERM` | `kpis_gerais`, `por_estado` |
+| Qual é a proporção de internações com óbito? | `MORTE`, `DIAG_PRINC` | KPIs, estados e `mortalidade_por_cid` |
+| Quais diagnósticos são mais frequentes? | `DIAG_PRINC`, dicionário CID | `top_diagnosticos`, `top_diagnosticos_brasil` |
+| Como se distribuem idade e sexo? | `IDADE`, `COD_IDADE`, `SEXO` | `perfil_demografico`, `perfil_demografico_brasil` |
+| Como se distribuem as entradas no mês? | `DT_INTER` | `internacoes_diarias`, `internacoes_diarias_brasil` |
+| Como se concentra o valor por município de residência? | `MUNIC_RES`, `VAL_TOT`, municípios | `municipios_pareto` |
+| Qual é a reinternação em 30 dias por pessoa? | Identificador pessoal indisponível | Não implementada |
 
-| # | Indicador | Pergunta que responde | Tabela e coluna de origem (`bronze`) | Pilha (Aula 2) | Mart (`ouro`) |
-|---|---|---|---|---|---|
-| 1 | **Volume de internações aprovadas** | Quantas AIH foram processadas no mês? | `internacoes (N_AIH)` | **Dá** | `01_kpis_gerais` / `02_por_estado` |
-| 2 | **Gasto hospitalar total** | Quanto o SUS desembolsou nas AIH aprovadas? | `internacoes (VAL_TOT)` | **Dá** | `01_kpis_gerais` / `02_por_estado` |
-| 3 | **Ticket médio e mediana por AIH** | Quanto custa, em média e no meio da fila, uma internação por UF? | `internacoes (VAL_TOT, MUNIC_RES)` | **Dá** | `01_kpis_gerais` / `02_por_estado` |
-| 4 | **Permanência média hospitalar** | Quantos dias o paciente permanece internado? | `internacoes (DIAS_PERM)` | **Dá** | `01_kpis_gerais` / `02_por_estado` |
-| 5 | **Taxa de mortalidade hospitalar** | Qual a proporção de internações que evoluíram para óbito? | `internacoes (MORTE, N_AIH)` | **Dá, mas...** | `01_kpis_gerais` / `02_por_estado` / `09_mortalidade_por_cid` |
-| 6 | **Ranking de diagnósticos (CID-10)** | Quais doenças mais internam no país e em cada UF? | `internacoes (DIAG_PRINC)` + `cid10 (codigo, descricao)` | **Dá, mas...** | `03_top_diagnosticos` / `06_top_diagnosticos_brasil` |
-| 7 | **Perfil demográfico (faixa etária e sexo)** | Quem interna no SUS por idade e sexo? | `internacoes (IDADE, COD_IDADE, SEXO)` | **Dá, mas...** | `04_perfil_demografico` / `08_perfil_demografico_brasil` |
-| 8 | **Curva diária de entradas** | Como as admissões se distribuem ao longo dos dias do mês? | `internacoes (DT_INTER)` | **Dá, mas...** | `05_internacoes_diarias` / `07_internacoes_diarias_brasil` |
-| 9 | **Concentração municipal do gasto (Pareto 80/20)** | Quantos municípios concentram 80% do orçamento do SIH? | `internacoes (MUNIC_RES, VAL_TOT)` + `municipios (codigo, municipio, uf)` | **Dá, mas...** | `10_municipios_pareto` |
-| 10 | **Taxa de reinternação em 30 dias por paciente** | Quantos pacientes voltaram a internar em menos de 30 dias? | Não existe CPF/CNS na RD pública do SIH | **Não dá** | Fora do escopo (exige base identificada) |
+## Classificação das perguntas
 
----
+- **Diretas após tipagem:** volume, valor total, média, mediana e permanência.
+- **Exigem cuidado:** mortalidade, descrições CID, idade, série diária e municípios.
+- **Não sustentada pela base:** reinternação por pessoa.
 
-## 2. As três pilhas da Aula 2
+## Grão e deduplicação
 
-### Pilha 1 · "Dá" (direto da tabela-fato após tipagem)
-- **Indicadores 1, 2, 3 e 4:** dependem apenas da deduplicação por `N_AIH` e da conversão estrita de `VAL_TOT` para `DECIMAL(12,2)` e `DIAS_PERM` para `INTEGER` em `prata.internacoes`.
+Uma linha de `prata.internacoes` representa uma AIH com valor financeiro preenchido.
+A seleção prioriza valor preenchido, alta mais recente e maior valor numérico.
+Campos adicionais estabilizam os empates. Após a seleção, linhas sem valor são
+excluídas. Valores não numéricos interrompem a conversão estrita.
+A contagem de exclusões e a reconciliação usam a mesma prioridade financeira.
 
-### Pilha 2 · "Dá, mas..." (exige decodificação ou recorte explícito)
-- **Indicador 5 (Mortalidade por CID):** calcular letalidade bruta sem filtro de volume coloca doenças com 1 caso e 1 óbito (100%) no topo. Exige `HAVING count(*) >= 100` no mart `09_mortalidade_por_cid`.
-- **Indicador 6 (Diagnósticos):** `DIAG_PRINC` vem sem ponto (`O800`) e pode trazer subcategorias ausentes na tabela oficial da OMS. Exige `LEFT JOIN prata.cid10` com `COALESCE(c.doenca, 'nao classificado')`.
-- **Indicador 7 (Idade em anos):** a coluna `IDADE` não está sempre em anos : `COD_IDADE` define a unidade (`0` a `3` são minutos/horas/dias/meses, `4` é anos e `5` soma 100 anos). Sem combinar `IDADE` + `COD_IDADE` na camada `prata`, recém-nascidos de 5 meses entrariam na faixa `1-14`.
-- **Indicador 8 (Série diária):** o arquivo mensal do SIH é fechado por **competência de apresentação**, não por data de entrada. A série de entradas pode ter um recorte diferente do consolidado; a execução local confirmou 703.067 entradas em abril/2026 e 535.167 anteriores, com competência 2026/04 em toda a Bronze. Exige recortar `data_internacao` ao mês de referência nos marts `05` e `07` (o SQL deriva o mês da data mais frequente, via `mode()`; em abril/2026, de 01/04 a 30/04).
-- **Indicador 9 (Municípios):** o SIH grava o código IBGE com **6 dígitos** (sem dígito verificador), enquanto a API do IBGE entrega 7 dígitos. Exige padronizar `substr(codigo, 1, 6)` na camada `prata`.
+`VAL_TOT` é convertido para `DECIMAL(12,2)`. Datas usam o formato de origem
+`AAAAMMDD`. Os dicionários mantêm uma linha por chave para evitar multiplicação
+no `JOIN`.
 
-### Pilha 3 · "Não dá" (o dado público não sustenta)
-- **Indicador 10 (Reinternação por paciente):** a base pública reduzida do SIH (`RD*.dbc`) é anonimizada por determinação da LGPD e do Ministério da Saúde. Uma linha é uma **AIH (autorização de internação)**, não um indivíduo único. Medir reinternação ou mortalidade pós-alta exigiria relacionamento nominal com o CNS/CPF ou com o SIM (Sistema de Informações sobre Mortalidade).
+## Idade e sexo
 
----
+A idade em anos considera `IDADE` e `COD_IDADE`. Dias e meses são apresentados
+na faixa de menos de um ano. O código 4 usa anos e o código 5 soma 100 ao valor.
+Unidades ignoradas ou não reconhecidas ficam nulas. Não são classificadas como
+bebês. Os marts preservam idade ou sexo ausentes na categoria técnica `nao informado`.
 
-## 3. Definições fechadas antes do SQL (Aula 3)
+O sexo registrado usa 1 para masculino e 3 para feminino. Outros códigos
+permanecem nulos. As contagens representam internações, não pessoas únicas.
 
-1. **Grão da tabela-fato (`prata.internacoes`):** 1 linha = 1 AIH aprovada (`aih` único). Após a seleção por AIH, registros sem valor financeiro são excluídos; entradas não numéricas interrompem a conversão estrita. A deduplicação prioriza registros com valor preenchido, depois a alta mais recente e o maior valor normalizado em `DECIMAL(12,2)`, com desempates estáveis definidos em `pipeline/transformacao.py`. Na execução local validada, foram excluídas 529 AIHs duplicadas e zero linhas por ausência de valor.
+## Mortalidade hospitalar
 
-2. **Custo médio e mediana:** calculados sobre `valor_total` (`DECIMAL(12,2)`) de todas as AIH válidas da UF ou do país (`AVG(valor_total)` e `MEDIAN(valor_total)`).
-3. **Taxa de mortalidade hospitalar:** `100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*)`, onde `morte = TRUE` corresponde exclusivamente a `MORTE = '1'` no SIH (óbito ocorrido durante a internação).
-4. **Participação percentual (`pct_internacoes`, `pct_valor`, `pct_do_total`) e Pareto (`pct_acumulado`):** calculados sempre nos marts SQL com *window functions* (`SUM(...) OVER ()`), nunca na camada visual (`painel.py` ou `app.py`).
+A taxa é `100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*)`.
+O indicador `morte` corresponde a `MORTE = '1'`.
+O mart por diagnóstico inclui apenas grupos com pelo menos 100 AIHs.
+A taxa não é ajustada por gravidade e não mede mortalidade populacional.
+
+## Diagnósticos
+
+Os códigos são ligados ao dicionário completo de categorias e subcategorias.
+O código é preservado sem ponto. Sem correspondência exata, a expressão SQL
+`COALESCE(c.doenca, 'nao classificado')` mantém a internação no resultado.
+
+A qualidade tolera até 0,1% das internações sem descrição e exige nomes nos
+20 primeiros diagnósticos nacionais e de mortalidade. A revisão publicada
+contém sete códigos sem nome, associados a 76 internações.
+
+## Série diária e competência
+
+A competência registra processamento. A data de entrada é outra variável.
+Neste conjunto, todas as 1.238.763 linhas da Bronze têm competência abril de 2026.
+A série de entradas de abril soma 703.067 AIHs. As 535.167 restantes têm datas
+anteriores e permanecem nos indicadores consolidados.
+
+Os marts 05 e 07 selecionam o mês da data de entrada mais frequente com
+`date_trunc('month', mode(data_internacao))`. Não selecionam necessariamente
+o mês com maior volume. A heurística foi preservada e deve ser revista antes
+de generalizar o projeto para outras competências.
+
+## Municípios, geografia e concentração
+
+O código municipal do SIH usa os seis primeiros dígitos do código do IBGE.
+A UF deriva de `MUNIC_RES`, a residência registrada. A UF do arquivo de origem
+não deve ser confundida automaticamente com essa referência geográfica.
+
+O mart municipal contém a curva completa, ordenada do maior para o menor valor.
+O percentual acumulado vem do SQL. A linha de 80% é uma referência de
+concentração, não uma meta de qualidade nem uma comprovação da regra 80/20.
+Média, mediana, taxas, participações e posições são calculadas nos marts.

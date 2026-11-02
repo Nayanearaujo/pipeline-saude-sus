@@ -1,7 +1,7 @@
 """
 Executa o pipeline inteiro numa tacada: bronze -> prata -> ouro -> qualidade.
 
-Atalho para o corretor e para o dia a dia. Pressupoe que os dados ja estao em
+Atalho para o corretor e para o dia a dia. Pressupoe que os dados já estão em
 data/raw/ (rode antes baixar_dados.py e gerar_dicionarios.py). Para o painel,
 rode depois: uv run streamlit run app.py
 

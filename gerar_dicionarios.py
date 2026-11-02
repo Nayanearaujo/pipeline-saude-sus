@@ -1,16 +1,16 @@
 """
-Gera os dois dicionarios de apoio em data/raw/: cid10.csv e municipios.csv.
+Gera os dois dicionarios de apoio em data/raw/: cid10.csv e municípios.csv.
 Roda na SUA maquina, depois do baixar_dados.py:
 
     uv run python gerar_dicionarios.py
 
-Estrategia: baixa as tabelas OFICIAIS (IBGE para municipios, DATASUS para
-CID-10) e salva no formato que a ingestao espera (codigo -> nome). Se nao houver
-internet, cai num modo neutro (nomes rotulados pelo codigo) para nao travar o
+Estrategia: baixa as tabelas OFICIAIS (IBGE para municípios, DATASUS para
+CID-10) e salva no formato que a ingestão espera (código -> nome). Se não houver
+internet, cai num modo neutro (nomes rotulados pelo código) para não travar o
 pipeline. A camada ouro usa LEFT JOIN e nunca perde linha por falta de nome.
 
 Fontes (dados publicos):
-  municipios  API oficial do IBGE (localidades); espelho CSV como fallback
+  municípios  API oficial do IBGE (localidades). Espelho CSV como fallback
   cid10       DATASUS via cleytonferrari/CidDataSus (CSV, categorias e subcategorias)
 """
 import sys
@@ -21,10 +21,10 @@ import pandas as pd
 RAW = Path(__file__).resolve().parent / "data" / "raw"
 PARQUET = RAW / "internacoes.parquet"
 
-# Fonte primaria: API oficial do IBGE (JSON). Cada item tem id (codigo de 7
-# digitos) e nome do municipio. E a fonte que o README cita.
+# Fonte primaria: API oficial do IBGE (JSON). Cada item tem id (código de 7
+# digitos) e nome do município. E a fonte que o README cita.
 URL_IBGE_API = "https://servicodados.ibge.gov.br/api/v1/localidades/municipios"
-# Fonte secundaria (espelho em CSV), usada so se a API oficial falhar.
+# Fonte secundaria (espelho em CSV), usada só se a API oficial falhar.
 URL_MUNICIPIOS = (
     "https://raw.githubusercontent.com/kelvins/municipios-brasileiros/"
     "main/csv/municipios.csv"
@@ -54,15 +54,15 @@ def _coluna(df, *nomes):
 
 
 def _municipios_da_api_ibge() -> pd.DataFrame:
-    """Le os municipios da API oficial do IBGE (JSON) com timeout e validacao.
+    """Le os municípios da API oficial do IBGE (JSON) com timeout e validação.
 
-    Devolve um DataFrame com as colunas codigo (6 digitos), municipio e uf.
-    Levanta excecao se a rede falhar ou o formato nao bater (quem chama trata)."""
+    Devolve um DataFrame com as colunas código (6 digitos), município e uf.
+    Levanta exceção se a rede falhar ou o formato não bater (quem chama trata)."""
     import gzip
     import json
     import urllib.request
 
-    # alguns endpoints do IBGE respondem com gzip; pede texto e descomprime se vier.
+    # alguns endpoints do IBGE respondem com gzip. Pede texto e descomprime se vier.
     req = urllib.request.Request(URL_IBGE_API, headers={"Accept-Encoding": "gzip"})
     with urllib.request.urlopen(req, timeout=30) as resposta:
         bruto = resposta.read()
@@ -74,7 +74,7 @@ def _municipios_da_api_ibge() -> pd.DataFrame:
 
     linhas = []
     for item in dados:
-        codigo7 = str(item["id"])              # id = codigo IBGE de 7 digitos
+        codigo7 = str(item["id"])              # id = código IBGE de 7 digitos
         codigo6 = codigo7[:6]
         uf = UF_POR_COD.get(codigo6[:2], "NA")
         linhas.append({"codigo": codigo6, "municipio": item["nome"], "uf": uf})
@@ -82,10 +82,10 @@ def _municipios_da_api_ibge() -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------------------
-# Municipios: 1) API oficial do IBGE; 2) espelho em CSV; 3) nomes neutros.
+# Municípios: 1) API oficial do IBGE; 2) espelho em CSV; 3) nomes neutros.
 # ---------------------------------------------------------------------------
 def gerar_municipios(codigos_usados: set[str]):
-    """Gera municipios.csv, tentando a API oficial do IBGE antes dos fallbacks."""
+    """Gera municípios.csv, tentando a API oficial do IBGE antes dos fallbacks."""
     # 1) fonte primaria: API oficial do IBGE (o que o README promete)
     try:
         munic = _municipios_da_api_ibge()
@@ -112,7 +112,7 @@ def gerar_municipios(codigos_usados: set[str]):
     except (OSError, ValueError, KeyError) as e:
         print(f"  aviso: espelho CSV indisponivel ({e}); usando nomes neutros.")
 
-    # 3) ultimo recurso: nomes neutros (nao trava o pipeline sem internet)
+    # 3) ultimo recurso: nomes neutros (não trava o pipeline sem internet)
     munic = pd.DataFrame({"codigo": sorted(c for c in codigos_usados if len(c) == 6)})
     munic["uf"] = munic["codigo"].str[:2].map(UF_POR_COD).fillna("NA")
     munic["municipio"] = "Municipio " + munic["codigo"]
@@ -123,7 +123,7 @@ def gerar_municipios(codigos_usados: set[str]):
 
 
 # ---------------------------------------------------------------------------
-# CID-10: baixa a tabela do DATASUS; fallback para nomes neutros.
+# CID-10: baixa a tabela do DATASUS. Fallback para nomes neutros.
 # ---------------------------------------------------------------------------
 def gerar_cid(codigos_usados: set[str]):
     try:

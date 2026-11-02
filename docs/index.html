@@ -1,330 +1,79 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pipeline de Saúde SUS · do .dbc ao dashboard</title>
+<title>Internações do SUS | Projeto de engenharia de dados</title>
 <style>
-  :root{
-    --paper:#eef3f1; --surface:#ffffff; --ink:#10171a; --ink-2:#39474a;
-    --ink-3:#6b7b7c; --line:#d6e0db; --accent:#1a6b52; --accent-2:#5bb6a6;
-    --azul:#8fcfe0; --amber:#a86e05; --sunken:#f3f7f5;
-    --shadow:0 1px 2px rgba(16,23,26,.05),0 10px 30px -20px rgba(16,23,26,.4);
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --paper:#0d1214; --surface:#141c1f; --ink:#e7eee9; --ink-2:#b2c0ba;
-      --ink-3:#7d8d88; --line:#2a383c; --sunken:#111a1d;
-    }
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--paper);color:var(--ink);
-    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.6;}
-  .wrap{max-width:900px;margin:0 auto;padding:32px 20px 64px;}
-  /* banner */
-  .banner{background:linear-gradient(135deg,#1a6b52,#2e9e74);color:#fff;
-    border-radius:16px;padding:32px 28px;box-shadow:var(--shadow);margin-bottom:28px;}
-  .banner h1{margin:0 0 8px;font-size:clamp(24px,4.5vw,34px);line-height:1.15;}
-  .banner p{margin:4px 0;opacity:.95;font-size:15px;}
-  .banner a{color:#dff3ea;}
-  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
-  .pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
-    border-radius:999px;padding:4px 12px;font-size:12.5px;}
-  /* secoes */
-  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
-    margin:40px 0 4px;}
-  .h2big{font-size:clamp(21px,3.2vw,27px);font-weight:700;margin:0 0 14px;color:var(--ink);}
-  p{margin:0 0 14px;}
-  /* cards de etapa */
-  .etapa{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent-2);
-    border-radius:0 14px 14px 0;padding:20px 22px;margin:0 0 16px;box-shadow:var(--shadow);}
-  .etapa .tag{font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:700;
-    color:var(--accent);letter-spacing:.08em;text-transform:uppercase;}
-  .etapa h3{margin:6px 0 8px;font-size:19px;}
-  .etapa .arq{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-3);
-    background:var(--sunken);border-radius:6px;padding:2px 7px;}
-  /* kpi */
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 18px;}
-  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;
-    box-shadow:var(--shadow);}
-  .kpi .rot{font-size:12px;color:var(--ink-3);}
-  .kpi .val{font-size:22px;font-weight:700;margin-top:4px;color:var(--ink);}
-  /* tabela */
-  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);
-    border-radius:12px;overflow:hidden;margin:0 0 18px;font-size:14.5px;}
-  th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--line);}
-  th{background:var(--sunken);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);}
-  tbody tr:last-child td{border-bottom:0;}
-  td.num{text-align:right;font-variant-numeric:tabular-nums;}
-  /* bloco de codigo */
-  pre{background:#0f1a17;color:#dfeee7;border-radius:10px;padding:14px 16px;overflow-x:auto;
-    font-size:13px;line-height:1.6;margin:0 0 16px;}
-  code:not(pre code){background:var(--sunken);border-radius:5px;padding:1px 6px;font-size:.88em;}
-  .fluxo{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-2);
-    background:var(--sunken);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 18px;}
-  .fluxo b{color:var(--accent);}
-  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
-    font-size:13px;color:var(--ink-3);text-align:center;}
-  .nota{border-left:3px solid var(--amber);background:rgba(168,110,5,.08);
-    border-radius:0 8px 8px 0;padding:12px 15px;margin:0 0 16px;font-size:14.5px;}
+:root{--fundo:#eef5f1;--papel:#fff;--texto:#173d31;--linha:#d7e5dc;--destaque:#2e9e74}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font:16px/1.65 system-ui,sans-serif}
+main{max-width:1000px;margin:auto;padding:32px 20px 64px}
+header,section{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:24px;margin-bottom:20px}
+header{border-top:5px solid var(--destaque)}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.2}h2{font-size:23px}
+a{color:#176b4d}nav{display:flex;gap:16px;flex-wrap:wrap}
+table{border-collapse:collapse;width:100%;font-size:15px}th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--linha)}
+code{font-size:14px;background:#f0f6f2;padding:2px 5px;border-radius:4px}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f6f2;padding:16px;border-radius:10px}
+footer{font-size:14px;text-align:center;color:#53665d}
+@media(max-width:600px){main{padding:16px 10px}header,section{padding:18px}th,td{padding:8px 6px}}
 </style>
 </head>
-<body>
-<div class="wrap">
-
-  <div class="banner">
-    <h1>🏥 Pipeline de Saúde SUS · do .dbc ao dashboard</h1>
-    <p><strong>Desafio Final : Trilha de Engenharia de Dados</strong></p>
-    <p>Autora: Nayane Araújo · dataset: internações hospitalares do SUS (SIH/DATASUS)</p>
-    <p>Repositório: <a href="https://github.com/Nayanearaujo/pipeline-saude-sus">github.com/Nayanearaujo/pipeline-saude-sus</a></p>
-    <p>Dashboard ao vivo: <a href="https://pipeline-saude-sus.streamlit.app/">pipeline-saude-sus.streamlit.app</a></p>
-    <p>Relatório executivo (estático): <a href="relatorio.html">relatorio.html</a></p>
-    <div class="pills">
-      <span class="pill">Python</span>
-      <span class="pill">DuckDB</span>
-      <span class="pill">Streamlit</span>
-      <span class="pill">pytest · cobertura 97,01%</span>
-      <span class="pill">CI (GitHub Actions)</span>
-      <span class="pill">1.238.234 internações</span>
-      <span class="pill">abril/2026</span>
-    </div>
-  </div>
-
-  <section>
-    <h2>00 · O destino</h2>
-    <div class="h2big">O que eu construí</div>
-    <p>Um pipeline de dados de ponta a ponta sobre as <strong>internações hospitalares
-    do SUS</strong> (dados públicos reais do DATASUS), partindo de arquivos
-    <code>.dbc</code> comprimidos e chegando a um <strong>dashboard interativo por
-    estado</strong>. O mesmo caminho da Olist das aulas, com um dataset novo: dado
-    de saúde brasileiro, sujo e sem documentação amigável, do jeito que dado chega
-    no mundo real.</p>
-
-    <div class="fluxo">
-      <b>raw (.dbc)</b> → ingestao.py → <b>bronze.*</b> → transformacao.py →
-      <b>prata.*</b> → marts.py + SQL → <b>ouro.*</b> → painel.py →
-      <b>dashboard</b> + <b>relatório HTML</b>
-    </div>
-
-    <div class="kpis">
-      <div class="kpi"><div class="rot">Internações (abril/2026)</div><div class="val">1.238.234</div></div>
-      <div class="kpi"><div class="rot">Gasto total</div><div class="val">R$ 2,26 bi</div></div>
-      <div class="kpi"><div class="rot">Custo médio</div><div class="val">R$ 1.824</div></div>
-      <div class="kpi"><div class="rot">Permanência média</div><div class="val">4,8 dias</div></div>
-      <div class="kpi"><div class="rot">Mortalidade hospitalar</div><div class="val">4,10%</div></div>
-    </div>
-  </section>
-
-  <section>
-    <h2>01 · As três camadas</h2>
-    <div class="h2big">Arquitetura em camadas (Bronze, Prata, Ouro)</div>
-    <p>Cada camada tem uma responsabilidade clara e pode ser recriada do zero
-    (idempotente). A fronteira entre "o dado que chegou" e "o dado que eu decidi"
-    fica na passagem da Bronze para a Prata.</p>
-    <table>
-      <thead><tr><th>Camada</th><th>O que é</th><th>Quem constrói</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Bronze</strong></td><td>os .dbc como vieram, tudo texto, nada alterado</td><td><span class="arq">pipeline/ingestao.py</span></td></tr>
-        <tr><td><strong>Prata</strong></td><td>tipado, sem duplicata, códigos do SIH decodificados</td><td><span class="arq">pipeline/transformacao.py</span></td></tr>
-        <tr><td><strong>Ouro</strong></td><td>uma tabela por pergunta de negócio (indicadores)</td><td><span class="arq">pipeline/marts.py</span> + <span class="arq">sql/marts/*.sql</span></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section>
-    <h2>02 · Aula 1</h2>
-    <div class="h2big">Ingestão · do arquivo para a tabela</div>
-    <div class="etapa">
-      <span class="tag">bronze · pipeline/ingestao.py</span>
-      <p>Contagens desta seção: registro da execução original, não reprocessado nesta auditoria.</p>
-      <h3>Ler os .dbc do SIH sem mudar nada</h3>
-      <p>Baixo os arquivos do DATASUS (27 UFs), converto de <code>.dbc</code> para
-      um parquet único e gravo no schema <code>bronze</code> com todas as colunas
-      como texto. Regra da camada: nenhuma conversão, nenhuma linha descartada.</p>
-      <p><strong>Conferência:</strong> a ingestão termina em <strong>1.256.785
-      registros</strong> nas três tabelas (1.238.763 internações + 12.451 CID-10 +
-      5.571 municípios).</p>
-    </div>
-  </section>
-
-  <section>
-    <h2>03 · Aula 2</h2>
-    <div class="h2big">Transformação · ler o dado ≠ confiar no dado</div>
-    <div class="etapa">
-      <span class="tag">prata · pipeline/transformacao.py</span>
-      <h3>Tipar e decodificar os códigos do SIH</h3>
-      <p>Aqui mora o julgamento. O SIH guarda tudo em código: converto
-      <code>VAL_TOT</code> para <code>DECIMAL</code> (dinheiro), <code>DT_INTER</code>
-      (AAAAMMDD) para data, decodifico <code>SEXO</code> (1→Masculino, 3→Feminino),
-      <code>MORTE</code> para booleano, e derivo a UF e a região a partir do código
-      IBGE do município. Uma linha = uma internação (AIH).</p>
-      <p><strong>Conferência:</strong> <strong>1.238.234 linhas</strong> na prata
-      (529 AIHs duplicadas excluídas; nenhuma exclusão por ausência de valor). A idade usa <code>COD_IDADE</code>
-      (a unidade do SIH): bebês medidos em dias/meses agora caem em "&lt; 1 ano",
-      que subiu de 1,4% para 4,9% da base. No mart por estado, SP lidera com
-      249.866, seguido de MG (135.542), PR (85.435), BA (83.953) e RJ (78.503).</p>
-    </div>
-  </section>
-
-  <section>
-    <h2>04 · Aula 3</h2>
-    <div class="h2big">SQL · o grão antes do SELECT</div>
-    <div class="etapa">
-      <span class="tag">ouro · sql/marts/*.sql</span>
-      <h3>Dez marts escritos em SQL, cada um respondendo uma pergunta</h3>
-      <p>A camada ouro é <strong>SQL puro</strong>: cada arquivo <code>.sql</code>
-      declara o grão na primeira linha e vira uma tabela. Uso <code>GROUP BY</code>,
-      agregações (<code>COUNT</code>, <code>SUM</code>, <code>AVG</code>,
-      <code>MEDIAN</code>), <code>JOIN</code> com os dicionários, <code>CASE WHEN</code>
-      para as faixas etárias, <code>FILTER</code> para a mortalidade e window
-      functions (<code>ROW_NUMBER</code>, <code>RANK</code>, <code>SUM() OVER</code>)
-      com <code>CTE</code> e <code>HAVING</code> nos marts de ranking.
-      O Python (<code>marts.py</code>) só executa os arquivos; a regra de negócio
-      mora inteira no SQL.</p>
-      <table>
-        <thead><tr><th>Mart</th><th>Pergunta</th><th>SQL em destaque</th></tr></thead>
-        <tbody>
-          <tr><td><span class="arq">01_kpis_gerais</span></td><td>os números de topo do painel</td><td>agregações + FILTER</td></tr>
-          <tr><td><span class="arq">02_por_estado</span></td><td>volume, gasto, custo e mortalidade por UF</td><td>MEDIAN, SUM() OVER ()</td></tr>
-          <tr><td><span class="arq">03_top_diagnosticos</span></td><td>as 10 doenças que mais internam, por UF</td><td>ROW_NUMBER() OVER (PARTITION BY uf)</td></tr>
-          <tr><td><span class="arq">04_perfil_demografico</span></td><td>internações por faixa etária e sexo</td><td>CASE WHEN</td></tr>
-          <tr><td><span class="arq">05_internacoes_diarias</span></td><td>série diária do mês de referência</td><td>GROUP BY por data</td></tr>
-          <tr><td><span class="arq">09_mortalidade_por_cid</span></td><td>doenças de maior letalidade (100+ casos)</td><td>CTE + HAVING + RANK()</td></tr>
-          <tr><td><span class="arq">10_municipios_pareto</span></td><td>curva completa do valor acumulado por município; referência de 80%</td><td>SUM() OVER (ORDER BY)</td></tr>
-          <tr><td><span class="arq">06·07·08_*_brasil</span></td><td>versões nacionais consolidadas</td><td>agregação nacional</td></tr>
-        </tbody>
-      </table>
-      <p>Exemplo real: o mart que compara os estados (o coração do painel).</p>
-      <pre>-- Grão do resultado: uma UF.
-SELECT
-    uf,
-    regiao,
-    COUNT(*)                                                           AS internacoes,
-    ROUND(SUM(valor_total), 2)                                         AS valor_total,
-    ROUND(AVG(valor_total), 2)                                         AS custo_medio,
-    ROUND(MEDIAN(valor_total), 2)                                      AS custo_mediana,
-    ROUND(AVG(dias_permanencia), 1)                                    AS dias_medio,
-    MEDIAN(dias_permanencia)                                           AS dias_mediana,
-    ROUND(100.0 * COUNT(*) FILTER (WHERE morte) / COUNT(*), 2)         AS taxa_mortalidade_pct,
-    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2)                 AS pct_internacoes,
-    ROUND(100.0 * SUM(valor_total) / SUM(SUM(valor_total)) OVER (), 2) AS pct_valor
-FROM prata.internacoes
-WHERE uf IS NOT NULL
-GROUP BY uf, regiao
-ORDER BY internacoes DESC, uf;</pre>
-      <p><strong>Insight real:</strong> o diagnóstico que mais interna no Brasil é o
-      <strong>parto único espontâneo</strong> (CID O800, 49.288 internações),
-      seguido de pneumonia e infecções, exatamente o perfil do SUS.</p>
-    </div>
-  </section>
-
-  <section>
-    <h2>05 · Aula 4</h2>
-    <div class="h2big">Dashboard e testes</div>
-    <div class="etapa">
-      <span class="tag">dashboard · app.py + painel.py</span>
-      <h3>Painel interativo por estado (Streamlit) e Relatório HTML</h3>
-      <p>Desenhado a partir das <strong>3 perguntas de negócio da Aula 4</strong>:
-      (1) <em>Para quem é?</em> Gestores e auditores do SUS; (2) <em>O que precisa saber em 5 segundos?</em>
-      Os 5 cartões executivos no topo; (3) <em>O que pergunta a seguir?</em> Onde se concentra
-      (mapa coroplético, ranking, rosca por região e custo médio por UF) e o detalhe por estado
-      (top 10 diagnósticos, série diária e perfil demográfico). Zero cálculo na tela: todo
-      percentual e posição de ranking já vem pronto dos marts em SQL.</p>
-    </div>
-    <div class="etapa">
-      <span class="tag">testes · test/ (138 testes unitários)</span>
-      <h3>Testes com pytest, cobertura de 97,01%</h3>
-      <p>138 testes unitários com dado inventado em <code>tmp_path</code> e mocks de rede
-      (<code>monkeypatch</code>), cobrindo <code>db.py</code> (100%), <code>ingestao.py</code> (97%),
-      <code>transformacao.py</code> (96%), <code>marts.py</code> (93%) e os 10 SQLs (incluindo fronteiras de
-      faixa etária, <code>HAVING &gt;= 100</code> e Pareto), <code>qualidade.py</code> (96%),
-      <code>painel.py</code> (99%), <code>relatorio.py</code> e <code>gerar_dicionarios.py</code>
-      (API oficial do IBGE com fallback). Meta do desafio: 70%. Resultado: <strong>97,01%</strong>.</p>
-    </div>
-    <div class="etapa">
-      <span class="tag">qualidade · pipeline/qualidade.py (37 regras)</span>
-      <h3>34 checagens SQL que travam o build</h3>
-      <p>A conferência que a gente faria na mão virou código: 37 regras SQL cobrindo as 6
-      famílias da Aula 4 : <em>não vazio</em> (nos 10 marts), <em>chave única</em>
-      (<code>aih</code> na prata, <code>uf</code> no por_estado e códigos nos dicionários
-      <code>cid10</code> e <code>municipios</code>), <em>domínio</em> (idade ≥ 0, mortalidade
-      0..100, 27 siglas de UF e proteção contra dicionário em modo neutro),
-      <em>partes somam o todo</em>, <em>dois caminhos concordam</em> (por UF × nacional) e
-      <em>nada some sem aviso</em>.</p>
-    </div>
-  </section>
-
-  <section>
-    <h2>06 · Como rodar</h2>
-    <div class="h2big">Do zero ao dashboard</div>
-    <pre>git clone https://github.com/Nayanearaujo/pipeline-saude-sus.git
-cd pipeline-saude-sus
-uv sync --frozen
-
-uv run python baixar_dados.py            # baixa o SIH-RD de abril/2026
-uv run python gerar_dicionarios.py       # nomes de CID-10 e municípios
-
-uv run python executar.py                # bronze -> prata -> ouro -> qualidade
-
-uv run streamlit run app.py              # o dashboard
-uv run pytest --cov                       # os 138 testes (cobertura 97,01%)
-uv run ruff check .                       # estilo e imports</pre>
-    <div class="nota">
-      Os dados brutos não ficam no repositório (boas práticas: são grandes e
-      reproduzíveis). O script <code>baixar_dados.py</code> os regenera na máquina.
-    </div>
-  </section>
-
-  <section>
-    <h2>07 · Engenharia e Qualidade</h2>
-    <div class="h2big">O que a conferência do dado revelou</div>
-    <p>Em pipelines de dados, erros de domínio e de grão não lançam exceção de sintaxe,
-    só aparecem como número distorcido na ponta:</p>
-    <ul>
-      <li><strong>Recortes diferentes.</strong> Os CSVs consolidados contêm
-      1.238.234 AIHs; a série de entradas em abril/2026 soma 703.067. Essa diferença
-      foi explicada pelo histograma local: 343.386 entradas em março/2026,
-      100.989 em fevereiro, 76.254 em janeiro e 14.538 antes de 2026.</li>
-      <li><strong>Idade e unidade.</strong> A Prata combina <code>IDADE</code> e
-      <code>COD_IDADE</code>. O perfil publicado contém 60.839 AIHs menores de um ano;
-      comparações históricas antes/depois não foram reexecutadas na auditoria.</li>
-      <li><strong>Descrições e proveniência.</strong> O IBGE é consultado para municípios;
-      o CID-10 vem de um espelho público. A qualidade limita nomes ausentes a 0,1% das internações e exige descrições nos 20 primeiros diagnósticos nacionais e de mortalidade.</li>
-    </ul>
-    <p>Por isso toda a conferência de grão, chave única e reconciliação de somas
-    virou código executável em <code>pipeline/qualidade.py</code>.</p>
-  </section>
-
-  <section>
-    <h2>Validação atual</h2>
-    <p>Os dez CSVs reconciliam 1.238.234 internações e R$ 2.258.865.118,36.
-    A atualização de descrições CID reduziu as internações sem nome de 36.736 para 76,
-    sem alterar os demais campos. Os 138 testes passaram, com cobertura de 97,01%
-    incluindo scripts auxiliares. A execução local da versão corrigida passou nas
-    37 regras, com 529 duplicadas excluídas e nenhuma exclusão por ausência de valor.
-    A competência da Bronze é abril/2026; o histograma da Prata fecha 1.238.234
-    internações. O recorte mensal e o uso de mode() permanecem inalterados.</p>
-    <p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/AUDITORIA_FINAL.md">Evidências, verificações e pendências</a>.</p>
-  </section>
-
-  <section>
-    <h2>08 · Autora</h2>
-    <div class="h2big">Nayane Araújo <span style="font-weight:400;color:var(--ink-2);">Pós-Graduanda em Engenharia de Dados</span></div>
-    <p style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-      <a href="https://github.com/Nayanearaujo" target="_blank" rel="noopener">
-        <img src="https://img.shields.io/badge/GitHub-Nayanearaujo-181717?style=flat&logo=github" alt="GitHub Nayanearaujo">
-      </a>
-      <a href="https://www.linkedin.com/in/nayane-araujo-548063195/" target="_blank" rel="noopener">
-        <img src="https://img.shields.io/badge/LinkedIn-Conectar-0A66C2?style=flat&logo=linkedin" alt="LinkedIn Conectar">
-      </a>
-    </p>
-  </section>
-
-  <footer>
-    Nayane Araújo · Pós-Graduanda em Engenharia de Dados · Desafio Final : Trilha de Engenharia de Dados ·
-    dados públicos do SIH/SUS (DATASUS)
-  </footer>
-
-</div>
-</body>
-</html>
+<body><main>
+<header>
+<p>Projeto de engenharia de dados</p>
+<h1>Internações hospitalares do SUS</h1>
+<p>Dos arquivos públicos do DATASUS a dez marts SQL, um painel em Streamlit e um relatório executivo.</p>
+<p><strong>Competência de processamento: abril de 2026.</strong> Brasil, por residência registrada. Uma AIH não representa uma pessoa única.</p>
+<nav><a href="relatorio.html">Relatório executivo</a><a href="https://pipeline-saude-sus.streamlit.app/">Painel interativo</a><a href="https://github.com/Nayanearaujo/pipeline-saude-sus">Código e documentação</a></nav>
+</header>
+<section><h2>Resultados publicados</h2>
+<table><thead><tr><th>Medida</th><th>Resultado</th></tr></thead><tbody>
+<tr><td>Registros brutos de internação</td><td>1.238.763</td></tr>
+<tr><td>AIHs após a transformação</td><td>1.238.234</td></tr>
+<tr><td>Duplicatas excluídas</td><td>529</td></tr>
+<tr><td>Exclusões por ausência de valor</td><td>0</td></tr>
+<tr><td>Valor total registrado nos CSVs</td><td>R$ 2.258.865.118,36</td></tr>
+<tr><td>Dicionário CID da execução local corrigida</td><td>14.233 códigos únicos</td></tr>
+<tr><td>Dicionário de municípios</td><td>5.571 códigos únicos</td></tr>
+<tr><td>Camada Ouro</td><td>10 marts e 16.400 linhas exportadas</td></tr>
+<tr><td>Qualidade na execução local registrada</td><td>37 regras aprovadas</td></tr>
+<tr><td>Testes desta revisão</td><td>145 testes e cobertura de 97,01%</td></tr>
+</tbody></table>
+<p>A conferência local final confirmou os centavos, as 37 regras e todos os campos dos dez marts. A correção de idade ignorada não alterou os agregados.</p></section>
+<section><h2>Arquitetura e execução</h2>
+<p>A preparação converte os arquivos <code>.dbc</code> para Parquet e obtém os dicionários. A Bronze lê os três arquivos com todas as colunas como texto. A Prata declara tipos, decodifica campos e deduplica por AIH. A Ouro executa dez consultas SQL com grão explícito.</p>
+<p>Valores financeiros usam <code>DECIMAL(12,2)</code>. A publicação do Parquet é atômica. Ingestão e marts usam transações. Os testes cobrem falhas de escrita e preservação dos dados anteriores.</p>
+<pre>uv sync --frozen
+uv run python baixar_dados.py
+uv run python gerar_dicionarios.py
+uv run python executar.py
+uv run python exportar_painel.py
+uv run python relatorio.py
+uv run streamlit run app.py</pre>
+<p>Os comandos são executados na raiz do projeto. Microdados e banco não são versionados.</p></section>
+<section><h2>Indicadores e apresentação</h2>
+<p>O painel apresenta cinco cartões executivos e nove figuras. O estado selecionado altera cartões e detalhes de diagnósticos, entradas e perfil. As análises complementares de mortalidade por diagnóstico e concentração municipal permanecem identificadas como Brasil.</p>
+<p>As métricas vêm prontas dos marts. Médias, taxas e posições não são recalculadas na interface. O relatório usa um mapa SVG completo e centralizado. O mapa interativo do Streamlit requer WebGL.</p>
+<p>As dez perguntas planejadas incluem nove viáveis na base pública. A reinternação por pessoa ficou fora do escopo por ausência de identificador pessoal adequado.</p>
+<p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/indicadores.md">Definições e grãos</a> · <a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/design/rascunho.png">Planejamento identificado do painel</a></p></section>
+<section><h2>O que a validação mostrou</h2>
+<p>A série de abril tem 703.067 entradas. As outras 535.167 se distribuem em março de 2026 (343.386), fevereiro (100.989), janeiro (76.254) e antes de 2026 (14.538). Toda a Bronze tem competência abril de 2026.</p>
+<p>O SQL ainda usa o mês da data de entrada mais frequente com <code>mode()</code>. Ele coincide com a competência neste conjunto, mas não é uma garantia para outras bases. Datas antigas não foram classificadas como erro ou internação prolongada sem investigação.</p>
+<p>As descrições CID foram completadas por correspondência exata, de 36.736 para 76 internações sem nome. Os sete códigos restantes não constam na fonte consultada. Os 20 primeiros diagnósticos nacionais e de mortalidade têm descrição.</p>
+<p>Idade ignorada é preservada como desconhecida. A correção foi conferida no Parquet local sem mudar os dez marts. Mortalidade hospitalar não é mortalidade populacional. O valor registrado na AIH não é o custo econômico integral da assistência.</p></section>
+<section><h2>Testes e conferência da entrega</h2>
+<p>São 145 testes automatizados, cobertura de 97,01% e mínimo de 95% no CI. A medição inclui os scripts auxiliares. Os testes usam dados sintéticos e simulações de rede.</p>
+<pre>uv run ruff check .
+uv run pytest --cov</pre>
+<p>O procedimento final executa o pipeline em uma pasta isolada, imprime os centavos e compara todos os campos dos dez marts. Também confere competências, unidades de idade e datas antigas.</p>
+<p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/CONFERENCIA_LOCAL.md">Como executar a conferência local</a> · <a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/VALIDACAO.md">Evidências e limites</a></p>
+<p>O código atual do Streamlit contém nove gráficos e o detalhamento do perfil. A confirmação do deploy exige observar esses recursos na instância pública após seu reinício.</p></section>
+<section><h2>Autora e fontes</h2>
+<p><strong>Nayane Araújo</strong>, pós-graduanda em Engenharia de Dados.</p>
+<p><a href="https://github.com/Nayanearaujo">GitHub</a> · <a href="https://www.linkedin.com/in/nayane-araujo-548063195/">LinkedIn</a></p>
+<p>Microdados do SIH/SUS, DATASUS. Municípios da API oficial do IBGE, com alternativa documentada. Categorias e subcategorias CID de um espelho público versionado. A geometria visual do mapa tem licença e origem registradas no repositório.</p>
+<p>O código usa licença MIT. Os dados mantêm suas condições de uso de origem.</p></section>
+<footer>Nayane Araújo · Projeto de engenharia de dados · SIH/SUS</footer>
+</main></body></html>

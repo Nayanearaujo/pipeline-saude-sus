@@ -1,6 +1,6 @@
 """
 Baixa os dados brutos do SIH/SUS e grava data/raw/internacoes.parquet.
-Roda na SUA maquina (precisa de internet). NAO depende do PySUS.
+Roda na SUA maquina (precisa de internet). NÃO depende do PySUS.
 
     uv run python baixar_dados.py
 
@@ -8,11 +8,11 @@ Como funciona:
 1. Baixa os arquivos .dbc da AIH reduzida (grupo RD) do FTP do DATASUS, um por
    UF, via HTTPS. Nome do arquivo: RD<UF><AA><MM>.dbc (ex.: RDRJ2604.dbc).
 2. Converte cada .dbc para DataFrame com pyreaddbc (biblioteca pequena e
-   estavel feita so para o formato do DATASUS).
+   estavel feita só para o formato do DATASUS).
 3. Junta tudo e grava data/raw/internacoes.parquet.
 
-Ajuste ANO, MES e UFS no topo. Por padrao, qualquer UF ausente interrompe a
-publicacao do Parquet para impedir totais nacionais incompletos. Para executar
+Ajuste ANO, MÊS e UFS no topo. Por padrão, qualquer UF ausente interrompe a
+publicação do Parquet para impedir totais nacionais incompletos. Para executar
 uma amostra parcial conscientemente, use PERMITIR_PARCIAL=1 no ambiente.
 """
 import os
@@ -34,7 +34,7 @@ TODAS_UFS = [
     "SP", "SE", "TO",
 ]
 
-# Dois espelhos do mesmo arquivo. O FTP do DATASUS tambem responde por HTTP.
+# Dois espelhos do mesmo arquivo. O FTP do DATASUS também responde por HTTP.
 BASES = [
     "https://datasus.saude.gov.br/cgi/dnv/SIHSUS/200801_/Dados/{nome}",
     "ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/{nome}",
@@ -42,7 +42,7 @@ BASES = [
 
 
 def _baixar_dbc(nome: str) -> bytes | None:
-    """Tenta baixar um .dbc; devolve os bytes ou None se nao achar."""
+    """Tenta baixar um .dbc. Devolve os bytes ou None se não achar."""
     import urllib.request
 
     for base in BASES:
@@ -58,8 +58,8 @@ def _baixar_dbc(nome: str) -> bytes | None:
 def _dbc_para_df(conteudo: bytes, nome: str):
     """Converte bytes de um .dbc em DataFrame.
 
-    O pyreaddbc converte .dbc -> .dbf (funcao dbc2dbf); o .dbf vira DataFrame
-    com dbfread. Esse e o caminho estavel entre as versoes do pyreaddbc."""
+    O pyreaddbc converte .dbc -> .dbf (função dbc2dbf). O .dbf vira DataFrame
+    com dbfread. Esse e o caminho estavel entre as versões do pyreaddbc."""
     import pandas as pd
     import pyreaddbc
     from dbfread import DBF
@@ -77,7 +77,7 @@ def _dbc_para_df(conteudo: bytes, nome: str):
 
 
 def _validar_configuracao(ufs):
-    """Recusa periodo e siglas invalidos antes de qualquer download."""
+    """Recusa período e siglas inválidos antes de qualquer download."""
     if not isinstance(ANO, int) or not 2000 <= ANO <= 2099:
         raise ValueError("ANO deve estar entre 2000 e 2099")
     if not isinstance(MES, int) or not 1 <= MES <= 12:
@@ -149,7 +149,7 @@ def main():
     import pandas as pd
     todos = pd.concat(dfs, ignore_index=True)
     destino = RAW / "internacoes.parquet"
-    # Publicacao atomica: falha de escrita nao corrompe o Parquet anterior.
+    # Publicação atômica: falha de escrita não corrompe o Parquet anterior.
     RAW.mkdir(parents=True, exist_ok=True)
     temporario = None
     try:

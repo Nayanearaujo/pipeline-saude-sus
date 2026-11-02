@@ -1,8 +1,8 @@
 """
 Testes de pipeline/qualidade.py: as regras de qualidade de dados.
 
-Monta um banco minimo (bronze + prata + ouro) coerente entre si e confere que
-todas as regras passam. Depois sabota uma tabela (soma que nao fecha) e confere
+Monta um banco mínimo (bronze + prata + ouro) coerente entre si e confere que
+todas as regras passam. Depois sabota uma tabela (soma que não fecha) e confere
 que o modulo encerra com erro. Dado inventado, nunca o banco real.
 """
 import duckdb
@@ -15,7 +15,7 @@ def _banco_coerente(banco):
     """bronze/prata/ouro minimos, com os totais batendo entre si."""
     con = duckdb.connect(str(banco))
     con.execute("CREATE SCHEMA bronze; CREATE SCHEMA prata; CREATE SCHEMA ouro")
-    # bronze: 3 linhas; prata: 3 (nada removido)
+    # bronze: 3 linhas. Prata: 3 (nada removido)
     con.execute("""
         CREATE TABLE bronze.internacoes AS SELECT * FROM (VALUES
             ('a1', '1000.00', '20260701'),
@@ -28,7 +28,7 @@ def _banco_coerente(banco):
             ('a1','RJ',40,1000.00,3), ('a2','SP',0,400.00,0), ('a3','SP',102,400.00,5)
         ) AS t(aih, uf, idade, valor_total, dias_permanencia)
     """)
-    # dicionarios com chave unica (regras de unicidade)
+    # dicionarios com chave única (regras de unicidade)
     con.execute("CREATE TABLE prata.cid10 AS SELECT * FROM (VALUES ('A001','Colera')) AS t(cid, doenca)")
     con.execute(
         "CREATE TABLE prata.municipios AS SELECT * FROM "
@@ -51,7 +51,7 @@ def _banco_coerente(banco):
     con.execute("CREATE TABLE ouro.internacoes_diarias AS SELECT 3 AS internacoes")
     con.execute("CREATE TABLE ouro.internacoes_diarias_brasil AS SELECT 3 AS internacoes")
     con.execute("CREATE TABLE ouro.top_diagnosticos AS SELECT 1 AS x")
-    # marts novos: mortalidade (obitos <= internacoes, taxa 0..100) e pareto (fecha 100%)
+    # marts novos: mortalidade (óbitos <= internacoes, taxa 0..100) e pareto (fecha 100%)
     con.execute(
         "CREATE TABLE ouro.mortalidade_por_cid AS "
         "SELECT 'A001' AS cid, 'Colera' AS doenca, 100 AS internacoes, 20 AS obitos, 20.0 AS taxa_mortalidade_pct"
@@ -65,7 +65,7 @@ def test_banco_coerente_passa(tmp_path, monkeypatch):
     banco = tmp_path / "sih.duckdb"
     _banco_coerente(banco)
     monkeypatch.setattr(db, "BANCO", banco)
-    qualidade.main()  # nao deve levantar SystemExit
+    qualidade.main()  # não deve levantar SystemExit
 
 
 def test_soma_que_nao_fecha_falha(tmp_path, monkeypatch):
@@ -117,7 +117,7 @@ def test_qualidade_rejeita_marts_complementares_invalidos(
     ],
 )
 def test_qualidade_rejeita_valores_financeiros_e_permanencia_invalidos(tmp_path, monkeypatch, sql):
-    """Valores negativos, pagamentos nulos e permanencias negativas nao passam."""
+    """Valores negativos, pagamentos nulos e permanencias negativas não passam."""
     banco = tmp_path / "sih.duckdb"
     _banco_coerente(banco)
     con = duckdb.connect(str(banco))

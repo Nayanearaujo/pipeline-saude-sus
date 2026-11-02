@@ -1,9 +1,9 @@
 """
-Conexao com o DuckDB do projeto e utilitarios de schema e carga.
+Conexão com o DuckDB do projeto e utilitarios de schema e carga.
 
-Unico lugar que sabe o nome do arquivo do banco. As etapas (ingestao,
-transformacao, marts) pedem a conexao aqui e nunca abrem o arquivo por conta
-propria. O banco mora na raiz do projeto, ao lado de pipeline/, sql/ e data/.
+Único lugar que sabe o nome do arquivo do banco. As etapas (ingestão,
+transformação, marts) pedem a conexão aqui e nunca abrem o arquivo por conta
+própria. O banco mora na raiz do projeto, ao lado de pipeline/, sql/ e data/.
 """
 from pathlib import Path
 

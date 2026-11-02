@@ -1,8 +1,8 @@
 """
-Testes unitarios das funcoes puras de formato e dos graficos de painel.py.
+Testes unitarios das funções puras de formato e dos gráficos de painel.py.
 
 Dado inventado, sem banco. O valor esperado sai da conta sobre a entrada, nunca
-de um numero real do SIH.
+de um número real do SIH.
 """
 import duckdb
 import pandas as pd
@@ -28,7 +28,7 @@ def test_ler_do_csv_quando_nao_ha_banco(tmp_path, monkeypatch):
     pasta = tmp_path / "dados_painel"
     pasta.mkdir()
     (pasta / "kpis_gerais.csv").write_text("internacoes\n9\n", encoding="utf-8")
-    # painel.ler() monta o caminho a partir da pasta do proprio modulo
+    # painel.ler() monta o caminho a partir da pasta do próprio modulo
     monkeypatch.setattr(painel, "__file__", str(tmp_path / "painel.py"))
     dados = painel.ler(marts=["kpis_gerais"], banco=str(tmp_path / "nao_existe.duckdb"))
     assert int(dados["kpis_gerais"].iloc[0]["internacoes"]) == 9
@@ -43,7 +43,7 @@ def test_ler_sem_banco_nem_csv_erro(tmp_path, monkeypatch):
 
 def test_lidera_descreve_o_maior_e_a_participacao():
     """lidera() le a 1a linha e a % pronta (pct_col), sem calcular."""
-    # o mart ja vem ordenado e com a participacao pronta na coluna
+    # o mart já vem ordenado e com a participacao pronta na coluna
     df = pd.DataFrame({
         "uf": ["SP", "MG", "RJ"],
         "internacoes": [50, 30, 20],
@@ -54,7 +54,7 @@ def test_lidera_descreve_o_maior_e_a_participacao():
 
 
 def test_lidera_sem_pct_mostra_so_o_valor():
-    """Sem coluna de % pronta, lidera() nao inventa a conta: so o valor."""
+    """Sem coluna de % pronta, lidera() não inventa a conta: só o valor."""
     df = pd.DataFrame({"uf": ["SP", "MG"], "custo_medio": [2000.0, 1500.0]})
     assert painel.lidera(df, "uf", "custo_medio") == "SP lidera: 2.000"
 
@@ -110,8 +110,8 @@ def test_ranking_estados_ordena_do_maior():
 
 
 def _diag_df(n):
-    """DataFrame de diagnosticos no formato que o mart 03/06 entrega hoje:
-    ja ordenado, com posicao e pct_do_total prontos."""
+    """DataFrame de diagnósticos no formato que o mart 03/06 entrega hoje:
+    já ordenado, com posicao e pct_do_total prontos."""
     return pd.DataFrame({
         "cid": [f"C{i:03d}" for i in range(n)],
         "doenca": [f"d{i}" for i in range(n)],

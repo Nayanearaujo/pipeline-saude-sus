@@ -45,7 +45,7 @@ def test_download_parcial_exige_opt_in(tmp_path, monkeypatch):
 
 
 def test_falha_ao_escrever_preserva_parquet_anterior(tmp_path, monkeypatch):
-    """Falha de disco durante a escrita nao publica arquivo incompleto."""
+    """Falha de disco durante a escrita não publica arquivo incompleto."""
     monkeypatch.setenv("PERMITIR_PARCIAL", "1")
     monkeypatch.setattr(baixar_dados, "RAW", tmp_path)
     monkeypatch.setattr(baixar_dados, "UFS", ["RJ"])

@@ -36,3 +36,6 @@ htmlcov/
 secrets.toml
 credentials.json
 service-account*.json
+
+# Resultados locais da conferência final
+/conferencia-final.json

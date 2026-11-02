@@ -1,8 +1,8 @@
 """
-Testes de pipeline/transformacao.py: a decodificacao dos codigos do SIH.
+Testes de pipeline/transformação.py: a decodificação dos códigos do SIH.
 
-Monta um schema bronze minimo com dado inventado (poucas AIH, cada uma testando
-uma regra) e roda a transformacao. O valor esperado sai da entrada.
+Monta um schema bronze mínimo com dado inventado (poucas AIH, cada uma testando
+uma regra) e roda a transformação. O valor esperado sai da entrada.
 """
 import duckdb
 import pytest
@@ -13,10 +13,10 @@ from pipeline import db, transformacao
 def _bronze_minimo(con):
     con.execute("CREATE SCHEMA bronze")
     # 5 internacoes (a coluna COD_IDADE e a unidade da idade no SIH):
-    #   a1: RJ, homem, obito, R$ 1.500,50, 5 dias, 40 anos (COD_IDADE 4)
-    #   a2: SP, mulher, sem obito, R$ 800,00, 2 dias, 30 anos (COD_IDADE 4)
+    #   a1: RJ, homem, óbito, R$ 1.500,50, 5 dias, 40 anos (COD_IDADE 4)
+    #   a2: SP, mulher, sem óbito, R$ 800,00, 2 dias, 30 anos (COD_IDADE 4)
     #   a3: valor nulo -> deve ser descartada (WHERE valor_total IS NOT NULL)
-    #   a4: bebe de 5 MESES (IDADE 5, COD_IDADE 3) -> idade em anos tem que ser 0
+    #   a4: bebê de 5 MESES (IDADE 5, COD_IDADE 3) -> idade em anos tem que ser 0
     #   a5: centenario (IDADE 2, COD_IDADE 5) -> idade em anos tem que ser 102
     con.execute("""
         CREATE TABLE bronze.internacoes AS SELECT * FROM (VALUES
@@ -55,7 +55,7 @@ def test_valor_nulo_e_descartado(tmp_path, monkeypatch):
     con = duckdb.connect(str(banco))
     n = con.execute("SELECT count(*) FROM prata.internacoes").fetchone()[0]
     con.close()
-    assert n == 4  # entraram 5, so a de valor nulo (a3) saiu
+    assert n == 4  # entraram 5, só a de valor nulo (a3) saiu
 
 
 def test_decodifica_sexo_uf_morte_e_tipos(tmp_path, monkeypatch):
@@ -71,8 +71,8 @@ def test_decodifica_sexo_uf_morte_e_tipos(tmp_path, monkeypatch):
     uf, regiao, sexo, morte, valor, dias, dt = linha
     assert uf == "RJ"
     assert regiao == "Sudeste"
-    assert sexo == "Masculino"      # codigo '1'
-    assert morte is True            # codigo '1'
+    assert sexo == "Masculino"      # código '1'
+    assert morte is True            # código '1'
     assert float(valor) == 1500.50
     assert dias == 5
     assert str(dt) == "2026-07-01"  # AAAAMMDD -> DATE
@@ -87,8 +87,8 @@ def test_sexo_feminino_e_sem_obito(tmp_path, monkeypatch):
         "SELECT sexo, morte FROM prata.internacoes WHERE aih = 'a2'"
     ).fetchone()
     con.close()
-    assert sexo == "Feminino"   # codigo '3'
-    assert morte is False       # codigo '0'
+    assert sexo == "Feminino"   # código '3'
+    assert morte is False       # código '0'
 
 
 def test_grao_uma_linha_por_aih(tmp_path, monkeypatch):
@@ -104,7 +104,7 @@ def test_grao_uma_linha_por_aih(tmp_path, monkeypatch):
 
 
 def test_idade_em_anos_respeita_cod_idade(tmp_path, monkeypatch):
-    """COD_IDADE e a unidade: bebe em meses vira 0 ano, centenario soma 100.
+    """COD_IDADE e a unidade: bebê em meses vira 0 ano, centenario soma 100.
 
     a4 = IDADE 5, COD_IDADE 3 (meses) -> 0 anos (menos de 1 ano).
     a5 = IDADE 2, COD_IDADE 5 (anos 100+) -> 102 anos.
@@ -122,7 +122,7 @@ def test_idade_em_anos_respeita_cod_idade(tmp_path, monkeypatch):
 
 
 def test_dicionarios_tipados_e_renomeados(tmp_path, monkeypatch):
-    """cid10 e municipios viram tabelas de apoio com as colunas renomeadas."""
+    """cid10 e municípios viram tabelas de apoio com as colunas renomeadas."""
     banco = _preparar(tmp_path, monkeypatch)
     transformacao.main()
     con = duckdb.connect(str(banco))
@@ -208,3 +208,16 @@ def test_empate_de_data_e_valor_independe_da_ordem_de_entrada(tmp_path, monkeypa
     with duckdb.connect(str(banco)) as con:
         assert con.execute("SELECT * FROM prata.internacoes ORDER BY aih").fetchall() == antes
         assert con.execute("SELECT cid_principal FROM prata.internacoes WHERE aih = 'a1'").fetchone()[0] == "A001"
+
+
+@pytest.mark.parametrize('unidade', ['0', '1', '9', '', None, 'X'])
+def test_idade_ignorada_nao_vira_bebe(tmp_path, monkeypatch, unidade):
+    banco = _preparar(tmp_path, monkeypatch)
+    con = duckdb.connect(str(banco))
+    con.execute("UPDATE bronze.internacoes SET COD_IDADE = ? WHERE N_AIH = 'a1'", [unidade])
+    con.close()
+    transformacao.main()
+    con = duckdb.connect(str(banco))
+    assert con.execute("SELECT idade FROM prata.internacoes WHERE aih = 'a1'").fetchone()[0] is None
+    assert con.execute('SELECT count(*) FROM prata.internacoes').fetchone()[0] == 4
+    con.close()
