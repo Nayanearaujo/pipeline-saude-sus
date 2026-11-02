@@ -111,7 +111,7 @@ def test_relatorio_explicita_limites_metodologicos():
     assert "AIH não representa paciente único" in html
     assert "Óbitos hospitalares, não mortalidade populacional" in html
     assert "Valor registrado na AIH" in html
-    assert "não mede o custo econômico integral" in html
+    assert "não mede o custo econômico integral" in " ".join(html.split())
     assert "Geografia de residência" in html
     assert "Limites e reprodutibilidade" in html
 
