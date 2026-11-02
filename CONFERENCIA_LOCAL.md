@@ -82,3 +82,14 @@ Passaram 145 testes, cobertura de 97,01% e as 37 regras. O valor exato foi
 R$ 2.258.865.118,36. Os dez marts coincidiram com os CSVs publicados.
 A correção de idade ignorada não alterou este conjunto. O procedimento acima
 permanece disponível para repetir a verificação.
+
+## Conferência da atualização de competência
+
+A saída recebida confirma duas execuções completas do commit `4510595` no macOS,
+com Python 3.11.4. Passaram 156 testes, cobertura de 97,06%, as 37 regras e a
+comparação dos dez marts, sem linhas exclusivas. O valor exato permaneceu em
+R$ 2.258.865.118,36. O dicionário passou a 14.240 códigos, sem CID sem descrição.
+A Prata preservou a competência abril de 2026. O HTML foi gerado com nove figuras.
+A auditoria listou 6.336 grupos para investigação. As 617 entradas de 01/01/2008
+continuam confirmadas, mas o log não traz a análise de saídas e permanências
+desses registros. Os arquivos originais foram preservados.

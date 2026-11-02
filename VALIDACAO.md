@@ -3,7 +3,7 @@
 ## Escopo
 
 A revisão usa os dez CSVs publicados, o código do repositório e a saída agregada
-da conferência local final do commit `24e781e`. Os arquivos brutos e o banco permanecem
+da conferência local do commit `4510595`, repetida em duas execuções. Os arquivos brutos e o banco permanecem
 fora do GitHub. Não houve confirmação de novo download de microdados.
 
 ## Evidência local recebida
@@ -14,7 +14,7 @@ fora do GitHub. Não houve confirmação de novo download de microdados.
 | AIHs na Prata | 1.238.234 |
 | Duplicatas excluídas | 529 |
 | Exclusões por ausência de valor | 0 |
-| Códigos únicos no dicionário CID | 14.233 |
+| Códigos únicos no dicionário CID | 14.240 |
 | Códigos únicos de municípios | 5.571 |
 | Marts | 10 |
 | Linhas nos marts | 16.400 |
@@ -90,7 +90,12 @@ O recorte mensal agora usa a competência explícita, sem `mode()`.
 A Bronze deve conter uma única competência por execução, inclusive antes da
 deduplicação. Os testes incluem um conjunto com mais entradas em outro mês.
 O resultado segue o mês de processamento, independentemente dessa frequência.
-A execução com os microdados locais desta nova versão ainda está pendente.
+A execução com os microdados locais foi confirmada no commit `4510595`.
+As duas execuções aprovaram 156 testes, cobertura de 97,06%, as 37 regras e a
+comparação integral dos dez marts. A Prata preservou a competência `2026-04-01`
+nas 1.238.234 linhas. A auditoria encontrou zero grupos de CID sem descrição,
+6.336 grupos de datas e permanências para investigação e 216 grupos mensais.
+O número de grupos não informa, sozinho, quantas internações estão envolvidas.
 
 A auditoria de datas produz arquivos agregados locais, sem alterar a Prata.
 A regra de dez anos é uma triagem para investigação, sem diagnóstico de causa.

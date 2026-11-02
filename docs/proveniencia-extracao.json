@@ -77,6 +77,14 @@
     "codigos_completados": 7,
     "internacoes_com_descricao_acrescentada": 76,
     "internacoes_sem_descricao_publicadas": 0,
-    "validacao_local_nova_versao": "pendente"
+    "validacao_local_nova_versao": "aprovada no commit 4510595"
+  },
+  "validacao_competencia_local": {
+    "evidencia": "validacao-competencia-local.json",
+    "commit": "45105954508048a8c156205b7a6577c2451e3823",
+    "valor_total_exato": "2258865118.36",
+    "marts_iguais": 10,
+    "testes": 156,
+    "cobertura_pct": 97.06
   }
 }

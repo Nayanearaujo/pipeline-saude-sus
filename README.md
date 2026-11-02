@@ -44,14 +44,14 @@ As imagens são capturas do painel em Streamlit. O relatório executivo usa os m
 | AIHs duplicadas excluídas | 529 |
 | Exclusões por ausência de valor | 0 |
 | Valor total registrado | R$ 2.258.865.118,36 |
-| Dicionário CID na execução local corrigida | 14.233 códigos únicos |
+| Dicionário CID na execução local corrigida | 14.240 códigos únicos |
 | Dicionário de municípios | 5.571 códigos únicos |
 | Marts da camada Ouro | 10 |
 | Linhas nos dez CSVs publicados | 16.400 |
 | Regras de qualidade aprovadas na execução local | 37 |
 
 A conferência local final confirmou o valor exato com centavos, as 37 regras,
-os 145 testes e a igualdade de todos os campos dos dez marts com os CSVs publicados.
+os 156 testes e a igualdade de todos os campos dos dez marts com os CSVs publicados.
 A correção de idade ignorada não alterou os resultados deste conjunto.
 
 ## Arquitetura
@@ -149,8 +149,11 @@ nas [fontes oficiais registradas](docs/cid-complementar.csv). Os nomes de 76 AIH
 foram identificados, sem alteração de valores, posições ou contagens. Ausências
 futuras recebem “Descrição não localizada na fonte” e entram na auditoria local.
 
-A nova versão exige reexecução local para confirmar os achados sobre as datas
-e a igualdade dos marts. A conferência anterior continua registrada como evidência histórica.
+A conferência local do commit `4510595` foi aprovada em duas execuções no macOS.
+Os dez marts coincidiram com os CSVs publicados, e a auditoria não encontrou CID
+sem descrição. Foram gerados 6.336 grupos para investigação de datas e permanências.
+Esses grupos não equivalem ao número de internações com erro. A causa das datas
+antigas ainda não foi comprovada.
 
 ## Indicadores e limites
 

@@ -35,7 +35,7 @@ footer{font-size:14px;text-align:center;color:#53665d}
 <tr><td>Duplicatas excluídas</td><td>529</td></tr>
 <tr><td>Exclusões por ausência de valor</td><td>0</td></tr>
 <tr><td>Valor total registrado nos CSVs</td><td>R$ 2.258.865.118,36</td></tr>
-<tr><td>Dicionário CID da execução local corrigida</td><td>14.233 códigos únicos</td></tr>
+<tr><td>Dicionário CID da execução local corrigida</td><td>14.240 códigos únicos</td></tr>
 <tr><td>Dicionário de municípios</td><td>5.571 códigos únicos</td></tr>
 <tr><td>Camada Ouro</td><td>10 marts e 16.400 linhas exportadas</td></tr>
 <tr><td>Qualidade na execução local registrada</td><td>37 regras aprovadas</td></tr>
@@ -60,7 +60,7 @@ uv run streamlit run app.py</pre>
 <p><a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/indicadores.md">Definições e grãos</a> · <a href="https://github.com/Nayanearaujo/pipeline-saude-sus/blob/main/design/rascunho.png">Planejamento identificado do painel</a></p></section>
 <section><h2>O que a validação mostrou</h2>
 <p>A série de abril tem 703.067 entradas. As outras 535.167 se distribuem em março de 2026 (343.386), fevereiro (100.989), janeiro (76.254) e antes de 2026 (14.538). Toda a Bronze tem competência abril de 2026.</p>
-<p>O SQL usa a competência explícita de processamento. Cada execução exige uma única competência. A nova versão ainda deve ser conferida com os microdados locais. Datas antigas não foram classificadas como erro ou internação prolongada sem investigação.</p>
+<p>O SQL usa a competência explícita de processamento. Cada execução exige uma única competência. A versão foi conferida com os microdados locais em duas execuções do commit 4510595, com os dez marts iguais aos publicados. Datas antigas não foram classificadas como erro ou internação prolongada sem investigação.</p>
 <p>As descrições CID foram completadas por correspondência exata, de 36.736 para 76 internações sem nome. Os sete códigos restantes foram completados por fontes oficiais complementares registradas no repositório. Os 20 primeiros diagnósticos nacionais e de mortalidade têm descrição.</p>
 <p>Idade ignorada é preservada como desconhecida. A correção foi conferida no Parquet local sem mudar os dez marts. Mortalidade hospitalar não é mortalidade populacional. O valor registrado na AIH não é o custo econômico integral da assistência.</p></section>
 <section><h2>Testes e conferência da entrega</h2>
@@ -76,4 +76,4 @@ uv run pytest --cov</pre>
 <p>Microdados do SIH/SUS, DATASUS. Municípios da API oficial do IBGE, com alternativa documentada. Categorias e subcategorias CID de um espelho público versionado. A geometria visual do mapa tem licença e origem registradas no repositório.</p>
 <p>O código usa licença MIT. Os dados mantêm suas condições de uso de origem.</p></section>
 <footer>Nayane Araújo · Projeto de engenharia de dados · SIH/SUS</footer>
-</main></body></html>
+<section><h2>Auditoria local confirmada</h2><p>A conferência do commit 4510595 aprovou 156 testes, 97,06% de cobertura e 37 regras. Os dez marts coincidiram com os CSVs publicados. Não restou CID sem descrição. Foram sinalizados 6.336 grupos de datas e permanências para investigação, sem exclusão automática nem comprovação da causa das datas antigas.</p></section></main></body></html>
