@@ -10,7 +10,9 @@ passam a ler a linha daquela UF no mart por_estado, e os graficos de
 diagnostico, serie diaria e perfil recortam para o estado. Os valores por UF
 ja vem prontos do mart: a tela so escolhe a linha, nao recalcula.
 """
+import hashlib
 import logging
+from pathlib import Path
 
 import streamlit as st
 
@@ -163,8 +165,20 @@ st.markdown(
 )
 
 
+def _assinatura_publicacao():
+    """Identifica mudanças nos arquivos sem reutilizar dados de outra publicação."""
+    raiz = Path(__file__).resolve().parent
+    arquivos = sorted((raiz / "dados_painel").glob("*.csv"))
+    assinatura = [(p.name, hashlib.sha256(p.read_bytes()).hexdigest()) for p in arquivos]
+    banco = raiz / "sih.duckdb"
+    if banco.exists():
+        assinatura.append((banco.name, banco.stat().st_mtime_ns, banco.stat().st_size))
+    return tuple(assinatura)
+
+
 @st.cache_data
-def carregar():
+def carregar(assinatura):
+    """Recarrega os marts quando a assinatura dos arquivos muda."""
     return painel.ler()
 
 
@@ -179,7 +193,7 @@ def _card_html(rotulo: str, valor: str, nota: str = "") -> str:
 
 def main():
     try:
-        dados = carregar()
+        dados = carregar(_assinatura_publicacao())
     except Exception:  # noqa: BLE001
         # Mensagem amigavel na tela; o detalhe tecnico vai para o log do
         # servidor, nao para o usuario (evita vazar caminho/stack na UI).
@@ -312,8 +326,8 @@ def main():
         )
     st.caption("Sexo conforme registro da AIH. Barras mostram internações, não pessoas únicas.")
 
-    # Marts complementares: os CSVs ainda precisam ser exportados do banco real.
-    # A ausencia deles no deploy nao deve derrubar os oito indicadores existentes.
+    # Dois gráficos nacionais complementam as sete figuras principais.
+    # Uma fonte ausente precisa ser indicada na interface e no registro técnico.
     try:
         complementares = painel.ler(
             marts=["mortalidade_por_cid", "municipios_pareto"]
