@@ -11,7 +11,7 @@ pipeline. A camada ouro usa LEFT JOIN e nunca perde linha por falta de nome.
 
 Fontes (dados publicos):
   municipios  API oficial do IBGE (localidades); espelho CSV como fallback
-  cid10       DATASUS via cleytonferrari/CidDataSus (CSV, subcategorias)
+  cid10       DATASUS via cleytonferrari/CidDataSus (CSV, categorias e subcategorias)
 """
 import sys
 from pathlib import Path
@@ -31,8 +31,10 @@ URL_MUNICIPIOS = (
 )
 URL_CID = (
     "https://raw.githubusercontent.com/cleytonferrari/CidDataSus/"
-    "master/CIDImport/Repositorio/Resources/CID-10-SUBCATEGORIAS.CSV"
+    "b6eb7d0fe8be752307741d156d67eacf539a186c/CIDImport/Repositorio/Resources/CID-10-SUBCATEGORIAS.CSV"
 )
+
+URL_CID_CATEGORIAS = URL_CID.replace("SUBCATEGORIAS", "CATEGORIAS")
 
 UF_POR_COD = {
     "11": "RO", "12": "AC", "13": "AM", "14": "RR", "15": "PA", "16": "AP",
@@ -125,18 +127,19 @@ def gerar_municipios(codigos_usados: set[str]):
 # ---------------------------------------------------------------------------
 def gerar_cid(codigos_usados: set[str]):
     try:
-        # a tabela do DATASUS vem em latin-1, separada por ';', com colunas
-        # SUBCAT (codigo) e DESCRICAO.
-        cid = pd.read_csv(URL_CID, sep=";", dtype=str, encoding="latin-1")
-        col_cod = _coluna(cid, "SUBCAT", "CODIGO", "CAT")
-        col_desc = _coluna(cid, "DESCRICAO", "DESCRABREV", "descricao")
-        out = cid[[col_cod, col_desc]].rename(
-            columns={col_cod: "codigo", col_desc: "descricao"}
-        )
+        tabelas = []
+        for url in (URL_CID_CATEGORIAS, URL_CID):
+            cid = pd.read_csv(url, sep=";", dtype=str, encoding="latin-1")
+            col_cod = _coluna(cid, "SUBCAT", "CODIGO", "CAT")
+            col_desc = _coluna(cid, "DESCRICAO", "DESCRABREV", "descricao")
+            tabelas.append(cid[[col_cod, col_desc]].rename(
+                columns={col_cod: "codigo", col_desc: "descricao"}
+            ))
+        out = pd.concat(tabelas, ignore_index=True)
         out["codigo"] = out["codigo"].str.strip().str.replace(".", "", regex=False)
-        out = out.drop_duplicates("codigo")
+        out = out.dropna(subset=["codigo", "descricao"]).drop_duplicates("codigo")
         out.to_csv(RAW / "cid10.csv", index=False, encoding="utf-8")
-        print(f"  ok: cid10.csv ({len(out):,} do DATASUS)".replace(",", "."))
+        print(f"  ok: cid10.csv ({len(out):,} do espelho CID-10)".replace(",", "."))
         return
     except Exception as e:  # noqa: BLE001
         print(f"  aviso: nao baixei o CID-10 ({e}); usando nomes neutros.")
