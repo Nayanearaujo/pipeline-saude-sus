@@ -89,6 +89,8 @@ print("\nUnidades de idade na origem:")
 print(con.execute("SELECT COD_IDADE, count(*) AS registros FROM bronze.internacoes GROUP BY 1 ORDER BY 1").df().to_string(index=False))
 print("\nDatas registradas antes de fevereiro de 2008:")
 print(con.execute("SELECT data_internacao, count(*) AS registros FROM prata.internacoes WHERE data_internacao < DATE '2008-02-01' GROUP BY 1 ORDER BY 2 DESC LIMIT 5").df().to_string(index=False))
+print("\nCompetência preservada na Prata:")
+print(con.execute("SELECT competencia, count(*) AS registros FROM prata.internacoes GROUP BY 1").df().to_string(index=False))
 print("\nCompetências:")
 print(con.execute("SELECT ANO_CMPT, MES_CMPT, count(*) AS registros FROM bronze.internacoes GROUP BY 1,2 ORDER BY 1,2").df().to_string(index=False))
 relatorio["comparacao_marts"] = comparacoes

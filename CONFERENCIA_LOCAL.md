@@ -21,7 +21,7 @@ O script instala as dependências versionadas e executa Ruff e pytest com cobert
 Ele confere os hashes publicados, reutiliza o Parquet original apenas para leitura,
 copia o dicionário de municípios e gera o dicionário CID na pasta isolada.
 
-Em seguida, executa as quatro etapas do pipeline e as 37 regras de qualidade.
+Em seguida, executa as cinco etapas do pipeline e as 37 regras de qualidade.
 O valor total é impresso sem abreviação e comparado com R$ 2.258.865.118,36.
 Os dez marts são comparados com os CSVs publicados, por conteúdo e quantidade,
 sem depender da ordem das linhas. Campos numéricos usam precisão de seis casas
@@ -30,7 +30,7 @@ na comparação, suficiente para detectar diferença de centavos.
 ## O que conferir na saída
 
 - Ruff sem erros e cobertura de pelo menos 95%.
-- 147 testes aprovados e cobertura de 97,05% no ambiente usado nesta revisão.
+- 156 testes aprovados e cobertura de 97,06% no ambiente usado nesta revisão.
 - 37 regras de qualidade aprovadas.
 - 1.238.234 AIHs na Prata e valor exato de R$ 2.258.865.118,36.
 - Dez marts com resultado `OK`.
@@ -61,12 +61,19 @@ Abra a tabela de perfil e teste os filtros de sexo e faixa etária.
 
 ## Instância pública do Streamlit
 
-A origem do aplicativo observado aponta para `main/app.py`, mas a instância
-pública ainda exibiu sete gráficos e uma versão anterior dos dados.
-Recarregar os dados não atualizou a interface. Na conta proprietária, abra
-`Manage app`, selecione `Reboot app` e confira novamente o endereço público.
-O deploy só deve ser considerado confirmado quando mostrar os nove gráficos,
-o detalhamento e os valores atuais. Nunca compartilhe credenciais no repositório.
+Confira os nove gráficos, o detalhamento do perfil e os valores atuais na
+instância pública. Se uma versão anterior persistir, use `Manage app` e
+`Reboot app` na conta proprietária. Nunca compartilhe credenciais no repositório.
+
+## Auditoria nova
+
+A execução cria três CSVs em `data/auditoria/`. Confira os códigos ainda sem
+nome, o histograma mensal e os grupos com datas ou permanências sinalizadas.
+A competência deve aparecer como `2026-04-01` na Prata. A série de entradas
+deve continuar com 703.067 internações, sem incorporar as entradas anteriores.
+As fontes oficiais complementares devem completar os sete códigos que antes
+somavam 76 internações sem descrição. Preserve os arquivos de auditoria e a
+saída do Terminal para confirmar o resultado sobre os microdados.
 
 ## Resultado já obtido
 

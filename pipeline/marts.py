@@ -52,6 +52,14 @@ def main():
         print("Rode antes: uv run python -m pipeline.transformacao")
         sys.exit(1)
 
+    competencias = con.execute(
+        "SELECT count(DISTINCT competencia), count(*) FILTER (WHERE competencia IS NULL) "
+        "FROM prata.internacoes"
+    ).fetchone()
+    if competencias != (1, 0):
+        con.close()
+        raise SystemExit("Use exatamente uma competência válida por execução. Separe os arquivos por competência.")
+
     arquivos = sorted(PASTA_MARTS.glob("*.sql"))
     if not arquivos:
         print(f"ERRO: nenhum .sql em {PASTA_MARTS}")

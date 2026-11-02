@@ -8,13 +8,13 @@ WITH por_cid AS (
     -- Grao: um CID principal, so os que tem 100+ internacoes.
     SELECT
         i.cid_principal                                           AS cid,
-        COALESCE(c.doenca, 'nao classificado')                    AS doenca,
+        COALESCE(c.doenca, 'Descrição não localizada na fonte')                    AS doenca,
         COUNT(*)                                                  AS internacoes,
         COUNT(*) FILTER (WHERE i.morte)                           AS obitos,
         ROUND(100.0 * COUNT(*) FILTER (WHERE i.morte) / COUNT(*), 2) AS taxa_mortalidade_pct
     FROM prata.internacoes AS i
     LEFT JOIN prata.cid10  AS c ON c.cid = i.cid_principal
-    GROUP BY i.cid_principal, COALESCE(c.doenca, 'nao classificado')
+    GROUP BY i.cid_principal, COALESCE(c.doenca, 'Descrição não localizada na fonte')
     HAVING COUNT(*) >= 100
 )
 SELECT

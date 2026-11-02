@@ -17,7 +17,7 @@
     "perfil_demografico_brasil.csv": "51537303f7bc019066b6d9b4662d99bcb0f5262c28a198bffd059ae8621d5eb3",
     "por_estado.csv": "4fb3d0bd5ac242cbe27f9c49a426a0908585ecb01f597a95e517cdedca017e03",
     "top_diagnosticos.csv": "eb6d08fdf7d33e027b0eb3c09a2fc5b5252f08a0145538387602d09c7553d193",
-    "top_diagnosticos_brasil.csv": "db3335624af739522193ba547f85155247296c91c05ede8bd6f16fea4b7fa3c7"
+    "top_diagnosticos_brasil.csv": "6e342f6b1d93edc756ec983f24f9431e670a9928a6d0138975d16876f38a1b15"
   },
   "kpi": {
     "internacoes": 1238234,
@@ -69,5 +69,14 @@
     "valor_total": "2258865118.36",
     "dez_marts_iguais": true,
     "correcao_idade_alterou_marts": false
+  },
+  "complemento_cid_oficial": {
+    "data": "2026-11-02",
+    "fontes": "cid-complementar.csv",
+    "metodo": "Correspondência exata dos sete códigos nas fontes oficiais registradas. Apenas descrições alteradas no CSV nacional. Sem reprocessamento dos microdados.",
+    "codigos_completados": 7,
+    "internacoes_com_descricao_acrescentada": 76,
+    "internacoes_sem_descricao_publicadas": 0,
+    "validacao_local_nova_versao": "pendente"
   }
 }

@@ -1,8 +1,8 @@
 # Internações do SUS: pipeline de dados e painel por estado
 
 [![Testes](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml/badge.svg)](https://github.com/Nayanearaujo/pipeline-saude-sus/actions/workflows/ci.yml)
-![Testes aprovados](https://img.shields.io/badge/testes-147%20aprovados-brightgreen)
-![Cobertura](https://img.shields.io/badge/cobertura-97%2C05%25-brightgreen)
+![Testes aprovados](https://img.shields.io/badge/testes-156%20aprovados-brightgreen)
+![Cobertura](https://img.shields.io/badge/cobertura-97%2C06%25-brightgreen)
 ![Python](https://img.shields.io/badge/Python-3.11%2B-blue)
 ![DuckDB](https://img.shields.io/badge/DuckDB-SQL-FFF000?logo=duckdb&logoColor=000000)
 
@@ -71,8 +71,8 @@ A mesma prioridade é usada na contagem de exclusões e na reconciliação.
 
 O código CID é ligado às categorias e subcategorias de uma fonte versionada.
 A revisão completou 1.048 descrições nacionais e reduziu as internações sem nome
-de 36.736 para 76, aproximadamente 0,0061% do total. Os sete códigos ausentes na
-fonte continuam sem descrição. O limite de qualidade é de 0,1% das internações,
+de 36.736 para 76, aproximadamente 0,0061% do total. Os sete códigos ausentes no
+espelho foram completados com fontes oficiais complementares. O limite de qualidade é de 0,1% das internações,
 com nomes obrigatórios nos 20 primeiros diagnósticos nacionais e de mortalidade.
 
 ## Execução
@@ -108,7 +108,7 @@ orquestração, transformação, qualidade, exportação e relatório. Apenas as
 interfaces `app.py` e `ui.py`, os próprios testes e o ambiente virtual ficam fora.
 Os testes usam dados sintéticos e simulações de rede, sem consultar o banco real.
 
-**Resultado desta revisão: 147 testes e cobertura de 97,05%.**
+**Resultado desta revisão: 156 testes e cobertura de 97,06%.**
 
 Para repetir a validação completa com os arquivos locais, consulte
 [CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md). O procedimento usa uma pasta
@@ -132,6 +132,26 @@ de sexo e faixa etária. A biblioteca dos demais gráficos exige JavaScript.
 O [rascunho](design/rascunho.png) é um planejamento identificado, não uma captura
 do painel em funcionamento. As capturas da seção Demonstração mostram o painel em funcionamento.
 
+## Auditoria de descrições e datas
+
+O pipeline gera três arquivos locais em `data/auditoria/`: `cid_sem_descricao.csv`,
+`datas_para_investigar.csv` e `entradas_por_mes.csv`. Não incluem identificadores de AIH.
+A auditoria também pode ser executada com `uv run python -m pipeline.auditoria`.
+
+As datas são comparadas com a competência, a saída e a permanência registrada.
+Entrada anterior à competência em mais de dez anos é um critério de triagem,
+não uma regra clínica. Saída anterior à entrada, datas ausentes, entradas posteriores
+à competência e divergências de permanência são sinalizadas, sem exclusão automática.
+Datas impossíveis, como 30 de fevereiro, interrompem a transformação.
+
+Os sete códigos antes sem descrição foram completados por correspondência exata
+nas [fontes oficiais registradas](docs/cid-complementar.csv). Os nomes de 76 AIHs
+foram identificados, sem alteração de valores, posições ou contagens. Ausências
+futuras recebem “Descrição não localizada na fonte” e entram na auditoria local.
+
+A nova versão exige reexecução local para confirmar os achados sobre as datas
+e a igualdade dos marts. A conferência anterior continua registrada como evidência histórica.
+
 ## Indicadores e limites
 
 As dez perguntas planejadas estão em [indicadores.md](indicadores.md).
@@ -141,8 +161,8 @@ esse acompanhamento na base usada.
 
 - A série de abril contém 703.067 entradas. As outras 535.167 têm datas anteriores,
   conforme o histograma local. Toda a Bronze tem competência abril de 2026.
-- O SQL escolhe o mês da data de entrada mais frequente com `mode()`. Neste conjunto,
-  ele coincide com a competência. Isso não garante o mesmo resultado em outro conjunto.
+- O SQL usa a competência de processamento preservada na Prata. Cada execução exige
+  uma única competência. Arquivos de meses diferentes devem ser processados separadamente.
 - Há 14.538 entradas registradas antes de 2026, incluindo 617 em 1º de janeiro de 2008.
   Não foram classificadas como datas padrão ou internações prolongadas sem investigação.
 - Idade ignorada é mantida como desconhecida. Dias e meses são convertidos para
@@ -164,7 +184,7 @@ Usei sugestões de código como ponto de partida e conferi os resultados antes d
 - A cobertura excluía três scripts auxiliares. Com o escopo ampliado, medi 86,88%.
   Acrescentei testes sem reduzir o mínimo de 95%.
 - A descrição de `mode()` confundia data mais frequente com mês de maior volume.
-  Corrigi o texto e conferi o histograma, sem forçar a série a somar o consolidado.
+  Conferi o histograma e substituí a heurística pela competência explícita, sem forçar a série a somar o consolidado.
 - A unidade de idade ignorada era tratada como menos de um ano. Corrigi a
   transformação e acrescentei testes para preservar a informação desconhecida.
 

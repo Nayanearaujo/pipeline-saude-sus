@@ -13,6 +13,7 @@ Fontes (dados publicos):
   municípios  API oficial do IBGE (localidades). Espelho CSV como fallback
   cid10       DATASUS via cleytonferrari/CidDataSus (CSV, categorias e subcategorias)
 """
+import csv
 import sys
 from pathlib import Path
 
@@ -125,6 +126,16 @@ def gerar_municipios(codigos_usados: set[str]):
 # ---------------------------------------------------------------------------
 # CID-10: baixa a tabela do DATASUS. Fallback para nomes neutros.
 # ---------------------------------------------------------------------------
+def complementar_cid(out, codigos_usados):
+    """Completa somente códigos usados e ausentes, com fontes oficiais registradas."""
+    with (Path(__file__).resolve().parent / "docs/cid-complementar.csv").open(encoding="utf-8") as arquivo:
+        registros = list(csv.DictReader(arquivo))
+    conhecidos = set(out["codigo"])
+    novos = [{"codigo": x["codigo"], "descricao": x["descricao"]}
+             for x in registros if x["codigo"] in codigos_usados and x["codigo"] not in conhecidos]
+    return pd.concat([out, pd.DataFrame(novos, columns=["codigo", "descricao"])], ignore_index=True)
+
+
 def gerar_cid(codigos_usados: set[str]):
     try:
         tabelas = []
@@ -138,6 +149,7 @@ def gerar_cid(codigos_usados: set[str]):
         out = pd.concat(tabelas, ignore_index=True)
         out["codigo"] = out["codigo"].str.strip().str.replace(".", "", regex=False)
         out = out.dropna(subset=["codigo", "descricao"]).drop_duplicates("codigo")
+        out = complementar_cid(out, codigos_usados)
         out.to_csv(RAW / "cid10.csv", index=False, encoding="utf-8")
         print(f"  ok: cid10.csv ({len(out):,} do espelho CID-10)".replace(",", "."))
         return

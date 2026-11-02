@@ -25,7 +25,7 @@
 | Transformação | Tipos explícitos, deduplicação e decodificação dos campos |
 | Camada analítica | Dez marts SQL com grão declarado |
 | Qualidade | 37 regras e reconciliação entre camadas e agregados |
-| Testes | 147 testes, cobertura de 97,05% e mínimo de 95% no CI |
+| Testes | 156 testes, cobertura de 97,06% e mínimo de 95% no CI |
 | Apresentação | Cinco cartões, nove figuras, painel interativo e relatório HTML |
 | Reprodutibilidade | Dependências versionadas, execução documentada e conferência isolada |
 
@@ -49,3 +49,10 @@ remoto não foi considerada prova de atualização do deploy.
 
 O procedimento completo está em [CONFERENCIA_LOCAL.md](CONFERENCIA_LOCAL.md).
 Não é necessário publicar o banco, os microdados ou configurações privadas.
+
+## Atualização de competência e auditoria
+
+A competência agora é preservada na Prata e define o mês das séries diárias.
+O pipeline rejeita competências misturadas e gera três auditorias locais de
+descrições, datas e meses de entrada. Os totais publicados são os da conferência
+anterior. A validação local desta atualização ainda precisa ser executada.

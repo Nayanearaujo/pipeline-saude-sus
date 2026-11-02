@@ -8,13 +8,13 @@ WITH nacional AS (
     -- Grao: um diagnostico (CID principal) no pais.
     SELECT
         i.cid_principal                         AS cid,
-        COALESCE(c.doenca, 'nao classificado')  AS doenca,
+        COALESCE(c.doenca, 'Descrição não localizada na fonte')  AS doenca,
         COUNT(*)                                AS internacoes,
         ROUND(SUM(i.valor_total), 2)            AS valor_total,
         ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS pct_do_total
     FROM prata.internacoes AS i
     LEFT JOIN prata.cid10   AS c ON c.cid = i.cid_principal
-    GROUP BY i.cid_principal, COALESCE(c.doenca, 'nao classificado')
+    GROUP BY i.cid_principal, COALESCE(c.doenca, 'Descrição não localizada na fonte')
 )
 SELECT
     cid,

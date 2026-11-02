@@ -93,13 +93,14 @@ WITH base AS (
             ELSE NULL END                                  AS sexo,
         (CAST(MORTE AS VARCHAR) = '1')                     AS morte,
         strptime(NULLIF(TRIM(CAST(DT_INTER AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_internacao,
-        strptime(NULLIF(TRIM(CAST(DT_SAIDA AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_saida
+        strptime(NULLIF(TRIM(CAST(DT_SAIDA AS VARCHAR)), ''), '%Y%m%d')::DATE AS data_saida,
+        make_date(CAST(ANO_CMPT AS INTEGER), CAST(MES_CMPT AS INTEGER), 1) AS competencia
     FROM bronze.internacoes
     QUALIFY row_number() OVER (
         PARTITION BY CAST(N_AIH AS VARCHAR)
         ORDER BY {ORDEM_AIH},
                  MUNIC_RES, DIAG_PRINC, PROC_REA, DIAS_PERM,
-                 IDADE, COD_IDADE, SEXO, MORTE, DT_INTER
+                 IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, ANO_CMPT, MES_CMPT
     ) = 1
 )
 SELECT
@@ -115,7 +116,8 @@ SELECT
     b.sexo,
     b.morte,
     b.data_internacao,
-    b.data_saida
+    b.data_saida,
+    b.competencia
 FROM base b
 LEFT JOIN prata.ufs u ON u.cod_uf = b.cod_uf
 WHERE b.valor_total IS NOT NULL
@@ -200,6 +202,14 @@ def main():
             print("ERRO: faltam tabelas em bronze:", ", ".join(faltando))
             print("Rode antes: uv run python -m pipeline.ingestao")
             sys.exit(1)
+
+        competencias = con.execute("""
+            SELECT count(DISTINCT make_date(CAST(ANO_CMPT AS INTEGER), CAST(MES_CMPT AS INTEGER), 1)),
+                   count(*) FILTER (WHERE ANO_CMPT IS NULL OR MES_CMPT IS NULL)
+            FROM bronze.internacoes
+        """).fetchone()
+        if competencias != (1, 0):
+            raise ValueError("A Bronze deve conter exatamente uma competência válida por execução")
 
         criar_schema(con, "prata")
 

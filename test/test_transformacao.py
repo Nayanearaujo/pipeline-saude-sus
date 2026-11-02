@@ -28,6 +28,8 @@ def _bronze_minimo(con):
         ) AS t(N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, VAL_TOT, DIAS_PERM,
                IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA)
     """)
+    con.execute("ALTER TABLE bronze.internacoes ADD COLUMN ANO_CMPT VARCHAR DEFAULT '2026'")
+    con.execute("ALTER TABLE bronze.internacoes ADD COLUMN MES_CMPT VARCHAR DEFAULT '07'")
     con.execute("""
         CREATE TABLE bronze.cid10 AS SELECT * FROM (VALUES
             ('A001','Colera'), ('B002','Dengue')
@@ -179,7 +181,7 @@ def test_desempate_de_valor_e_numerico(tmp_path, monkeypatch):
         con.execute("""
             INSERT INTO bronze.internacoes
             SELECT N_AIH, MUNIC_RES, DIAG_PRINC, PROC_REA, '10000.00', DIAS_PERM,
-                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA
+                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA, ANO_CMPT, MES_CMPT
             FROM bronze.internacoes WHERE N_AIH = 'a1'
         """)
     transformacao.main()
@@ -194,7 +196,7 @@ def test_empate_de_data_e_valor_independe_da_ordem_de_entrada(tmp_path, monkeypa
         con.execute("""
             INSERT INTO bronze.internacoes
             SELECT N_AIH, MUNIC_RES, 'Z999', PROC_REA, VAL_TOT, DIAS_PERM,
-                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA
+                   IDADE, COD_IDADE, SEXO, MORTE, DT_INTER, DT_SAIDA, ANO_CMPT, MES_CMPT
             FROM bronze.internacoes WHERE N_AIH = 'a1'
         """)
     transformacao.main()
@@ -221,3 +223,37 @@ def test_idade_ignorada_nao_vira_bebe(tmp_path, monkeypatch, unidade):
     assert con.execute("SELECT idade FROM prata.internacoes WHERE aih = 'a1'").fetchone()[0] is None
     assert con.execute('SELECT count(*) FROM prata.internacoes').fetchone()[0] == 4
     con.close()
+
+
+def test_preserva_competencia_independente_da_data_de_entrada(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET DT_INTER='20080101' WHERE N_AIH='a1'")
+    transformacao.main()
+    with duckdb.connect(str(banco)) as con:
+        valor = con.execute("SELECT competencia FROM prata.internacoes WHERE aih='a1'").fetchone()[0]
+        assert str(valor) == '2026-07-01'
+
+
+def test_competencia_com_mes_invalido_nao_e_inferida(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET MES_CMPT='13'")
+    with pytest.raises(duckdb.ConversionException):
+        transformacao.main()
+
+
+def test_competencias_misturadas_na_bronze_nao_sao_ocultadas_pela_deduplicacao(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET MES_CMPT='06' WHERE N_AIH='a1'")
+    with pytest.raises(ValueError, match='competência'):
+        transformacao.main()
+
+
+def test_data_invalida_interrompe_sem_converter_para_nulo(tmp_path, monkeypatch):
+    banco = _preparar(tmp_path, monkeypatch)
+    with duckdb.connect(str(banco)) as con:
+        con.execute("UPDATE bronze.internacoes SET DT_INTER='20260230' WHERE N_AIH='a1'")
+    with pytest.raises(duckdb.ConversionException):
+        transformacao.main()

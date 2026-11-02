@@ -9,10 +9,13 @@
 -- teve entrada em meses anteriores. Por isso esta serie (so as entradas do mes)
 -- NAO soma o total de internacoes dos KPIs (que e por competencia): a diferenca
 -- e grande e proposital.
--- O mes de referencia e derivado dos dados (o mes com mais entradas), nao
--- fixado no SQL: trocar o arquivo baixado nao exige editar o mart.
+-- O mês vem da competência de processamento, preservada na Prata.
+-- A execução exige uma única competência, sem inferência pela data de entrada.
 WITH ref AS (
-    SELECT date_trunc('month', mode(data_internacao)) AS mes
+    SELECT CASE WHEN count(DISTINCT competencia) = 1
+                     AND count(*) FILTER (WHERE competencia IS NULL) = 0
+                THEN min(competencia)
+                ELSE error('A série exige uma única competência válida') END AS mes
     FROM prata.internacoes
 )
 SELECT
