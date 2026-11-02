@@ -110,7 +110,8 @@ def test_relatorio_explicita_limites_metodologicos():
     assert "Competência não é data de entrada" in html
     assert "AIH não representa paciente único" in html
     assert "Óbitos hospitalares, não mortalidade populacional" in html
-    assert "Valores pagos, não custos assistenciais" in html
+    assert "Valor registrado na AIH" in html
+    assert "não mede o custo econômico integral" in html
     assert "Geografia de residência" in html
     assert "Limites e reprodutibilidade" in html
 
