@@ -276,7 +276,7 @@ def test_join_cid_categoria_subcategoria_e_inexistente():
     con.execute('CREATE TABLE ouro.top_diagnosticos_brasil AS ' +
                 (Path(__file__).resolve().parents[1] / 'sql/marts/06_top_diagnosticos_brasil.sql').read_text())
     assert dict(con.execute('SELECT cid,doenca FROM ouro.top_diagnosticos_brasil').fetchall()) == {
-        'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'Descrição não localizada na fonte'}
+        'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'nao classificado'}
     assert con.execute('SELECT sum(internacoes) FROM ouro.top_diagnosticos_brasil').fetchone()[0] == 3
     con.close()
 

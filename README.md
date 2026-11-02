@@ -149,7 +149,7 @@ Datas impossíveis, como 30 de fevereiro, interrompem a transformação.
 Os sete códigos antes sem descrição foram completados por correspondência exata
 nas [fontes oficiais registradas](docs/cid-complementar.csv). Os nomes de 76 AIHs
 foram identificados, sem alteração de valores, posições ou contagens. Ausências
-futuras recebem “Descrição não localizada na fonte” e entram na auditoria local.
+futuras recebem “nao classificado” e entram na auditoria local.
 
 A conferência local do commit `4510595` foi aprovada em duas execuções no macOS.
 Os dez marts coincidiram com os CSVs publicados, e a auditoria não encontrou CID

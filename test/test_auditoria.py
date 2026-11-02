@@ -15,6 +15,7 @@ def test_achados_sao_agregados_sem_alterar_registros(tmp_path, monkeypatch):
         t = auditoria.tabelas(con)
         assert t['cid_sem_descricao'].iloc[0]['cid'] == 'B002'
         assert t['cid_sem_descricao'].iloc[0]['internacoes'] == 1
+        assert t['cid_sem_descricao'].iloc[0]['situacao'] == 'nao classificado'
         assert t['datas_para_investigar'].entrada_antiga.sum() == 1
         assert t['datas_para_investigar'].saida_anterior_entrada.sum() == 1
         assert t['entradas_por_mes'].internacoes.sum() == 3

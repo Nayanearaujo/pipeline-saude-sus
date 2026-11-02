@@ -58,7 +58,7 @@ A taxa não é ajustada por gravidade e não mede mortalidade populacional.
 
 Os códigos são ligados ao dicionário completo de categorias e subcategorias.
 O código é preservado sem ponto. Sem correspondência exata, a expressão SQL
-`COALESCE(c.doenca, 'Descrição não localizada na fonte')` mantém a internação no resultado.
+`COALESCE(c.doenca, 'nao classificado')` mantém a internação no resultado.
 
 A qualidade tolera até 0,1% das internações sem descrição e exige nomes nos
 20 primeiros diagnósticos nacionais e de mortalidade. A revisão publicada
