@@ -6,7 +6,7 @@ R571,Choque hipovolêmico,328,169,51.52,4
 A418,Outras septicemias especificadas,2766,1205,43.56,5
 A419,Septicemia não especificada,11736,5080,43.29,6
 I460,Parada cardíaca com ressuscitação bem sucedida,228,95,41.67,7
-A41,nao classificado,521,203,38.96,8
+A41,Outras septicemias,521,203,38.96,8
 A412,Septicemia por estafilococos não especificados,123,47,38.21,9
 A415,Septicemia por outros microorganismos gram-negativos,376,135,35.9,10
 A310,Infecção pulmonar micobacteriana,448,149,33.26,11
@@ -14,7 +14,7 @@ I610,Hemorragia intracerebral hemisférica subcortical,125,41,32.8,12
 K720,Insuficiência hepática aguda e subaguda,111,36,32.43,13
 A409,Septicemia estreptocócica não especificada,139,44,31.65,14
 J960,Insuficiência respiratória aguda,3088,970,31.41,15
-C34,nao classificado,149,46,30.87,16
+C34,Neoplasia maligna dos brônquios e dos pulmões,149,46,30.87,16
 J690,Pneumonite devida a alimento ou vômito,469,142,30.28,17
 A403,Septicemia por Streptococcus pneumonia,153,46,30.07,18
 C340,Neoplasia maligna do brônquio principal,222,66,29.73,19
@@ -102,11 +102,11 @@ S065,Hemorragia subdural devida a traumatismo,1603,223,13.91,100
 K572,Doença diverticular do intestino grosso com perfuração e abscesso,232,32,13.79,101
 C767,Neoplasia maligna de outras localizações mal definidas,117,16,13.68,102
 S069,"Traumatismo intracraniano, não especificado",903,123,13.62,103
-C16,nao classificado,140,19,13.57,104
-N17,nao classificado,218,29,13.3,105
+C16,Neoplasia maligna do estômago,140,19,13.57,104
+N17,Insuficiência renal aguda,218,29,13.3,105
 K920,Hematêmese,2009,266,13.24,106
 C439,"Melanoma maligno de pele, não especificado",174,23,13.22,107
-I63,nao classificado,106,14,13.21,108
+I63,Infarto cerebral,106,14,13.21,108
 J91,Derrame pleural em afecções classificadas em outra parte,676,89,13.17,109
 K632,Fístula do intestino,213,28,13.15,110
 C329,"Neoplasia maligna da laringe, não especificada",329,43,13.07,111
@@ -129,7 +129,7 @@ J985,Doenças do mediastino não classificadas em outra parte,113,14,12.39,127
 D630,Anemia em neoplasias,269,33,12.27,128
 C341,"Neoplasia maligna do lobo superior, brônquio ou pulmão",343,42,12.24,129
 C539,"Neoplasia maligna do colo do útero, não especificado",1120,137,12.23,130
-N18,nao classificado,190,23,12.11,131
+N18,Insuficiência renal crônica,190,23,12.11,131
 D469,"Síndrome mielodisplásica, não especificada",141,17,12.06,132
 K658,Outras peritonites,283,34,12.01,133
 C786,Neoplasia maligna secundária do retroperitônio e do peritônio,167,20,11.98,134
@@ -144,14 +144,14 @@ A499,Infecção bacteriana não especificada,10870,1260,11.59,142
 S063,Traumatismo cerebral focal,287,33,11.5,143
 K566,"Outras formas de obstrução intestinal, e as não especificadas",1464,168,11.48,144
 C710,"Neoplasia maligna do cérebro, exceto lobos e ventrículos",375,43,11.47,145
-A49,nao classificado,317,36,11.36,146
+A49,Infecção bacteriana de localização não especificada,317,36,11.36,146
 I719,"Aneurisma aórtico de localização não especificada, sem menção de ruptura",141,16,11.35,147
 C180,Neoplasia maligna do ceco,424,48,11.32,148
 B200,Doença pelo HIV resultando em infecções micobacterianas,168,19,11.31,149
 G919,Hidrocefalia não especificada,561,63,11.23,150
 J159,Pneumonia bacteriana não especificada,7748,870,11.23,151
 E100,Diabetes mellitus insulino-dependente - com coma,125,14,11.2,152
-J44,nao classificado,241,27,11.2,153
+J44,Outras doenças pulmonares obstrutivas crônicas,241,27,11.2,153
 E46,Desnutrição protéico-calórica não especificada,1039,116,11.16,154
 J948,Outras afecções pleurais especificadas,108,12,11.11,155
 K659,"Peritonite, sem outras especificações",207,23,11.11,156
@@ -168,7 +168,7 @@ A318,Outras infecções micobacterianas,346,37,10.69,166
 S061,Edema cerebral traumático,262,28,10.69,167
 C795,Neoplasia maligna secundária dos ossos e da medula óssea,150,16,10.67,168
 I635,Infarto cerebral devido a oclusão ou estenose não especificadas de artérias cerebrais,169,18,10.65,169
-C18,nao classificado,273,29,10.62,170
+C18,Neoplasia maligna do cólon,273,29,10.62,170
 J189,Pneumonia não especificada,25292,2683,10.61,171
 A153,"Tuberculose pulmonar, com confirmação por meio não especificado",406,43,10.59,172
 J180,Broncopneumonia não especificada,9566,1010,10.56,173
@@ -186,7 +186,7 @@ B208,Doença pelo HIV resultando em outras doenças infecciosas e parasitárias,
 I516,Doença cardiovascular não especificada,321,32,9.97,185
 L89,Úlcera de decúbito,1455,145,9.97,186
 J181,Pneumonia lobar não especificada,542,54,9.96,187
-C67,nao classificado,181,18,9.94,188
+C67,Neoplasia maligna da bexiga,181,18,9.94,188
 C412,Neoplasia maligna da coluna vertebral,121,12,9.92,189
 C911,Leucemia linfocítica crônica,131,13,9.92,190
 P200,Hipóxia intra-uterina diagnosticada antes do início do trabalho de parto,152,15,9.87,191
@@ -203,14 +203,14 @@ G918,Outras formas de hidrocefalia,259,25,9.65,201
 C161,Neoplasia maligna do fundo do estômago,104,10,9.62,202
 G20,Doença de Parkinson,104,10,9.62,203
 A311,Infecção cutânea micobacteriana,230,22,9.57,204
-J15,nao classificado,282,27,9.57,205
+J15,Pneumonia bacteriana não classificada em outra parte,282,27,9.57,205
 C549,"Neoplasia maligna do corpo do útero, não especificado",136,13,9.56,206
 S365,Traumatismo do cólon,106,10,9.43,207
 E875,Hiperpotassemia,329,31,9.42,208
 K250,Úlcera gástrica - aguda com hemorragia,128,12,9.38,209
 K701,Hepatite alcoólica,172,16,9.3,210
-I50,nao classificado,614,57,9.28,211
-P22,nao classificado,108,10,9.26,212
+I50,Insuficiência cardíaca,614,57,9.28,211
+P22,Desconforto (angústia) respiratório(a) do recém-nascido,108,10,9.26,212
 J188,Outras pneumonias devidas a microorganismos não especificados,2459,226,9.19,213
 I229,Infarto do miocárdio recorrente de localização não especificada,131,12,9.16,214
 J158,Outras pneumonias bacterianas,4235,387,9.14,215
@@ -237,32 +237,32 @@ C184,Neoplasia maligna do cólon transverso,181,15,8.29,235
 C189,"Neoplasia maligna do cólon, não especificado",2051,170,8.29,236
 C716,Neoplasia maligna do cerebelo,121,10,8.26,237
 J984,Outros transtornos pulmonares,545,45,8.26,238
-C53,nao classificado,158,13,8.23,239
+C53,Neoplasia maligna do colo do útero,158,13,8.23,239
 I639,Infarto cerebral não especificado,304,25,8.22,240
 N189,Insuficiência renal crônica não especificada,5483,450,8.21,241
 I712,"Aneurisma da aorta torácica, sem menção de ruptura",171,14,8.19,242
 E441,Desnutrição protéico-calórica leve,135,11,8.15,243
 K740,Fibrose hepática,184,15,8.15,244
 C64,"Neoplasia maligna do rim, exceto pelve renal",1107,89,8.04,245
-J18,nao classificado,1938,154,7.95,246
+J18,Pneumonia por microorganismo não especificada,1938,154,7.95,246
 I742,Embolia e trombose de artérias dos membros superiores,126,10,7.94,247
 E111,Diabetes mellitus não-insulino-dependente - com cetoacidose,253,20,7.91,248
 C541,Neoplasia maligna do endométrio,582,46,7.9,249
 N188,Outra insuficiência renal crônica,988,78,7.89,250
 T303,"Queimadura de terceiro grau, parte do corpo não especificada",180,14,7.78,251
 S272,Hemopneumotórax traumático,335,26,7.76,252
-C50,nao classificado,387,30,7.75,253
+C50,Neoplasia maligna da mama,387,30,7.75,253
 J989,Transtorno respiratório não especificados,879,68,7.74,254
 S064,Hemorragia epidural,365,28,7.67,255
 C921,Leucemia mielóide crônica,185,14,7.57,256
 C210,"Neoplasia maligna do ânus, não especificado",119,9,7.56,257
-K92,nao classificado,119,9,7.56,258
+K92,Outras doenças do aparelho digestivo,119,9,7.56,258
 G318,Outras doenças degenerativas especificadas do sistema nervoso,186,14,7.53,259
 C548,Neoplasia maligna do corpo do útero com lesão invasiva,133,10,7.52,260
 C186,Neoplasia maligna do cólon descendente,147,11,7.48,261
 D464,"Anemia refratária, não especificada",148,11,7.43,262
 S271,Hemotórax traumático,364,27,7.42,263
-D64,nao classificado,108,8,7.41,264
+D64,Outras anemias,108,8,7.41,264
 A159,"Tuberculose não especificada das vias respiratórias, com confirmação bacteriológica e histológica",176,13,7.39,265
 J869,Piotórax sem fístula,232,17,7.33,266
 C833,"Linfoma não-Hodgkin difuso, grandes células (difuso)",356,26,7.3,267
@@ -276,7 +276,7 @@ K921,Melena,1491,105,7.04,274
 T07,Traumatismos múltiplos não especificados,923,65,7.04,275
 C182,Neoplasia maligna do cólon ascendente,384,27,7.03,276
 S270,Pneumotórax traumático,896,63,7.03,277
-S06,nao classificado,171,12,7.02,278
+S06,Traumatismo intracraniano,171,12,7.02,278
 B24,Doença pelo vírus da imunodeficiência humana [HIV] não especificada,973,68,6.99,279
 C20,Neoplasia maligna do reto,2940,204,6.94,280
 D431,"Neoplasia de comportamento incerto ou desconhecido do encéfalo, infratentorial",130,9,6.92,281
@@ -362,9 +362,9 @@ E888,Outros distúrbios especificados do metabolismo,218,11,5.05,360
 I878,Outros transtornos venosos especificados,337,17,5.04,361
 S068,Outros traumatismos intracranianos,4407,221,5.01,362
 G122,Doença do neurônio motor,120,6,5.0,363
-I21,nao classificado,522,26,4.98,364
+I21,Infarto agudo do miocárdio,522,26,4.98,364
 N289,Transtorno não especificado do rim e do ureter,121,6,4.96,365
-E11,nao classificado,101,5,4.95,366
+E11,Diabetes mellitus não-insulino-dependente,101,5,4.95,366
 C857,Outros tipos especificados de linfoma não-Hodgkin,142,7,4.93,367
 D696,Trombocitopenia não especificada,265,13,4.91,368
 I258,Outras formas de doença isquêmica crônica do coração,286,14,4.9,369
@@ -407,7 +407,7 @@ N151,Abscesso renal e perinefrético,140,6,4.29,405
 T174,Corpo estranho na traquéia,163,7,4.29,406
 K928,Outras doenças especificadas do aparelho digestivo,3175,136,4.28,407
 A91,Febre hemorrágica devida ao vírus do dengue,422,18,4.27,408
-D50,nao classificado,119,5,4.2,409
+D50,Anemia por deficiência de ferro,119,5,4.2,409
 M318,Outras vasculopatias necrotizantes especificadas,238,10,4.2,410
 E86,Depleção de volume,1171,49,4.18,411
 I829,Embolia e trombose venosas de veia não especificada,315,13,4.13,412
@@ -426,10 +426,10 @@ C433,Melanoma maligno de outras partes e partes não especificadas da face,126,5
 R18,Ascite,302,12,3.97,425
 S334,Ruptura traumática da sínfise púbica,151,6,3.97,426
 S729,"Fratura do fêmur, parte não especificada",706,28,3.97,427
-N39,nao classificado,908,36,3.96,428
+N39,Outros transtornos do trato urinário,908,36,3.96,428
 T818,Outras complicações de procedimentos não classificadas em outra parte,707,28,3.96,429
 K20,Esofagite,179,7,3.91,430
-R56,nao classificado,180,7,3.89,431
+R56,"Convulsões, não classificadas em outra parte",180,7,3.89,431
 G418,Outros estados de mal epiléptico,103,4,3.88,432
 S721,Fratura pertrocantérica,2551,99,3.88,433
 I472,Taquicardia ventricular,419,16,3.82,434
@@ -467,7 +467,7 @@ C672,Neoplasia maligna da parede lateral da bexiga,240,8,3.33,465
 T659,Efeito tóxico de substância não especificada,360,12,3.33,466
 I828,Embolia e trombose de outras veias especificadas,181,6,3.31,467
 I470,Arritmia ventricular por reentrada,365,12,3.29,468
-K81,nao classificado,122,4,3.28,469
+K81,Colecistite,122,4,3.28,469
 D400,Neoplasia de comportamento incerto ou desconhecido da próstata,153,5,3.27,470
 N308,Outras cistites,153,5,3.27,471
 I738,Outras doenças vasculares periféricas especificadas,123,4,3.25,472
@@ -501,7 +501,7 @@ S727,Fraturas múltiplas do fêmur,201,6,2.99,499
 K859,"Pancreatite aguda, não especificada",1410,42,2.98,500
 I674,Encefalopatia hipertensiva,169,5,2.96,501
 R31,Hematúria não especificada,878,26,2.96,502
-C44,nao classificado,204,6,2.94,503
+C44,Outras neoplasias malignas da pele,204,6,2.94,503
 C531,Neoplasia maligna do exocérvix,136,4,2.94,504
 D410,Neoplasia de comportamento incerto ou desconhecido do rim,102,3,2.94,505
 C504,Neoplasia maligna do quadrante superior externo da mama,448,13,2.9,506
@@ -514,7 +514,7 @@ S020,Fratura da abóbada do crânio,139,4,2.88,512
 S318,Ferimento de outras partes e de partes não especificadas do abdome,104,3,2.88,513
 T509,"Intoxicação por outras drogas, medicamentos e substâncias biológicas e as não especificadas",624,18,2.88,514
 K831,Obstrução de via biliar,974,28,2.87,515
-E10,nao classificado,140,4,2.86,516
+E10,Diabetes mellitus insulino-dependente,140,4,2.86,516
 S221,Fraturas múltiplas da coluna torácica,140,4,2.86,517
 I158,Outras formas de hipertensão secundária,141,4,2.84,518
 K319,"Doenças do estômago e do duodeno, sem outra especificação",599,17,2.84,519
@@ -539,7 +539,7 @@ I441,Bloqueio atrioventricular de segundo grau,380,10,2.63,537
 K858,Outras pancreatites agudas,533,14,2.63,538
 K639,"Doença do intestino, sem outra especificação",1113,29,2.61,539
 G441,"Cefaléia vascular, não classificada em outra parte",116,3,2.59,540
-R10,nao classificado,888,23,2.59,541
+R10,Dor abdominal e pélvica,888,23,2.59,541
 E109,Diabetes mellitus insulino-dependente - sem complicações,387,10,2.58,542
 I671,Aneurisma cerebral não-roto,272,7,2.57,543
 N328,Outros transtornos especificados da bexiga,353,9,2.55,544
@@ -567,12 +567,12 @@ A049,Infecção intestinal bacteriana não especificada,1260,29,2.3,565
 J110,"Influenza [gripe] com pneumonia, devida a vírus não identificado",1888,43,2.28,566
 K388,Outras doenças especificadas do apêndice,176,4,2.27,567
 T202,Queimadura de segundo grau da cabeça e do pescoço,132,3,2.27,568
-L08,nao classificado,177,4,2.26,569
+L08,Outras infecções localizadas da pele e do tecido subcutâneo,177,4,2.26,569
 R529,Dor não especificada,265,6,2.26,570
 T039,"Luxações, entorses e distensões múltiplas, não especificadas",664,15,2.26,571
 N318,Outra disfunção neuromuscular da bexiga,178,4,2.25,572
 N329,Transtorno não especificado da bexiga,224,5,2.23,573
-L98,nao classificado,135,3,2.22,574
+L98,Outras afecções da pele e do tecido subcutâneo não classificadas em outra parte,135,3,2.22,574
 R001,Bradicardia não especificada,135,3,2.22,575
 M844,Fratura patológica não classificada em outra parte,138,3,2.17,576
 I248,Outras formas de doença isquêmica aguda do coração,788,17,2.16,577
@@ -605,7 +605,7 @@ K449,Hérnia diafragmática sem obstrução ou gangrena,101,2,1.98,603
 K909,"Má-absorção intestinal, sem outra especificação",101,2,1.98,604
 M321,Lúpus eritematoso disseminado [sistêmico] com comprometimento de outros órgãos e sistemas,152,3,1.97,605
 S018,"Ferimento na cabeça, de outras localizações",356,7,1.97,606
-S72,nao classificado,304,6,1.97,607
+S72,Fratura do fêmur,304,6,1.97,607
 I458,Outros transtornos especificados da condução,153,3,1.96,608
 I771,Estenose de artéria,258,5,1.94,609
 Z948,Outros órgãos e tecidos transplantados,206,4,1.94,610
@@ -671,7 +671,7 @@ J980,Outras doenças dos brônquios não classificadas em outra parte,343,5,1.46
 N949,Afecções não especificadas associadas com os órgãos genitais femininos e com o ciclo menstrual,137,2,1.46,670
 Z941,Coração transplantado,137,2,1.46,671
 S017,Ferimentos múltiplos da cabeça,139,2,1.44,672
-G40,nao classificado,142,2,1.41,673
+G40,Epilepsia,142,2,1.41,673
 R69,Causas desconhecidas e não especificadas de morbidade,921,13,1.41,674
 S827,Fraturas múltiplas da perna,498,7,1.41,675
 S730,Luxação da articulação do quadril,429,6,1.4,676
@@ -712,7 +712,7 @@ S328,Fratura de outras partes da coluna lombossacra e da pelve e de partes não 
 A083,Outras enterites virais,174,2,1.15,711
 S728,Fraturas de outras partes do fêmur,434,5,1.15,712
 S060,Concussão cerebral,889,10,1.12,713
-L03,nao classificado,180,2,1.11,714
+L03,Celulite (Flegmão),180,2,1.11,714
 T848,"Outras complicações de dispositivos protéticos, implantes e enxertos ortopédicos internos",270,3,1.11,715
 K122,Celulite e abscesso da boca,364,4,1.1,716
 G09,Seqüelas de doenças inflamatórias do sistema nervoso central,368,4,1.09,717
@@ -754,7 +754,7 @@ M549,Dorsalgia não especificada,112,1,0.89,752
 F198,Transtornos mentais e comportamentais devidos ao uso de múltiplas drogas e ao uso de outras substâncias psicoativas - outros transtornos mentais ou comportamentais,114,1,0.88,753
 F203,Esquizofrenia indiferenciada,114,1,0.88,754
 K220,Acalásia do cárdia,113,1,0.88,755
-M86,nao classificado,113,1,0.88,756
+M86,Osteomielite,113,1,0.88,756
 N218,Outros cálculos do trato urinário inferior,113,1,0.88,757
 Q211,Comunicação interatrial,228,2,0.88,758
 R51,Cefaléia,454,4,0.88,759
@@ -809,7 +809,7 @@ B349,Infecção viral não especificada,747,5,0.67,807
 P968,Outras afecções especificadas originadas no período perinatal,1338,9,0.67,808
 N859,"Transtornos não-inflamatórios do útero, não especificados",151,1,0.66,809
 D481,Neoplasia de comportamento incerto ou desconhecido do tecido conjuntivo e outros tecidos moles,323,2,0.62,810
-K43,nao classificado,161,1,0.62,811
+K43,Hérnia ventral,161,1,0.62,811
 M796,Dor em membro,163,1,0.61,812
 O731,"Retenção de partes da placenta ou das membranas, sem hemorragia",488,3,0.61,813
 P221,Taquipnéia transitória do recém-nascido,651,4,0.61,814
@@ -818,7 +818,7 @@ G432,Estado de mal enxaquecoso,331,2,0.6,816
 N394,Outras incontinências urinárias especificadas,341,2,0.59,817
 P969,Afecções originadas no período perinatal não especificadas,1880,11,0.59,818
 S910,Ferimento do tornozelo,169,1,0.59,819
-Z00,nao classificado,169,1,0.59,820
+Z00,Exame geral e investigação de pessoas sem queixas ou diagnóstico relatado,169,1,0.59,820
 A502,Sífilis congênita precoce não especificada,347,2,0.58,821
 F028,Demência em outras doenças especificadas classificadas em outra parte,173,1,0.58,822
 J219,Bronquite aguda não especificada,3289,19,0.58,823
@@ -829,10 +829,10 @@ T821,Complicação mecânica de dispositivo eletrônico cardíaco,531,3,0.56,827
 F411,Ansiedade generalizada,182,1,0.55,828
 M609,Miosite não especificada,183,1,0.55,829
 O033,"Aborto espontâneo - incompleto, com outras complicações ou com complicações não especificadas",182,1,0.55,830
-J45,nao classificado,369,2,0.54,831
+J45,Asma,369,2,0.54,831
 M545,Dor lombar baixa,747,4,0.54,832
 M958,Outras deformidades adquiridas especificadas do sistema osteomuscular,184,1,0.54,833
-J11,nao classificado,377,2,0.53,834
+J11,Influenza [gripe] devida a vírus não identificado,377,2,0.53,834
 T846,Infecção e reação inflamatória devidas a dispositivo de fixação interna [qualquer local],187,1,0.53,835
 I889,Linfadenite não especificada,193,1,0.52,836
 K573,Doença diverticular do intestino grosso sem perfuração ou abscesso,193,1,0.52,837
@@ -841,7 +841,7 @@ N819,Prolapso genital feminino não especificado,195,1,0.51,839
 S527,Fraturas múltiplas do antebraço,196,1,0.51,840
 J459,Asma não especificada,5548,28,0.5,841
 L988,Outras afecções especificadas da pele e do tecido subcutâneo,1991,10,0.5,842
-F20,nao classificado,616,3,0.49,843
+F20,Esquizofrenia,616,3,0.49,843
 K419,"Hérnia femoral unilateral ou não especificada, sem obstrução ou gangrena",206,1,0.49,844
 O668,"Outras formas de obstrução do trabalho de parto, especificadas",206,1,0.49,845
 T859,"Complicação não especificada de outros dispositivos protéticos, implantes e enxertos internos",205,1,0.49,846
@@ -860,16 +860,16 @@ T639,Efeito tóxico de contato com animal venenoso não especificado,221,1,0.45,
 T932,Seqüelas de outras fraturas do membro inferior,229,1,0.44,859
 K420,"Hérnia umbilical com obstrução, sem gangrena",1171,5,0.43,860
 M629,Transtorno muscular não especificado,235,1,0.43,861
-N20,nao classificado,461,2,0.43,862
+N20,Calculose do rim e do ureter,461,2,0.43,862
 P398,Outras infecções especificadas próprias do período perinatal,235,1,0.43,863
 S829,"Fratura da perna, parte não especificada",693,3,0.43,864
 K400,"Hérnia inguinal bilateral, com obstrução, sem gangrena",472,2,0.42,865
 O363,Assistência prestada à mãe por sinais de hipóxia fetal,237,1,0.42,866
-F31,nao classificado,246,1,0.41,867
+F31,Transtorno afetivo bipolar,246,1,0.41,867
 L080,Piodermite,245,1,0.41,868
 N938,Outros sangramentos anormais especificados do útero e da vagina,489,2,0.41,869
 P399,Infecção própria do período perinatal não especificada,491,2,0.41,870
-F19,nao classificado,253,1,0.4,871
+F19,Transtornos mentais e comportamentais devidos ao uso de múltiplas drogas e ao uso de outras substâncias psicoativas,253,1,0.4,871
 K808,Outras colelitíases,9017,36,0.4,872
 L029,"Abscesso cutâneo, furúnculo e antraz de localização não especificada",749,3,0.4,873
 N700,Salpingite e ooforite agudas,247,1,0.4,874
@@ -891,7 +891,7 @@ S821,Fratura da extremidade proximal da tíbia,2471,9,0.36,889
 I880,Linfadenite mesentérica não específica,287,1,0.35,890
 N200,Calculose do rim,3726,13,0.35,891
 N939,"Sangramento anormal do útero ou da vagina, não especificado",851,3,0.35,892
-K80,nao classificado,1473,5,0.34,893
+K80,Colelitíase,1473,5,0.34,893
 K801,Calculose da vesícula biliar com outras formas de colecistite,1787,6,0.34,894
 O85,Infecção puerperal,581,2,0.34,895
 R509,Febre não especificada,583,2,0.34,896
@@ -942,17 +942,17 @@ S820,Fratura da rótula [patela],1192,2,0.17,940
 Z478,Outros seguimentos ortopédicos especificados,2334,4,0.17,941
 J210,Bronquiolite aguda devida a vírus sincicial respiratório,2441,4,0.16,942
 S522,Fratura da diáfise do cúbito [ulna],610,1,0.16,943
-K35,nao classificado,679,1,0.15,944
+K35,Apendicite aguda,679,1,0.15,944
 N832,Outros cistos ovarianos e os não especificados,1335,2,0.15,945
 O908,"Outras complicações do puerpério, não classificadas em outra parte",688,1,0.15,946
 S521,Fratura da extremidade superior do rádio,663,1,0.15,947
 J039,Amigdalite aguda não especificada,737,1,0.14,948
-J21,nao classificado,719,1,0.14,949
+J21,Bronquiolite aguda,719,1,0.14,949
 N44,Torção do testículo,698,1,0.14,950
 T022,Fraturas envolvendo regiões múltiplas de um membro superior,1402,2,0.14,951
 F323,Episódio depressivo grave com sintomas psicóticos,745,1,0.13,952
 F329,Episódio depressivo não especificado,763,1,0.13,953
-K40,nao classificado,773,1,0.13,954
+K40,Hérnia inguinal,773,1,0.13,954
 P704,Outras hipoglicemias neonatais,794,1,0.13,955
 S024,Fratura dos ossos malares e maxilares,760,1,0.13,956
 C443,Neoplasia maligna da pele de outras partes e de partes não especificadas da face,2548,3,0.12,957
@@ -977,7 +977,7 @@ F312,"Transtorno afetivo bipolar, episódio atual maníaco com sintomas psicóti
 F322,Episódio depressivo grave sem sintomas psicóticos,1275,1,0.08,976
 G589,Mononeuropatia não especificada,1313,1,0.08,977
 M232,Transtorno do menisco devido à ruptura ou lesão antiga,1184,1,0.08,978
-O80,nao classificado,1189,1,0.08,979
+O80,Parto único espontâneo,1189,1,0.08,979
 J352,Hipertrofia das adenóides,1366,1,0.07,980
 D259,"Leiomioma do útero, não especificado",6206,4,0.06,981
 K429,Hérnia umbilical sem obstrução ou gangrena,7792,5,0.06,982
@@ -1006,7 +1006,7 @@ C773,Neoplasia maligna secundária e não especificada dos gânglios linfáticos
 D059,"Carcinoma in situ da mama, não especificado",160,0,0.0,1005
 D067,Carcinoma in situ de outras partes do colo do útero,215,0,0.0,1006
 D069,"Carcinoma in situ do colo do útero, não especificado",104,0,0.0,1007
-D17,nao classificado,101,0,0.0,1008
+D17,Neoplasia lipomatosa benigna,101,0,0.0,1008
 D170,"Neoplasia lipomatosa benigna da pele e do tecido subcutâneo da cabeça, face e pescoço",381,0,0.0,1009
 D171,Neoplasia lipomatosa benigna da pele e tecido subcutâneo do tronco,188,0,0.0,1010
 D172,Neoplasia lipomatosa benigna da pele e tecido subcutâneo dos membros,148,0,0.0,1011
@@ -1018,7 +1018,7 @@ D229,"Nevo melanocítico, não especificado",105,0,0.0,1016
 D231,"Neoplasia benigna da pele da pálpebra, incluindo o canto",300,0,0.0,1017
 D233,Neoplasia benigna da pele de outras partes e de partes não especificadas da face,145,0,0.0,1018
 D24,Neoplasia benigna da mama,197,0,0.0,1019
-D25,nao classificado,672,0,0.0,1020
+D25,Leiomioma do útero,672,0,0.0,1020
 D250,Leiomioma submucoso do útero,1693,0,0.0,1021
 D251,Leiomioma intramural do útero,682,0,0.0,1022
 D252,Leiomioma subseroso do útero,169,0,0.0,1023
@@ -1033,7 +1033,7 @@ E668,Outra obesidade,277,0,0.0,1031
 E669,Obesidade não especificada,787,0,0.0,1032
 E762,Outras mucopolissacaridoses,163,0,0.0,1033
 F09,Transtorno mental orgânico ou sintomático não especificado,112,0,0.0,1034
-F10,nao classificado,119,0,0.0,1035
+F10,Transtornos mentais e comportamentais devidos ao uso de álcool,119,0,0.0,1035
 F102,Transtornos mentais e comportamentais devidos ao uso de álcool - síndrome de dependência,1633,0,0.0,1036
 F109,Transtornos mentais e comportamentais devidos ao uso de álcool - transtorno mental ou comportamental não especificado,183,0,0.0,1037
 F142,Transtornos mentais e comportamentais devidos ao uso da cocaína - síndrome de dependência,762,0,0.0,1038
@@ -1045,7 +1045,7 @@ F201,Esquizofrenia hebefrênica,109,0,0.0,1043
 F206,Esquizofrenia simples,103,0,0.0,1044
 F208,Outras esquizofrenias,469,0,0.0,1045
 F209,Esquizofrenia não especificada,211,0,0.0,1046
-F23,nao classificado,215,0,0.0,1047
+F23,Transtornos psicóticos agudos e transitórios,215,0,0.0,1047
 F230,"Transtorno psicótico agudo polimorfo, sem sintomas esquizofrênicos",123,0,0.0,1048
 F231,"Transtorno psicótico agudo polimorfo, com sintomas esquizofrênicos",248,0,0.0,1049
 F250,Transtorno esquizoafetivo do tipo maníaco,124,0,0.0,1050
@@ -1053,7 +1053,7 @@ F310,"Transtorno afetivo bipolar, episódio atual hipomaníaco",138,0,0.0,1051
 F311,"Transtorno afetivo bipolar, episódio atual maníaco sem sintomas psicóticos",176,0,0.0,1052
 F316,"Transtorno afetivo bipolar, episódio atual misto",206,0,0.0,1053
 F318,Outros transtornos afetivos bipolares,107,0,0.0,1054
-F32,nao classificado,148,0,0.0,1055
+F32,Episódios depressivos,148,0,0.0,1055
 F320,Episódio depressivo leve,130,0,0.0,1056
 F321,Episódio depressivo moderado,221,0,0.0,1057
 F332,"Transtorno depressivo recorrente, episódio atual grave sem sintomas psicóticos",363,0,0.0,1058
@@ -1074,7 +1074,7 @@ H119,Transtorno não especificado da conjuntiva,475,0,0.0,1072
 H186,Ceratocone,173,0,0.0,1073
 H188,Outros transtornos especificados da córnea,112,0,0.0,1074
 H189,Transtorno não especificado da córnea,264,0,0.0,1075
-H25,nao classificado,148,0,0.0,1076
+H25,Catarata senil,148,0,0.0,1076
 H250,Catarata senil incipiente,533,0,0.0,1077
 H251,Catarata senil nuclear,2495,0,0.0,1078
 H258,Outras cataratas senis,334,0,0.0,1079
@@ -1099,9 +1099,9 @@ H508,Outros estrabismos especificados,135,0,0.0,1097
 H609,Otite externa não especificada,103,0,0.0,1098
 H650,Otite média aguda serosa,110,0,0.0,1099
 I456,Síndrome de pré-excitação,118,0,0.0,1100
-I83,nao classificado,217,0,0.0,1101
+I83,Varizes dos membros inferiores,217,0,0.0,1101
 I831,Varizes dos membros inferiores com inflamação,585,0,0.0,1102
-I84,nao classificado,261,0,0.0,1103
+I84,Hemorróidas,261,0,0.0,1103
 I840,Hemorróidas internas trombosadas,415,0,0.0,1104
 I841,Hemorróidas internas com outras complicações,296,0,0.0,1105
 I842,Hemorróidas internas sem complicações,646,0,0.0,1106
@@ -1113,9 +1113,9 @@ I848,Hemorróidas não especificadas com outras complicações,826,0,0.0,1111
 I849,"Hemorróidas sem complicações, não especificadas",127,0,0.0,1112
 I861,Varizes escrotais,355,0,0.0,1113
 J042,Laringotraqueíte aguda,125,0,0.0,1114
-J06,nao classificado,139,0,0.0,1115
+J06,Infecções agudas das vias aéreas superiores de localizações múltiplas e não especificadas,139,0,0.0,1115
 J118,"Influenza [gripe] com outras manifestações, devida a vírus não identificado",158,0,0.0,1116
-J20,nao classificado,113,0,0.0,1117
+J20,Bronquite aguda,113,0,0.0,1117
 J328,Outras sinusites crônicas,115,0,0.0,1118
 J342,Desvio do septo nasal,1832,0,0.0,1119
 J343,Hipertrofia dos cornetos nasais,418,0,0.0,1120
@@ -1130,12 +1130,12 @@ K046,Abscesso periapical com fístula,192,0,0.0,1128
 K108,Outras doenças especificadas dos maxilares,278,0,0.0,1129
 K137,Outras lesões e as não especificadas da mucosa oral,108,0,0.0,1130
 K291,Outras gastrites agudas,214,0,0.0,1131
-K42,nao classificado,549,0,0.0,1132
+K42,Hérnia umbilical,549,0,0.0,1132
 K421,Hérnia umbilical com gangrena,132,0,0.0,1133
 K601,Fissura anal crônica,102,0,0.0,1134
 K605,Fístula anorretal,333,0,0.0,1135
 K623,Prolapso retal,119,0,0.0,1136
-L02,nao classificado,164,0,0.0,1137
+L02,"Abscesso cutâneo, furúnculo e antraz",164,0,0.0,1137
 L023,"Abscesso cutâneo, furúnculo e antraz da nádega",236,0,0.0,1138
 L024,"Abscesso cutâneo, furúnculo e antraz do(s) membro(s)",474,0,0.0,1139
 L039,Celulite não especificada,201,0,0.0,1140
@@ -1202,7 +1202,7 @@ N800,Endometriose do útero,887,0,0.0,1200
 N801,Endometriose do ovário,104,0,0.0,1201
 N808,Outra endometriose,380,0,0.0,1202
 N809,Endometriose não especificada,303,0,0.0,1203
-N81,nao classificado,113,0,0.0,1204
+N81,Prolapso genital feminino,113,0,0.0,1204
 N810,Uretrocele feminina,126,0,0.0,1205
 N811,Cistocele,1541,0,0.0,1206
 N812,Prolapso uterovaginal incompleto,275,0,0.0,1207
@@ -1211,7 +1211,7 @@ N816,Retocele,318,0,0.0,1209
 N818,Outro prolapso genital feminino,635,0,0.0,1210
 N830,Cisto folicular do ovário,204,0,0.0,1211
 N838,"Outros transtornos não-inflamatórios do ovário, da trompa de Falópio e do ligamento largo",172,0,0.0,1212
-N84,nao classificado,177,0,0.0,1213
+N84,Pólipo do trato genital feminino,177,0,0.0,1213
 N840,Pólipo do corpo do útero,2682,0,0.0,1214
 N841,Pólipo do colo do útero,479,0,0.0,1215
 N851,Hiperplasia adenomatosa endometrial,185,0,0.0,1216
@@ -1223,12 +1223,12 @@ N883,Incompetência do colo do útero,380,0,0.0,1221
 N906,Hipertrofia da vulva,423,0,0.0,1222
 N907,Cisto vulvar,177,0,0.0,1223
 N921,Menstruação excessiva e freqüente com ciclo irregular,112,0,0.0,1224
-N93,nao classificado,112,0,0.0,1225
+N93,Outros sangramentos anormais do útero e da vagina,112,0,0.0,1225
 N950,Sangramento pós-menopausa,150,0,0.0,1226
 O008,Outras formas de gravidez ectópica,423,0,0.0,1227
 O019,Mola hidatiforme não especificada,101,0,0.0,1228
 O021,Aborto retido,4507,0,0.0,1229
-O03,nao classificado,129,0,0.0,1230
+O03,Aborto espontâneo,129,0,0.0,1230
 O031,"Aborto espontâneo - incompleto, complicado por hemorragia excessiva ou tardia",229,0,0.0,1231
 O034,"Aborto espontâneo - incompleto, sem complicações",3708,0,0.0,1232
 O038,"Aborto espontâneo - completo ou não especificado, com outras complicações ou com complicações não especificadas",100,0,0.0,1233
@@ -1238,7 +1238,7 @@ O054,"Outros tipos de aborto - incompleto, sem complicações",195,0,0.0,1236
 O064,"Aborto não especificado - incompleto, sem complicações",539,0,0.0,1237
 O069,"Aborto não especificado - completo ou não especificado, sem complicações",270,0,0.0,1238
 O11,Distúrbio hipertensivo pré-existente com proteinúria superposta,178,0,0.0,1239
-O14,nao classificado,111,0,0.0,1240
+O14,Hipertensão gestacional [induzida pela gravidez] com proteinúria significativa,111,0,0.0,1240
 O140,Pré-eclâmpsia moderada,928,0,0.0,1241
 O16,Hipertensão materna não especificada,1107,0,0.0,1242
 O200,Ameaça de aborto,2081,0,0.0,1243
@@ -1252,7 +1252,7 @@ O233,Infecções de outras partes do trato urinário na gravidez,336,0,0.0,1250
 O234,Infecção não especificada do trato urinário na gravidez,1427,0,0.0,1251
 O235,Infecções do trato genital na gravidez,137,0,0.0,1252
 O239,Outras infecções e as não especificadas do trato urinário na gravidez,490,0,0.0,1253
-O24,nao classificado,197,0,0.0,1254
+O24,Diabetes mellitus na gravidez,197,0,0.0,1254
 O240,"Diabetes mellitus pré-existente, insulino-dependente",655,0,0.0,1255
 O241,"Diabetes mellitus pré-existente, não-insulino-dependente",101,0,0.0,1256
 O243,"Diabetes mellitus pré-existente, não especificado",332,0,0.0,1257
@@ -1277,7 +1277,7 @@ O368,Assistência prestada à mãe por outros problemas fetais especificados,129
 O369,Assistência prestada à mãe por problema fetal não especificado,262,0,0.0,1276
 O410,Oligohidrâmnio,1010,0,0.0,1277
 O418,Outros transtornos especificados do líquido amniótico e das membranas,164,0,0.0,1278
-O42,nao classificado,296,0,0.0,1279
+O42,Ruptura prematura de membranas,296,0,0.0,1279
 O420,"Ruptura prematura de membranas, com início do trabalho de parto dentro de 24 horas",2466,0,0.0,1280
 O421,"Ruptura prematura de membranas, com início do trabalho de parto depois das primeiras 24 horas",176,0,0.0,1281
 O429,"Ruptura prematura de membranas, não especificada",1855,0,0.0,1282
@@ -1316,7 +1316,7 @@ O754,Outras complicações de procedimentos ou de cirurgia obstétrica,217,0,0.0
 O801,Parto espontâneo pélvico,610,0,0.0,1315
 O808,Outros tipos de parto único espontâneo,2559,0,0.0,1316
 O809,"Parto único espontâneo, não especificado",8938,0,0.0,1317
-O82,nao classificado,1650,0,0.0,1318
+O82,Parto único por cesariana,1650,0,0.0,1318
 O828,Outros tipos de parto único por cesariana,1527,0,0.0,1319
 O833,Parto de gravidez intra-abdominal com feto viável,283,0,0.0,1320
 O860,Infecção da incisão cirúrgica de origem obstétrica,403,0,0.0,1321
@@ -1333,7 +1333,7 @@ P009,Feto e recém-nascido afetados por afecção materna não especificada,172,
 P371,Toxoplasmose congênita,160,0,0.0,1332
 P38,Onfalite do recém-nascido com ou sem hemorragia leve,117,0,0.0,1333
 P589,Icterícia neonatal devida a hemólise excessiva não especificada,278,0,0.0,1334
-P59,nao classificado,169,0,0.0,1335
+P59,Icterícia neonatal devida a outras causas e às não especificadas,169,0,0.0,1335
 P598,Icterícia neonatal devida a outras causas especificadas,533,0,0.0,1336
 P700,Síndrome do filho de mãe com diabetes gestacional,102,0,0.0,1337
 P925,Dificuldade neonatal na amamentação no peito,714,0,0.0,1338
@@ -1353,22 +1353,22 @@ Q699,Polidactilia não especificada,104,0,0.0,1351
 Q892,Malformações congênitas de outras glândulas endócrinas,147,0,0.0,1352
 R072,Dor precordial,117,0,0.0,1353
 R102,Dor pélvica e perineal,302,0,0.0,1354
-R50,nao classificado,172,0,0.0,1355
+R50,Febre de origem desconhecida e de outras origens,172,0,0.0,1355
 R560,Convulsões febris,122,0,0.0,1356
 S023,Fratura do assoalho orbital,105,0,0.0,1357
 S220,Fratura de vértebra torácica,162,0,0.0,1358
-S42,nao classificado,113,0,0.0,1359
+S42,Fratura do ombro e do braço,113,0,0.0,1359
 S420,Fratura da clavícula,3148,0,0.0,1360
 S421,Fratura da omoplata [escápula],100,0,0.0,1361
 S430,Luxação da articulação do ombro,922,0,0.0,1362
 S431,Luxação da articulação acromioclavicular,926,0,0.0,1363
 S460,Traumatismo do tendão do manguito rotador do ombro,132,0,0.0,1364
-S52,nao classificado,226,0,0.0,1365
+S52,Fratura do antebraço,226,0,0.0,1365
 S529,"Fratura do antebraço, parte não especificada",283,0,0.0,1366
 S531,"Luxação do cotovelo, não especificada",501,0,0.0,1367
 S610,Ferimento de dedo(s) sem lesão da unha,131,0,0.0,1368
 S611,Ferimento de dedo(s) com lesão da unha,109,0,0.0,1369
-S62,nao classificado,155,0,0.0,1370
+S62,Fratura ao nível do punho e da mão,155,0,0.0,1370
 S620,Fratura do osso navicular [escafoíde] da mão,314,0,0.0,1371
 S621,Fratura de outro(s) osso(s) do carpo,175,0,0.0,1372
 S622,Fratura do primeiro metacarpiano,340,0,0.0,1373
@@ -1388,7 +1388,7 @@ S669,Traumatismo de músculo e tendão não especificado ao nível do punho e da
 S680,Amputação traumática do polegar (completa) (parcial),117,0,0.0,1387
 S681,Amputação traumática de um outro dedo apenas (completa) (parcial),584,0,0.0,1388
 S682,Amputação traumática de dois ou mais dedos somente (completa) (parcial),134,0,0.0,1389
-S82,nao classificado,336,0,0.0,1390
+S82,"Fratura da perna, incluindo tornozelo",336,0,0.0,1390
 S823,Fratura da extremidade distal da tíbia,1846,0,0.0,1391
 S825,Fratura do maléolo medial,1209,0,0.0,1392
 S832,"Ruptura do menisco, atual",315,0,0.0,1393
