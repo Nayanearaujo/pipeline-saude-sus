@@ -265,7 +265,7 @@ def main():
         dias, mort = linha["dias_medio"], linha["taxa_mortalidade_pct"]
 
     cartoes_html = "".join([
-        _card_html("Internações", painel.numero(internacoes), "AIH aprovadas no mês"),
+        _card_html("Internações", painel.numero(internacoes), "AIHs da competência"),
         _card_html("Gasto total", painel.reais_curto(valor), painel.reais(valor, 0)),
         _card_html("Custo médio", painel.reais(custo, 0), "valor médio por AIH"),
         _card_html("Permanência média", painel.numero(dias, 1) + " dias", "média por internação"),
@@ -275,25 +275,32 @@ def main():
 
     st.divider()
 
-    # ---- Faixa nacional: mapa + ranking (sempre Brasil, para comparar) -------
     st.markdown('<div class="sus-sub">Visão nacional</div>', unsafe_allow_html=True)
-    f1 = st.columns([3, 2])
-    with f1[0]:
-        st.plotly_chart(painel.fig_mapa(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
-    with f1[1]:
-        st.plotly_chart(painel.fig_ranking_estados(por_estado, metrica), width="stretch", config=PLOTLY_CONFIG)
-
-    # mapa + rosca (o circulo classico) lado a lado com o custo por UF
-    f1b = st.columns([2, 3])
-    with f1b[0]:
-        metrica_regional = metrica if metrica in {"internacoes", "valor_total"} else "internacoes"
-        st.plotly_chart(painel.fig_rosca_regiao(por_estado, metrica_regional), width="stretch", config=PLOTLY_CONFIG)
+    metrica_regional = metrica if metrica in {"internacoes", "valor_total"} else "internacoes"
+    mapa = painel.fig_mapa(por_estado, metrica)
+    rosca = painel.fig_rosca_regiao(por_estado, metrica_regional)
+    mapa.update_layout(height=560)
+    rosca.update_layout(height=560)
+    col_mapa, col_rosca = st.columns(2)
+    with col_mapa:
+        st.plotly_chart(mapa, width="stretch", config=PLOTLY_CONFIG)
+    with col_rosca:
+        st.plotly_chart(rosca, width="stretch", config=PLOTLY_CONFIG)
         if metrica_regional != metrica:
             st.caption(
                 "Composição regional por internações: médias e taxas não devem ser somadas como partes de um total."
             )
-    with f1b[1]:
-        st.plotly_chart(painel.fig_custo_medio_uf(por_estado), width="stretch", config=PLOTLY_CONFIG)
+
+    ranking = painel.fig_ranking_estados(por_estado, metrica)
+    custo = painel.fig_custo_medio_uf(por_estado)
+    altura = max(ranking.layout.height, custo.layout.height)
+    ranking.update_layout(height=altura)
+    custo.update_layout(height=altura)
+    col_ranking, col_custo = st.columns(2)
+    with col_ranking:
+        st.plotly_chart(ranking, width="stretch", config=PLOTLY_CONFIG)
+    with col_custo:
+        st.plotly_chart(custo, width="stretch", config=PLOTLY_CONFIG)
 
     st.divider()
 
@@ -337,7 +344,7 @@ def main():
         st.info("Indicadores complementares aguardam exportação dos CSVs da camada ouro.")
     else:
         st.markdown('<div class="sus-sub">Análises complementares · Brasil</div>', unsafe_allow_html=True)
-        st.caption("Mortalidade hospitalar entre AIHs por CID; gasto por município de residência.")
+        st.caption("Mortalidade hospitalar por diagnóstico e valor por município de residência.")
         st.plotly_chart(
             painel.fig_mortalidade_por_cid(complementares["mortalidade_por_cid"]),
             width="stretch", config=PLOTLY_CONFIG,

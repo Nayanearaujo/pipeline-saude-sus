@@ -25,13 +25,13 @@ A distribuição geográfica considera a residência registrada, não o hospital
 
 As imagens são capturas do relatório executivo. O painel interativo usa os mesmos marts.
 
-**Distribuição nacional e ranking das 27 unidades federativas**
+**Distribuição nacional e participação das regiões**
 
-![Mapa completo do Brasil e ranking de internações](assets/relatorio-nacional.jpg)
+![Mapa completo do Brasil e participação regional](assets/relatorio-nacional.jpg)
 
-**Participação regional, valor médio e mediana por estado**
+**Ranking de internações, valor médio e mediana por estado**
 
-![Participação regional e comparação entre média e mediana](assets/relatorio-regioes.jpg)
+![Ranking estadual e comparação entre média e mediana](assets/relatorio-regioes.jpg)
 
 **Mortalidade hospitalar por diagnóstico, com códigos e descrições**
 
