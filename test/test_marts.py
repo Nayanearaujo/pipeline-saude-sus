@@ -262,3 +262,19 @@ def test_mart04_faixa_etaria_nas_fronteiras(tmp_path):
     assert faixas.get("50-64") == 2            # idades 50 e 64
     assert faixas.get("65+") == 1              # idade 65
     assert faixas.get("nao informado") == 1    # idade NULL
+
+
+def test_join_cid_categoria_subcategoria_e_inexistente():
+    con = duckdb.connect()
+    _prata_minima(con)
+    con.execute('CREATE SCHEMA ouro')
+    con.execute("""UPDATE prata.internacoes SET cid_principal=CASE aih WHEN 'a1' THEN 'A00'
+        WHEN 'a2' THEN 'A001' ELSE 'ZZZ' END""")
+    con.execute("""CREATE OR REPLACE TABLE prata.cid10 AS
+        SELECT * FROM (VALUES ('A00','Categoria'),('A001','Subcategoria')) t(cid,doenca)""")
+    con.execute('CREATE TABLE ouro.top_diagnosticos_brasil AS ' +
+                (Path(__file__).resolve().parents[1] / 'sql/marts/06_top_diagnosticos_brasil.sql').read_text())
+    assert dict(con.execute('SELECT cid,doenca FROM ouro.top_diagnosticos_brasil').fetchall()) == {
+        'A00': 'Categoria', 'A001': 'Subcategoria', 'ZZZ': 'nao classificado'}
+    assert con.execute('SELECT sum(internacoes) FROM ouro.top_diagnosticos_brasil').fetchone()[0] == 3
+    con.close()

@@ -54,7 +54,7 @@ def _banco_coerente(banco):
     # marts novos: mortalidade (obitos <= internacoes, taxa 0..100) e pareto (fecha 100%)
     con.execute(
         "CREATE TABLE ouro.mortalidade_por_cid AS "
-        "SELECT 'A001' AS cid, 100 AS internacoes, 20 AS obitos, 20.0 AS taxa_mortalidade_pct"
+        "SELECT 'A001' AS cid, 'Colera' AS doenca, 100 AS internacoes, 20 AS obitos, 20.0 AS taxa_mortalidade_pct"
     )
     con.execute("CREATE TABLE ouro.municipios_pareto AS "
         "SELECT '330455' AS cod_municipio, 1 AS posicao, 100.0 AS pct_acumulado")
@@ -170,3 +170,29 @@ def test_reconciliacao_usa_desempate_financeiro_numerico(tmp_path, monkeypatch):
         con.execute("INSERT INTO bronze.internacoes VALUES ('a1', '900.00', '20260701')")
     monkeypatch.setattr(db, "BANCO", banco)
     qualidade.main()
+
+
+@pytest.mark.parametrize('rotulo', ['nao classificado', 'não classificado', 'CID A001', '', None])
+def test_cid_sem_nome_bloqueia_publicacao(tmp_path, monkeypatch, rotulo):
+    banco = tmp_path / 'sih.duckdb'
+    _banco_coerente(banco)
+    con = duckdb.connect(str(banco))
+    con.execute('UPDATE ouro.top_diagnosticos_brasil SET doenca = ?', [rotulo])
+    con.execute('UPDATE ouro.mortalidade_por_cid SET doenca = ?', [rotulo])
+    con.close()
+    monkeypatch.setattr(db, 'BANCO', banco)
+    with pytest.raises(SystemExit):
+        qualidade.main()
+
+
+@pytest.mark.parametrize(('sem_nome', 'esperado'), [(20, True), (25, False)])
+def test_limite_cid_pondera_internacoes(sem_nome, esperado):
+    con = duckdb.connect()
+    con.execute('CREATE SCHEMA ouro')
+    con.execute("""CREATE TABLE ouro.top_diagnosticos_brasil AS
+        SELECT 'A' || i AS cid, 'Diagnostico ' || i AS doenca, 1000 AS internacoes
+        FROM range(20) t(i)""")
+    con.execute("INSERT INTO ouro.top_diagnosticos_brasil VALUES ('ZZZ','nao classificado',?)", [sem_nome])
+    sql = next(sql for nome, sql in qualidade._regras(con) if nome.startswith('Descricoes: no maximo'))
+    assert con.execute(sql).fetchone()[0] == esperado
+    con.close()
