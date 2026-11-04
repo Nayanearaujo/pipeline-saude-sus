@@ -2,11 +2,10 @@ name: Keep-Alive · Acordar Dashboard Streamlit
 
 on:
   schedule:
-    # Roda a cada 6 horas para manter o app acordado no Streamlit Community Cloud
     - cron: "0 */6 * * *"
   workflow_dispatch:
   pull_request:
-    paths: [".github/workflows/keepalive.yml"]
+    paths: [".github/workflows/keepalive.yml", "scripts/verificar_dashboard.cjs"]
 
 permissions:
   contents: read
@@ -14,52 +13,23 @@ permissions:
 jobs:
   wake-up:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
+          node-version: "22"
       - name: Instalar Playwright e Chromium
         run: |
           npm install --no-save --package-lock=false playwright@1.64.1
           npx playwright install --with-deps chromium
-
-      - name: Visitar o dashboard e acordar se estiver hibernando
-        run: |
-          node -e '
-          const { chromium } = require("playwright");
-          (async () => {
-            const browser = await chromium.launch();
-            try {
-              const page = await browser.newPage();
-              await page.goto("https://pipeline-saude-sus.streamlit.app/", {
-                waitUntil: "domcontentloaded",
-                timeout: 90000
-              });
-              const wakeBtn = page.getByRole("button", { name: "Yes, get this app back up" });
-              const app = page.frameLocator("iframe[title=streamlitApp]");
-              // O shell pode carregar antes do botao de hibernacao ou do iframe.
-              await Promise.race([
-                wakeBtn.waitFor({ state: "visible", timeout: 90000 }),
-                app.locator(".sus-card").first().waitFor({ state: "visible", timeout: 90000 })
-              ]);
-              if (await wakeBtn.isVisible()) {
-                console.log("App hibernando. Solicitando inicializacao...");
-                await wakeBtn.click();
-              }
-              await app.locator(".sus-card").nth(4).waitFor({ state: "visible", timeout: 120000 });
-              const total = await app.locator(".sus-card").count();
-              if (total !== 5 || await app.locator("[data-testid=stException]").count() > 0) {
-                throw new Error("Dashboard nao apresentou cinco cartoes sem excecoes.");
-              }
-              console.log("Dashboard verificado: cinco cartoes renderizados.");
-            } finally {
-              await browser.close();
-            }
-          })().catch(error => {
-            console.error(error);
-            process.exitCode = 1;
-          });
-          '
+      - name: Verificar painel e solicitar inicializacao
+        run: node scripts/verificar_dashboard.cjs
+      - name: Guardar diagnostico em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-keepalive
+          path: diagnostico-keepalive/
+          retention-days: 7
